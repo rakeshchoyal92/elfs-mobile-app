@@ -3,6 +3,7 @@ import { SET_RESPONSE } from '../action-types'
 
 const initialState = {
   responses: [],
+  response_dict: {},
 }
 
 function reducer(state = initialState, action) {
@@ -17,6 +18,7 @@ function reducer(state = initialState, action) {
         state.responses = state.responses.slice(0, keyIndex)
       }
       state.responses.push({ key, value })
+      state.response_dict[key.toLowerCase()] = value
       break
     }
     default:

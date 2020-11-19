@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components/native'
 import { View, ScrollView } from 'react-native'
 import Emoji from 'react-native-emoji'
 import { Text } from '@ui-kitten/components'

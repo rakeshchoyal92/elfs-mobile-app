@@ -1,5 +1,5 @@
-import { Button, Input, Text } from '@ui-kitten/components'
-import { View, TouchableOpacity } from 'react-native'
+import { Button, Input } from '@ui-kitten/components'
+import { View, TouchableOpacity, Text } from 'react-native'
 import React, { useState } from 'react'
 import { FONTS } from '@constants/strings'
 import Emoji from 'react-native-emoji'
@@ -91,14 +91,20 @@ export default function AddParameterScrollView({ data, onSubmit }) {
 
   const renderTitle = (title) => {
     return (
-      <Text style={{ marginBottom: 10, fontFamily: FONTS.NunitoSans_700Bold }}>
+      <Text
+        style={{
+          marginBottom: 10,
+          fontFamily: FONTS.NunitoSans_700Bold,
+          textAlign: 'left',
+        }}
+      >
         {title}
       </Text>
     )
   }
 
   return (
-    <View>
+    <View style={{ paddingLeft: 10, paddingRight: 10 }}>
       {data.map((row, index) => {
         return (
           <View key={index}>

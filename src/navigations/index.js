@@ -1,17 +1,15 @@
 import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import SurveyContainer from '@screens/survey'
 import CalendarScreen from '@screens/calendar'
 import { connect } from 'react-redux'
-import { AddParameterModal } from '@screens/calendar/addParameter'
+import { AddParameterModal } from '@screens/addParameter'
 import { SCREENS } from '@constants/strings'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { AntDesign } from '@expo/vector-icons'
+import SettingsContainer from '@screens/settings'
 const CalendarStack = createStackNavigator()
-const AppStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
+import { AntDesign } from '@expo/vector-icons'
 
 const CalendarNavigator = () => {
   return (
@@ -22,9 +20,6 @@ const CalendarNavigator = () => {
         options={{
           headerShown: false,
           showIcon: true,
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home" color={color} size={size} />
-          ),
         }}
       />
       <CalendarStack.Screen
@@ -36,32 +31,34 @@ const CalendarNavigator = () => {
   )
 }
 
-const AppNavigator = () => {
-  return (
-    <AppStack.Navigator>
-      <CalendarNavigator />
-      <AppStack.Screen
-        name={SCREENS.SURVEY}
-        component={SurveyContainer}
-        options={{ headerShown: false }}
-      />
-    </AppStack.Navigator>
-  )
-}
-
 const Navigations = ({ auth }) => {
   return (
     <Tab.Navigator
-      tabBarOptions={{
-        style: {
-          borderTop: 1,
-          borderTopColor: '#777',
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName
+
+          if (route.name === SCREENS.CALENDAR) {
+            iconName = 'calendar'
+          } else if (route.name === SCREENS.SURVEY) {
+            iconName = 'profile'
+          } else if (route.name === SCREENS.SETTINGS) {
+            iconName = 'setting'
+          }
+
+          return <AntDesign name={iconName} size={size} color={color} />
         },
+      })}
+      tabBarOptions={{
+        activeTintColor: 'tomato',
+        inactiveTintColor: 'gray',
+        borderTop: 1,
+        borderTopColor: '#777',
       }}
     >
       <Tab.Screen name={SCREENS.CALENDAR} component={CalendarNavigator} />
       <Tab.Screen name={SCREENS.SURVEY} component={SurveyContainer} />
-      <Tab.Screen name={SCREENS.SETTINGS} component={SurveyContainer} />
+      <Tab.Screen name={SCREENS.SETTINGS} component={SettingsContainer} />
     </Tab.Navigator>
   )
 }

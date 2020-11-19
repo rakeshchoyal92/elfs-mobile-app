@@ -5,9 +5,11 @@ import { COLORS, FONTS, SCREENS } from '@constants/strings'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import CalendarContainer from '@screens/calendar/calendar'
 import AppLayout from '@components/layout'
+import ParameterDetail from '@screens/calendar/parameterDetails'
 
 const CalendarsScreen = ({ navigation }) => {
   const today = new Date()
+
   const [selectedDay, setSelectedDay] = useState(
     today.toLocaleDateString('en-GB', {
       month: '2-digit',
@@ -18,24 +20,13 @@ const CalendarsScreen = ({ navigation }) => {
 
   return (
     <AppLayout navigation={navigation}>
-      <ScrollView style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 20 }}>
+      <ScrollView style={{ paddingTop: 20 }}>
         <CalendarContainer
           setSelectedDay={setSelectedDay}
           selectedDay={selectedDay}
         />
-
         <Button
-          style={{
-            height: 50,
-            backgroundColor: 'white',
-            borderColor: 'white',
-            marginTop: 15,
-            borderRadius: 10,
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'row',
-          }}
+          style={styles.button}
           disabled={!selectedDay}
           onPress={() =>
             selectedDay &&
@@ -53,16 +44,10 @@ const CalendarsScreen = ({ navigation }) => {
             />
           )}
         >
-          <Text
-            style={{
-              color: COLORS.PRIMARY_COLOR,
-              fontFamily: FONTS.NunitoSans_700Bold,
-              marginLeft: 5,
-            }}
-          >
-            Add parameter of the day
-          </Text>
+          <Text style={styles.buttonText}>Add parameter of the day</Text>
         </Button>
+
+        <ParameterDetail />
       </ScrollView>
     </AppLayout>
   )
@@ -71,13 +56,20 @@ const CalendarsScreen = ({ navigation }) => {
 export default CalendarsScreen
 
 const styles = StyleSheet.create({
-  // calendar: {
-  //   marginBottom: 10,
-  // },
-  // text: {
-  //   textAlign: 'center',
-  //   padding: 10,
-  //   backgroundColor: 'lightgrey',
-  //   fontSize: 16,
-  // },
+  button: {
+    height: 50,
+    backgroundColor: 'white',
+    borderColor: 'white',
+    marginTop: 15,
+    borderRadius: 10,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  buttonText: {
+    color: COLORS.PRIMARY_COLOR,
+    fontFamily: FONTS.NunitoSans_700Bold,
+    marginLeft: 5,
+  },
 })

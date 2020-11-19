@@ -17,6 +17,8 @@ export default function AppLayout({ type, navigation, children, style }) {
             flex: 1,
             paddingTop: insets.top,
             backgroundColor: COLORS.BACKGROUND_COLOR,
+            paddingLeft: 10,
+            paddingRight: 10,
             ...style,
           }}
         >

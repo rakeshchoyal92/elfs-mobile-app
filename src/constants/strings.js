@@ -14,10 +14,11 @@ export const SCREENS = {
 export const COLORS = {
   SELECTED_RESPONSE: '#1DA57A',
   PRIMARY_COLOR: '#F7A538',
-  BACKGROUND_COLOR: '#acd4c7',
+  BACKGROUND_COLOR: '#f2f4f8',
 }
 
 export const RESPONSE_TYPES = {
+  BOOLEAN: 'BOOLEAN',
   RADIO: 'RADIO',
   CHECKBOX: 'CHECKBOX',
   LABEL: 'LABEL',
@@ -48,4 +49,20 @@ export const FONTS = {
   NunitoSans_800ExtraBold_Italic: 'NunitoSans_800ExtraBold_Italic',
   NunitoSans_900Black: 'NunitoSans_900Black',
   NunitoSans_900Black_Italic: 'NunitoSans_900Black_Italic',
+}
+
+export const markingDots = {
+  bleeding: { key: 'bleeding', color: 'red', selectedDotColor: 'blue' },
+  periodPain: {
+    key: 'periodPain',
+    color: 'blue',
+    selectedDotColor: 'blue',
+  },
+  hadSex: { key: 'hadSex', color: 'green' },
+  experiencedSexWithPain: {
+    key: 'experiencedSexWithPain',
+    color: 'orange',
+  },
+  pelvicPain: { key: 'pelvicPain', color: 'black' },
+  note: { key: 'note', color: 'red' },
 }

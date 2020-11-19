@@ -5,11 +5,13 @@ import {
   Platform,
   FlatList,
   ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
 import { connect } from 'react-redux'
 import { addQuestionToSurvey, getQuestions } from '@actions/questions'
-import { COLORS, NO_LOGIC, RESPONSE_TYPES } from '@constants/strings'
+import { RESPONSE_TYPES } from '@constants/strings'
+import moment from 'moment'
 import { setAResponse } from '@actions/response'
 import {
   RenderLabel,
@@ -21,30 +23,27 @@ import {
   RenderQuestionText,
   RenderRadio,
   RenderEndOfQuestion,
+  TunnelRender,
+  RenderBoolean,
 } from '@components/response'
-import { Layout } from '@ui-kitten/components'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Animatable from 'react-native-animatable'
 import AppLayout from '@components/layout'
 
 const initialValues = {}
 
-// const initialValues = {
-//   DATE_COMPLETED: '11-11-2020',
-//   WEIGHT_CHANGE_SINCE_LAST_STUDY: 'No',
-//   MEDICATION_CHANGE_SINCE_LAST_STUDY: 'No',
-//   RELATIONSHIP_CHANGE_SINCE_LAST_STUDY: 'No',
-//   SURGICAL_HISTORY_SINCE_LAST_STUDY: 'No',
-//   CURRENTLY_PREGNANT: 'No',
-//   SEXUAL_ACTIVITY: 'I have been actively trying to get pregnant',
-//   PREGNANCY_ATTEMPT_METHOD:
-//     'I have been undergoing IVF (thaw cycle with frozen embryo transfer)',
-//   IVF_EGG_SOURCE: 'DONOR',
-//   IVF_SPERM_SOURCE: 'DONOR',
-//   IVF_EMBRYO_TRANSFER_COUNT: '12',
-//   TEST_TUBAL_PATENCY: 'No',
-//   SEMEN_ANALYSIS_PERFORMED: 'Not-Applicable',
-// }
+const VARIABLE_MATCHING_STRATEGY = {
+  EQUAL: 'EQUAL',
+  GREATER: 'GREATER',
+  LESSER: 'LESSER',
+  'TRUE/FALSE': 'TRUE/FALSE',
+  'NULL/NOT_NULL': 'NULL/NOT_NULL',
+}
+
+const INITIAL_VALUES = {
+  first_day_last_period: moment('2020/01/01', 'YYYY/MM/DD'),
+  current_weight: '21',
+  regular_medication: 'Regular Medication',
+}
 
 const SurveyContainer = (props) => {
   const {
@@ -55,6 +54,9 @@ const SurveyContainer = (props) => {
     responses,
     metaData,
     navigation,
+    questions,
+    // initialValues = USERS.PARTICIPANT ? initialValuesParticipant : {},
+    initialValues = INITIAL_VALUES,
   } = props
 
   const [currentSurveyKey, setCurrentSurveyKey] = useState()
@@ -62,6 +64,10 @@ const SurveyContainer = (props) => {
   const [viewHeights, setViewHeights] = useState([-100])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState()
   const listViewRef = useRef()
+  const [
+    goToQuestionOnReachingTunnel,
+    setGoToQuestionOnReachingTunnel,
+  ] = useState()
 
   useEffect(() => {
     getQuestions()
@@ -108,82 +114,183 @@ const SurveyContainer = (props) => {
     return acc
   }, {})
 
-  const handleGetNextQuestion = (question, valueSelected) => {
-    const { nextQuestions, key } = question
-    let nextQuestion
-    let nextQuestionKey
-
+  /**
+   * Function to evaluate condition to true/false
+   * @param key: condition key
+   * @returns {string} '_VALUE_TRUE OR _VALUE_FALSE'
+   * _VALUE_TRUE refers true and _VALUE_FALSE as false
+   */
+  const evaluateCondition = (key) => {
     /**
-     * Get next question ket when decision on a meta data has to be performed.
-     * @param nextQuestion
-     * @returns {*}
+     * Evaluates to true/false
+     * @param condition
+     * @returns {boolean || string}
      */
+    const evaluate = (condition) => {
+      const {
+        extractValueFrom,
+        matchingStrategy,
+        onValue,
+        variable,
+      } = condition
 
-    const getNextQuestionKeyBasedOnMetaData = (nextQuestion) => {
-      const { source, key, nextQuestions } = nextQuestion.decisionOnMetadata
-      let metaDataValue
-      if (source === 'SERVER') {
-        metaDataValue = metaData[key]
+      if (extractValueFrom === 'SERVER') {
+        const valueObtainedFromServer = metaData[variable.toUpperCase()]
+        switch (matchingStrategy) {
+          case VARIABLE_MATCHING_STRATEGY['NULL/NOT_NULL']: {
+            if (onValue === '_VALUE_NULL') {
+              return valueObtainedFromServer === null
+            }
+            return valueObtainedFromServer !== null
+          }
+
+          case VARIABLE_MATCHING_STRATEGY['TRUE/FALSE']: {
+            if (onValue === '_VALUE_FALSE') {
+              return valueObtainedFromServer === false
+            }
+            return valueObtainedFromServer === true
+          }
+
+          case VARIABLE_MATCHING_STRATEGY.EQUAL: {
+            return valueObtainedFromServer === onValue
+          }
+        }
       } else {
-        metaDataValue = responseFlat[key]
+        console.log('Inside else block')
+      }
+    }
 
-        //FIXME: Hardcoded metaDataValue as No when the response is not recorded
-        // Scenario: METADATA PARTICIPANT_COMPLETE_LAST_CYCLE IS YES AND
-        // CURRENTLY_PREGNANT IS NO THEN PREGNANT_DURING_CYCLE KEY & VALUE IS
-        // NOT SET
-        if (!metaDataValue) {
-          metaDataValue = 'No'
+    let condition = questions.find((question) => question.key === key)
+    const { type, conditions, conditionalNext } = condition
+
+    if (type === 'SINGLE') {
+      let conditionEvaluated = evaluate(conditions[0])
+      if (conditionEvaluated) {
+        let nextQuestionKey = conditionalNext.goToOnTrue
+        if (nextQuestionKey.startsWith('c_')) {
+          return evaluateCondition(nextQuestionKey)
+        } else {
+          return nextQuestionKey
+        }
+      } else {
+        let nextQuestionKey = conditionalNext.goToOnFalse
+        if (nextQuestionKey.startsWith('c_')) {
+          return evaluateCondition(nextQuestionKey)
+        } else {
+          return nextQuestionKey
         }
       }
-      nextQuestion = nextQuestions.find((q) => q.onValue === metaDataValue)
-      return nextQuestion.key
-    }
-
-    if (valueSelected) {
-      setAResponse(key, valueSelected)
-    }
-
-    // If next question has to be decided on no logic.
-    // There is only one item in array and onValue should be equal to NO_LOGIC
-    const isNextQuestionAuto =
-      nextQuestions.length === 1 && nextQuestions[0].onValue === NO_LOGIC
-
-    if (isNextQuestionAuto) {
-      nextQuestion = nextQuestions.find((q) => q.onValue === NO_LOGIC)
-      // If the decision depends on the metadata
-      if (nextQuestion.decisionOnMetadata) {
-        nextQuestionKey = getNextQuestionKeyBasedOnMetaData(nextQuestion)
-      } else {
-        nextQuestionKey = nextQuestion.key
-      }
     } else {
-      nextQuestion = nextQuestions.find((q) => q.onValue === valueSelected)
-      /**
-       * Logic to get next questions based on decision made with the
-       * meta data value
-       *
-       */
-      if (nextQuestion.decisionOnMetadata) {
-        nextQuestionKey = getNextQuestionKeyBasedOnMetaData(nextQuestion)
+      let resultExpression = ''
+      let result
+
+      conditions.map((condition, index) => {
+        let currentConditionEvaluatedValue = evaluate(condition)
+
+        let logicalOperatorToNextQ =
+          condition.logicalOperatorToNextQ === 'AND' ? '&&' : '||'
+
+        // result = currentConditionEvaluatedValue
+        // evaluate conditions based on logicalOperatorToNextQ.
+        // last element has no logicalOperatorToNextQ.
+        // first index evaluate, second index evaluate with first index's logicalOperatorToNextQ and so on
+
+        resultExpression += `${currentConditionEvaluatedValue}`
+        if (index !== conditions.length - 1) {
+          resultExpression += `${logicalOperatorToNextQ} `
+        }
+      })
+
+      result = eval(resultExpression)
+      let goToOnTrue = conditionalNext.goToOnTrue
+      let goToOnFalse = conditionalNext.goToOnFalse
+
+      if (result) {
+        if (goToOnTrue.startsWith('c_')) {
+          return evaluateCondition(goToOnTrue)
+        } else {
+          return goToOnTrue
+        }
       } else {
-        nextQuestionKey = nextQuestion.key
+        if (goToOnFalse.startsWith('c_')) {
+          return evaluateCondition(goToOnFalse)
+        } else {
+          return goToOnFalse
+        }
       }
     }
-    setCurrentSurveyKey(question.key)
+  }
+
+  const handleGetNextQuestion = (question, valueSelected) => {
+    const { nextQuestions, key, goToOnEndOfNextSurvey } = question
+    let nextQuestionKey = null
+
+    if (goToOnEndOfNextSurvey) {
+      setGoToQuestionOnReachingTunnel(goToOnEndOfNextSurvey)
+    }
+
+    // Store response in redux
+    setAResponse(key, valueSelected)
+
+    if (typeof valueSelected === 'boolean') {
+      if (valueSelected) {
+        valueSelected = '_VALUE_TRUE'
+      } else {
+        valueSelected = '_VALUE_FALSE'
+      }
+    }
+
+    if (valueSelected)
+      nextQuestions.map((nq) => {
+        let goTo = nq.goTo
+
+        // Check for onValue. If absent it should mean go to next question on
+        // any value. Eg., user input on text, dates, numbers
+        let valueS = nextQuestions.find((nq) => nq.onValue === valueSelected)
+        if (!valueS) {
+          valueSelected = '_VALUE_ANY'
+        }
+
+        if (nq.onValue === valueSelected) {
+          let isNextCondition = goTo.startsWith('c_')
+          if (isNextCondition) {
+            nextQuestionKey = evaluateCondition(goTo)
+          } else {
+            nextQuestionKey = goTo
+          }
+        }
+      })
+
+    setCurrentSurveyKey(key)
     setNextSurveyKey(nextQuestionKey)
-    addQuestionToSurvey(question.key, nextQuestionKey)
+    addQuestionToSurvey(key, nextQuestionKey)
   }
 
   const renderAQuestion = (question, index) => {
-    const { responseType, questionText, isEndOfSurvey } = question
+    const { responseType, questionText, isEndOfSurvey, isTunnel } = question
     const props = {
       question,
       handleGetNextQuestion,
       initialValues,
+      setAResponse,
+      onInitialValueGoToAutoNext: true,
+    }
+
+    let isTunnelAndMoveToBreakpoint = isTunnel && goToQuestionOnReachingTunnel
+    let nextQuestionKey = null
+
+    if (isTunnelAndMoveToBreakpoint) {
+      if (goToQuestionOnReachingTunnel.startsWith('c_')) {
+        nextQuestionKey = evaluateCondition(goToQuestionOnReachingTunnel)
+      } else {
+        nextQuestionKey = goToQuestionOnReachingTunnel
+      }
     }
 
     const renderValues = () => {
       switch (responseType) {
+        case RESPONSE_TYPES.BOOLEAN:
+          return <RenderBoolean {...props} />
         case RESPONSE_TYPES.RADIO:
           return <RenderRadio {...props} />
         case RESPONSE_TYPES.TEXT:
@@ -201,9 +308,48 @@ const SurveyContainer = (props) => {
       }
     }
 
+    const renderContainers = () => {
+      if (isTunnelAndMoveToBreakpoint) {
+        return (
+          <>
+            <TunnelRender
+              nextQuestionKey={nextQuestionKey}
+              currentSurveyKey={currentSurveyKey}
+              handleSetNextQuestionKey={addQuestionToSurvey}
+              handleEndNextSueveyValue={setGoToQuestionOnReachingTunnel}
+            />
+          </>
+        )
+      } else if (!isEndOfSurvey) {
+        return (
+          <>
+            <RenderQuestionText
+              index={index + 1}
+              question={question}
+              initialValues={initialValues}
+            />
+            {renderValues()}
+          </>
+        )
+      } else {
+        return (
+          <>
+            <RenderEndOfQuestion
+              text={questionText}
+              isEndOfSurveyAndMoveToPreviousBreakPoint={
+                isTunnelAndMoveToBreakpoint
+              }
+              nextQuestionKey={nextQuestionKey}
+              handleGetNextQuestion={setNextSurveyKey}
+            />
+          </>
+        )
+      }
+    }
+
     return (
       <Animatable.View
-        style={{ paddingTop: 5 }}
+        style={{ paddingTop: 1, paddingBottom: 40 }}
         animation="fadeIn"
         useNativeDriver
         onLayout={(event) => {
@@ -213,40 +359,27 @@ const SurveyContainer = (props) => {
         }}
         key={index}
       >
-        {!isEndOfSurvey ? (
-          <Layout
-            level="2"
-            style={{
-              paddingTop: 10,
-              paddingBottom: 10,
-              paddingLeft: 8,
-              paddingRight: 8,
-            }}
-          >
-            <RenderQuestionText text={questionText} index={index + 1} />
-            {renderValues()}
-          </Layout>
-        ) : (
-          <>
-            <RenderEndOfQuestion text={questionText} />
-          </>
-        )}
+        {renderContainers()}
       </Animatable.View>
     )
   }
 
   return (
-    <AppLayout navigation={navigation}>
-      {surveyQuestions && (
-        <ScrollView ref={listViewRef} scrollToOverflowEnabled>
-          {surveyQuestions &&
-            surveyQuestions.map((question, index) =>
-              renderAQuestion(question, index)
-            )}
-        </ScrollView>
-      )}
-    </AppLayout>
-    // <SurveyProgress completed={responses.length} />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <AppLayout navigation={navigation} style={{ padding: 10 }}>
+        {surveyQuestions && (
+          <ScrollView ref={listViewRef} scrollToOverflowEnabled>
+            {surveyQuestions &&
+              surveyQuestions.map((question, index) =>
+                renderAQuestion(question, index)
+              )}
+          </ScrollView>
+        )}
+      </AppLayout>
+    </KeyboardAvoidingView>
   )
 }
 

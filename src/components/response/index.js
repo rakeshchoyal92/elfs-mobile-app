@@ -25,25 +25,87 @@ const extract_value = (responses, question) => {
   return responses[question.key]
 }
 
+export const RenderBoolean = ({
+  question,
+  handleGetNextQuestion,
+  initialValues,
+}) => {
+  const [selectedValue, setSelectedValue] = useState()
+
+  useEffect(() => {
+    let questionKey = question.key.toLowerCase()
+    let doesInitialValueExists = initialValues.hasOwnProperty(questionKey)
+    let initialValue = initialValues[questionKey]
+
+    if (doesInitialValueExists) {
+      if (initialValue) {
+        handleGetNextQuestion(question, true)
+        setSelectedValue(true)
+      } else {
+        handleGetNextQuestion(question, false)
+        setSelectedValue(false)
+      }
+    }
+  }, [])
+
+  const handleOnSelect = (index) => {
+    let value = index === 0
+    setSelectedValue(index)
+    handleGetNextQuestion(question, value)
+  }
+
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+      <RadioGroup
+        onChange={handleOnSelect}
+        style={{ width: '100%', fontSize: 20 }}
+        selectedIndex={selectedValue}
+      >
+        <Radio status={'primary'} value={true}>
+          Yes
+        </Radio>
+        <Radio status={'danger'} value={false}>
+          No
+        </Radio>
+      </RadioGroup>
+    </View>
+  )
+}
+
 export const RenderRadio = ({
   question,
   handleGetNextQuestion,
   initialValues,
 }) => {
-  const [isYesNo, setIsYesNo] = useState()
+  const { values } = question
+  const [selectedValue, setSelectedValue] = useState()
+  const [showInput, setShowInput] = useState(false)
+  const [inputText, setInputText] = useState()
 
   useEffect(() => {
-    if (initialValues[question.key]) {
-      handleGetNextQuestion(question, initialValues[question.key])
+    let questionKey = question.key.toLowerCase()
+
+    if (initialValues[questionKey]) {
+      setSelectedValue(initialValues[questionKey])
+      handleGetNextQuestion(question, initialValues[questionKey])
     }
   }, [])
 
-  const { values } = question
-  const [selectedValue, setSelectedValue] = useState()
-
   const handleOnSelect = (index) => {
-    setSelectedValue(index)
-    handleGetNextQuestion(question, values[index])
+    const selectedValue = values[index]
+
+    if (selectedValue === 'OTHER_SPECIFY') {
+      setShowInput(true)
+      setSelectedValue(index)
+    } else {
+      setShowInput(false)
+      setSelectedValue(index)
+      handleGetNextQuestion(question, selectedValue)
+    }
+  }
+
+  const handleGoNext = () => {
+    handleGetNextQuestion(question, inputText)
   }
 
   return (
@@ -52,13 +114,37 @@ export const RenderRadio = ({
         {values.map((value) => (
           <Radio style={styles.radio} key={value}>
             <TextNunitoSans
-              text={value}
+              text={
+                value === 'OTHER_SPECIFY'
+                  ? 'Other (please specify)'
+                  : value[0].toUpperCase() +
+                    value.slice(1).replace(/_/g, ' ').toLowerCase()
+              }
               fontFamily={FONTS.NunitoSans_400Regular}
               toCapitalise
             />
           </Radio>
         ))}
       </RadioGroup>
+
+      {showInput && (
+        <>
+          <Input
+            placeholder="Enter your response here"
+            value={inputText}
+            onChangeText={(value) => setInputText(value)}
+            onEndEditing={() => handleGoNext()}
+          />
+          <Button
+            onPress={handleGoNext}
+            type={'primary'}
+            style={{ marginTop: 5 }}
+            disabled={selectedValue.length === 0}
+          >
+            Next
+          </Button>
+        </>
+      )}
     </View>
   )
 }
@@ -100,6 +186,7 @@ export const RenderTextInput = ({
         onChangeText={(value) => setValue(value)}
         returnKeyType="next"
         placeholder="Type your response here"
+        onEndEditing={() => handleGetNextQuestion(question, value)}
       />
       <Button
         onPress={() => handleGetNextQuestion(question, value)}
@@ -134,6 +221,7 @@ export const RenderNumberInput = ({
         placeholder="Type your response here"
         enablesReturnKeyAutomatically
         returnKeyType="done"
+        onEndEditing={() => handleGetNextQuestion(question, value)}
       />
       <Button
         onPress={() => handleGetNextQuestion(question, value)}
@@ -169,6 +257,7 @@ export const RenderTextAreaInput = ({
         onChangeText={(value) => setValue(value)}
         // enablesReturnKeyAutomatically
         // returnKeyType="done"
+        onEndEditing={() => handleGetNextQuestion(question, value)}
       />
       <Button
         onPress={() => handleGetNextQuestion(question, value)}
@@ -217,22 +306,62 @@ export const RenderCheckbox = ({
   handleGetNextQuestion,
   initialValues,
 }) => {
-  useEffect(() => {
-    if (initialValues[question.key]) {
-      handleGetNextQuestion(question, initialValues[question.key])
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (initialValues[question.key]) {
+  //     handleGetNextQuestion(question, initialValues[question.key])
+  //   }
+  // }, [])
+  //
+  // const { values } = question
+  //
+  // const [selectedValue, setSelectedValue] = useState([])
+  //
+  // const handlePress = (value) => {
+  //   if (selectedValue.includes(value)) {
+  //     let newValues = selectedValue.filter((v) => v !== value)
+  //     setSelectedValue(newValues)
+  //   } else {
+  //     setSelectedValue((prevState) => [...prevState, value])
+  //   }
+  // }
 
   const { values } = question
 
   const [selectedValue, setSelectedValue] = useState([])
+  const [showInput, setShowInput] = useState(false)
+  const [inputText, setInputText] = useState()
 
-  const handlePress = (value) => {
+  useEffect(() => {
+    let questionKey = question.key.toLowerCase()
+    if (initialValues[questionKey]) {
+      setSelectedValue(initialValues[questionKey])
+      handleGetNextQuestion(question, initialValues[questionKey])
+    }
+  }, [])
+
+  const handleGoNext = () => {
+    let modSelectedValues = selectedValue
+    if (selectedValue.includes('OTHER_SPECIFY')) {
+      modSelectedValues = [...modSelectedValues, inputText]
+      modSelectedValues = modSelectedValues.filter(
+        (item) => item !== 'OTHER_SPECIFY'
+      )
+    }
+    handleGetNextQuestion(question, modSelectedValues)
+  }
+
+  const handleOnSelect = (value) => {
     if (selectedValue.includes(value)) {
       let newValues = selectedValue.filter((v) => v !== value)
       setSelectedValue(newValues)
     } else {
       setSelectedValue((prevState) => [...prevState, value])
+    }
+
+    if (value === 'OTHER_SPECIFY') {
+      setShowInput(true)
+    } else {
+      setShowInput(false)
     }
   }
 
@@ -242,7 +371,7 @@ export const RenderCheckbox = ({
         <CheckBox
           style={[styles.checkbox, { margin: 8 }]}
           key={value}
-          onChange={() => handlePress(value)}
+          onChange={() => handleOnSelect(value)}
           checked={selectedValue.includes(value)}
         >
           <TextNunitoSans
@@ -253,8 +382,19 @@ export const RenderCheckbox = ({
         </CheckBox>
       ))}
 
+      {showInput && (
+        <>
+          <Input
+            placeholder="Enter your response here"
+            value={inputText}
+            onChangeText={(value) => setInputText(value)}
+            onEndEditing={() => handleGoNext()}
+          />
+        </>
+      )}
+
       <Button
-        onPress={() => handleGetNextQuestion(question, selectedValue)}
+        onPress={handleGoNext}
         style={{ marginTop: 10 }}
         disabled={selectedValue.length === 0}
         type="primary"
@@ -265,12 +405,49 @@ export const RenderCheckbox = ({
   )
 }
 
-export const RenderQuestionText = ({ text, index }) => {
+export const RenderQuestionText = ({ index, question, initialValues }) => {
+  const { questionText, caption, preFill } = question
+  let questionKey = question.key.toLowerCase()
+  let preFillValue = initialValues[questionKey]
+
   return (
-    <TextNunitoSans
-      text={`${index}. ${text}`}
-      style={{ textAlign: 'justify', paddingBottom: 20 }}
-    />
+    <>
+      <View>
+        <TextNunitoSans
+          text={`${index}. ${questionText}`}
+          fontFamily={FONTS.NunitoSans_800ExtraBold}
+        />
+      </View>
+
+      <View style={{ paddingLeft: 3, paddingBottom: 10 }}>
+        {caption && (
+          <TextNunitoSans
+            text={caption}
+            category={'c1'}
+            fontFamily={FONTS.NunitoSans_300Light_Italic}
+            style={{ fontSize: 12 }}
+          />
+        )}
+      </View>
+
+      <View style={{ paddingLeft: 3, paddingBottom: 10 }}>
+        {preFillValue && (
+          <View>
+            <TextNunitoSans style={{ color: 'red', marginRight: 5 }}>
+              *
+            </TextNunitoSans>
+            <TextNunitoSans
+              style={{ fontSize: 14 }}
+              type={'secondary'}
+              text={
+                preFill?.caption ||
+                '(Value is pre-filled from previous survey. If the response is not changed, press "Next" to proceed)'
+              }
+            />
+          </View>
+        )}
+      </View>
+    </>
   )
 }
 
@@ -286,6 +463,18 @@ export const RenderEndOfQuestion = ({ text }) => {
       </View>
     </Layout>
   )
+}
+
+export const TunnelRender = ({
+  nextQuestionKey,
+  currentSurveyKey,
+  handleSetNextQuestionKey,
+}) => {
+  useEffect(() => {
+    handleSetNextQuestionKey(currentSurveyKey, nextQuestionKey)
+  }, [])
+
+  return null
 }
 
 const styles = StyleSheet.create({
