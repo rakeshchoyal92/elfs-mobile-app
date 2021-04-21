@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Text } from '@ui-kitten/components'
-import { setLanguage } from '@actions/misc'
+import { setLanguage } from '@actions/misc.actions'
 import { useDispatch, useSelector } from 'react-redux'
 import AppLayout from '@components/layout'
 import { View } from 'react-native'
@@ -72,18 +72,12 @@ export default function SettingsContainer({ navigation }) {
   }
 
   return (
-    <AppLayout
-      navigation={navigation}
-      style={{ paddingLeft: 10, paddingRight: 10 }}
-    >
-      <Heading text="Settings" category="h2" />
-
+    <AppLayout navigation={navigation} showTopBar title="Settings">
       <View
         style={{
           paddingBottom: 15,
           borderBottomWidth: 1,
           borderBottomColor: '#777',
-          marginTop: 30,
         }}
       >
         <Heading text="Language" category="h4" />

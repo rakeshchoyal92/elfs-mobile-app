@@ -1,385 +1,154 @@
 import React, { useEffect, useState, useRef } from 'react'
-import {
-  SafeAreaView,
-  View,
-  Platform,
-  FlatList,
-  ScrollView,
-  KeyboardAvoidingView,
-} from 'react-native'
+import { ScrollView, View, RefreshControl } from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
 import { connect } from 'react-redux'
-import { addQuestionToSurvey, getQuestions } from '@actions/questions'
-import { RESPONSE_TYPES } from '@constants/strings'
-import moment from 'moment'
-import { setAResponse } from '@actions/response'
-import {
-  RenderLabel,
-  RenderNumberInput,
-  RenderTextAreaInput,
-  RenderTextInput,
-  RenderCheckbox,
-  RenderDate,
-  RenderQuestionText,
-  RenderRadio,
-  RenderEndOfQuestion,
-  TunnelRender,
-  RenderBoolean,
-} from '@components/response'
-import * as Animatable from 'react-native-animatable'
+import { clearResponses, getAllSurveys } from '@actions/survey.actions'
+import { Button, Icon, Layout, Spinner, Text } from '@ui-kitten/components'
 import AppLayout from '@components/layout'
+import { TextNunitoSans } from '@components/common'
+import { SCREENS } from '@constants/strings'
+import { CLEAR_RESPONSES } from '@store/action-types'
+import { resetSurveyQuestions } from '@actions/questions.actions'
+import moment from 'moment'
 
-const initialValues = {}
-
-const VARIABLE_MATCHING_STRATEGY = {
-  EQUAL: 'EQUAL',
-  GREATER: 'GREATER',
-  LESSER: 'LESSER',
-  'TRUE/FALSE': 'TRUE/FALSE',
-  'NULL/NOT_NULL': 'NULL/NOT_NULL',
+const ViewIcons = (props) => <Icon name="eye-outline" {...props} />
+const wait = (timeout) => {
+  return new Promise((resolve) => setTimeout(resolve, timeout))
 }
 
-const INITIAL_VALUES = {
-  first_day_last_period: moment('2020/01/01', 'YYYY/MM/DD'),
-  current_weight: '21',
-  regular_medication: 'Regular Medication',
-}
+const SurveyContainer = ({
+  navigation,
+  getAllSurveys,
+  responses,
+  response,
+  clearResponses,
+  resetSurveyQuestions,
+}) => {
+  // useEffect(() => {
+  //   getAllSurveys()
+  // }, [getAllSurveys])
 
-const SurveyContainer = (props) => {
-  const {
-    getQuestions,
-    surveyQuestions,
-    addQuestionToSurvey,
-    setAResponse,
-    responses,
-    metaData,
-    navigation,
-    questions,
-    // initialValues = USERS.PARTICIPANT ? initialValuesParticipant : {},
-    initialValues = INITIAL_VALUES,
-  } = props
+  const [refreshing, setRefreshing] = useState(false)
 
-  const [currentSurveyKey, setCurrentSurveyKey] = useState()
-  const [nextSurveyKey, setNextSurveyKey] = useState()
-  const [viewHeights, setViewHeights] = useState([-100])
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState()
-  const listViewRef = useRef()
-  const [
-    goToQuestionOnReachingTunnel,
-    setGoToQuestionOnReachingTunnel,
-  ] = useState()
-
-  useEffect(() => {
-    getQuestions()
-  }, [getQuestions])
-
-  /**
-   * Effect to bring the current survey question to view
-   */
-  useEffect(() => {
-    if (surveyQuestions && surveyQuestions.length >= 3 && nextSurveyKey) {
-      let newOffset = viewHeights
-        .slice(0, currentQuestionIndex)
-        .reduce((acc, item) => {
-          return acc + item
-        }, 0)
-      listViewRef.current.scrollTo({ y: newOffset, animate: false })
-    }
-  }, [viewHeights])
-
-  /**
-   * Function to set heights of each question view.
-   * This is used to auto scroll to next question after user records
-   * their response
-   * @param index
-   * @param height
-   */
-  const setHeights = (index, height) => {
-    if (viewHeights.length === 0) {
-      setViewHeights([height])
-    } else {
-      //If the user is change response of already answered question
-      if (index < viewHeights.length) {
-        let newViewHeights = viewHeights.slice(0, index + 1)
-        setViewHeights(newViewHeights)
-      } else {
-        setViewHeights((prev) => [...prev, height])
-      }
-    }
-  }
-
-  let responseFlat = responses.reduce((acc, response) => {
-    const { key, value } = response
-    acc[key] = value
-    return acc
-  }, {})
-
-  /**
-   * Function to evaluate condition to true/false
-   * @param key: condition key
-   * @returns {string} '_VALUE_TRUE OR _VALUE_FALSE'
-   * _VALUE_TRUE refers true and _VALUE_FALSE as false
-   */
-  const evaluateCondition = (key) => {
-    /**
-     * Evaluates to true/false
-     * @param condition
-     * @returns {boolean || string}
-     */
-    const evaluate = (condition) => {
-      const {
-        extractValueFrom,
-        matchingStrategy,
-        onValue,
-        variable,
-      } = condition
-
-      if (extractValueFrom === 'SERVER') {
-        const valueObtainedFromServer = metaData[variable.toUpperCase()]
-        switch (matchingStrategy) {
-          case VARIABLE_MATCHING_STRATEGY['NULL/NOT_NULL']: {
-            if (onValue === '_VALUE_NULL') {
-              return valueObtainedFromServer === null
-            }
-            return valueObtainedFromServer !== null
-          }
-
-          case VARIABLE_MATCHING_STRATEGY['TRUE/FALSE']: {
-            if (onValue === '_VALUE_FALSE') {
-              return valueObtainedFromServer === false
-            }
-            return valueObtainedFromServer === true
-          }
-
-          case VARIABLE_MATCHING_STRATEGY.EQUAL: {
-            return valueObtainedFromServer === onValue
-          }
-        }
-      } else {
-        console.log('Inside else block')
-      }
-    }
-
-    let condition = questions.find((question) => question.key === key)
-    const { type, conditions, conditionalNext } = condition
-
-    if (type === 'SINGLE') {
-      let conditionEvaluated = evaluate(conditions[0])
-      if (conditionEvaluated) {
-        let nextQuestionKey = conditionalNext.goToOnTrue
-        if (nextQuestionKey.startsWith('c_')) {
-          return evaluateCondition(nextQuestionKey)
-        } else {
-          return nextQuestionKey
-        }
-      } else {
-        let nextQuestionKey = conditionalNext.goToOnFalse
-        if (nextQuestionKey.startsWith('c_')) {
-          return evaluateCondition(nextQuestionKey)
-        } else {
-          return nextQuestionKey
-        }
-      }
-    } else {
-      let resultExpression = ''
-      let result
-
-      conditions.map((condition, index) => {
-        let currentConditionEvaluatedValue = evaluate(condition)
-
-        let logicalOperatorToNextQ =
-          condition.logicalOperatorToNextQ === 'AND' ? '&&' : '||'
-
-        // result = currentConditionEvaluatedValue
-        // evaluate conditions based on logicalOperatorToNextQ.
-        // last element has no logicalOperatorToNextQ.
-        // first index evaluate, second index evaluate with first index's logicalOperatorToNextQ and so on
-
-        resultExpression += `${currentConditionEvaluatedValue}`
-        if (index !== conditions.length - 1) {
-          resultExpression += `${logicalOperatorToNextQ} `
-        }
-      })
-
-      result = eval(resultExpression)
-      let goToOnTrue = conditionalNext.goToOnTrue
-      let goToOnFalse = conditionalNext.goToOnFalse
-
-      if (result) {
-        if (goToOnTrue.startsWith('c_')) {
-          return evaluateCondition(goToOnTrue)
-        } else {
-          return goToOnTrue
-        }
-      } else {
-        if (goToOnFalse.startsWith('c_')) {
-          return evaluateCondition(goToOnFalse)
-        } else {
-          return goToOnFalse
-        }
-      }
-    }
-  }
-
-  const handleGetNextQuestion = (question, valueSelected) => {
-    const { nextQuestions, key, goToOnEndOfNextSurvey } = question
-    let nextQuestionKey = null
-
-    if (goToOnEndOfNextSurvey) {
-      setGoToQuestionOnReachingTunnel(goToOnEndOfNextSurvey)
-    }
-
-    // Store response in redux
-    setAResponse(key, valueSelected)
-
-    if (typeof valueSelected === 'boolean') {
-      if (valueSelected) {
-        valueSelected = '_VALUE_TRUE'
-      } else {
-        valueSelected = '_VALUE_FALSE'
-      }
-    }
-
-    if (valueSelected)
-      nextQuestions.map((nq) => {
-        let goTo = nq.goTo
-
-        // Check for onValue. If absent it should mean go to next question on
-        // any value. Eg., user input on text, dates, numbers
-        let valueS = nextQuestions.find((nq) => nq.onValue === valueSelected)
-        if (!valueS) {
-          valueSelected = '_VALUE_ANY'
-        }
-
-        if (nq.onValue === valueSelected) {
-          let isNextCondition = goTo.startsWith('c_')
-          if (isNextCondition) {
-            nextQuestionKey = evaluateCondition(goTo)
-          } else {
-            nextQuestionKey = goTo
-          }
-        }
-      })
-
-    setCurrentSurveyKey(key)
-    setNextSurveyKey(nextQuestionKey)
-    addQuestionToSurvey(key, nextQuestionKey)
-  }
-
-  const renderAQuestion = (question, index) => {
-    const { responseType, questionText, isEndOfSurvey, isTunnel } = question
-    const props = {
-      question,
-      handleGetNextQuestion,
-      initialValues,
-      setAResponse,
-      onInitialValueGoToAutoNext: true,
-    }
-
-    let isTunnelAndMoveToBreakpoint = isTunnel && goToQuestionOnReachingTunnel
-    let nextQuestionKey = null
-
-    if (isTunnelAndMoveToBreakpoint) {
-      if (goToQuestionOnReachingTunnel.startsWith('c_')) {
-        nextQuestionKey = evaluateCondition(goToQuestionOnReachingTunnel)
-      } else {
-        nextQuestionKey = goToQuestionOnReachingTunnel
-      }
-    }
-
-    const renderValues = () => {
-      switch (responseType) {
-        case RESPONSE_TYPES.BOOLEAN:
-          return <RenderBoolean {...props} />
-        case RESPONSE_TYPES.RADIO:
-          return <RenderRadio {...props} />
-        case RESPONSE_TYPES.TEXT:
-          return <RenderTextInput {...props} />
-        case RESPONSE_TYPES.TEXTAREA:
-          return <RenderTextAreaInput {...props} />
-        case RESPONSE_TYPES.NUMBER:
-          return <RenderNumberInput {...props} />
-        case RESPONSE_TYPES.LABEL:
-          return <RenderLabel {...props} />
-        case RESPONSE_TYPES.CHECKBOX:
-          return <RenderCheckbox {...props} />
-        case RESPONSE_TYPES.DATE:
-          return <RenderDate {...props} />
-      }
-    }
-
-    const renderContainers = () => {
-      if (isTunnelAndMoveToBreakpoint) {
-        return (
-          <>
-            <TunnelRender
-              nextQuestionKey={nextQuestionKey}
-              currentSurveyKey={currentSurveyKey}
-              handleSetNextQuestionKey={addQuestionToSurvey}
-              handleEndNextSueveyValue={setGoToQuestionOnReachingTunnel}
-            />
-          </>
-        )
-      } else if (!isEndOfSurvey) {
-        return (
-          <>
-            <RenderQuestionText
-              index={index + 1}
-              question={question}
-              initialValues={initialValues}
-            />
-            {renderValues()}
-          </>
-        )
-      } else {
-        return (
-          <>
-            <RenderEndOfQuestion
-              text={questionText}
-              isEndOfSurveyAndMoveToPreviousBreakPoint={
-                isTunnelAndMoveToBreakpoint
-              }
-              nextQuestionKey={nextQuestionKey}
-              handleGetNextQuestion={setNextSurveyKey}
-            />
-          </>
-        )
-      }
-    }
-
-    return (
-      <Animatable.View
-        style={{ paddingTop: 1, paddingBottom: 40 }}
-        animation="fadeIn"
-        useNativeDriver
-        onLayout={(event) => {
-          const { height } = event.nativeEvent.layout
-          setCurrentQuestionIndex(index)
-          setHeights(index, height)
-        }}
-        key={index}
-      >
-        {renderContainers()}
-      </Animatable.View>
-    )
-  }
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(false)
+    getAllSurveys().then(() => setRefreshing(false))
+  }, [])
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
-      <AppLayout navigation={navigation} style={{ padding: 10 }}>
-        {surveyQuestions && (
-          <ScrollView ref={listViewRef} scrollToOverflowEnabled>
-            {surveyQuestions &&
-              surveyQuestions.map((question, index) =>
-                renderAQuestion(question, index)
-              )}
-          </ScrollView>
+    <AppLayout navigation={navigation} showTopBar title="Survey List">
+      <ScrollView
+        refreshControl={
+          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+        }
+      >
+        {response && response.length >= 1 && (
+          <View>
+            <Text
+              category={'h6'}
+              style={{ paddingVertical: 10, textAlign: 'center' }}
+            >
+              You have a incomplete survey. Click on 'Complete Draft Survey' to
+              complete.
+            </Text>
+            <Button
+              onPress={() => {
+                resetSurveyQuestions()
+                navigation.navigate(SCREENS.SURVEY_FILL, {
+                  draft: true,
+                })
+              }}
+              status={'danger'}
+              style={{ marginBottom: 25 }}
+            >
+              Complete Draft Survey
+            </Button>
+            <Text category={'h5'} style={{ textAlign: 'center' }}>
+              OR
+            </Text>
+          </View>
         )}
-      </AppLayout>
-    </KeyboardAvoidingView>
+
+        <View style={{ paddingVertical: 20 }}>
+          <Button
+            status={'info'}
+            onPress={() => {
+              clearResponses()
+              navigation.navigate(SCREENS.SURVEY_FILL)
+            }}
+          >
+            Add a New Survey
+          </Button>
+        </View>
+
+        <Text category={'h5'} style={{ paddingVertical: 10 }}>
+          Completed Surveys
+        </Text>
+
+        {responses && responses.length >= 1 ? (
+          responses.map((response) => {
+            return (
+              <View
+                key={response.uuid}
+                style={{
+                  height: 45,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: '#ead8d8',
+                  marginVertical: 2,
+                  paddingVertical: 4,
+                  paddingHorizontal: 5,
+                  flex: 1,
+                  flexDirection: 'row',
+                  borderRadius: 10,
+                }}
+                contentContainerStyle={{}}
+              >
+                <View>
+                  <TextNunitoSans
+                    text={`${new Date(
+                      response.created_at
+                    ).toLocaleDateString()} - ${moment(
+                      response.created_at
+                    ).fromNow()}`}
+                  />
+                </View>
+
+                <View style={{ width: 70 }}>
+                  <Button
+                    status={'info'}
+                    accessoryLeft={ViewIcons}
+                    size={'small'}
+                    onPress={() =>
+                      navigation.navigate(SCREENS.SURVEY_DETAILS, {
+                        responseId: response.uuid,
+                      })
+                    }
+                  >
+                    View
+                  </Button>
+                </View>
+              </View>
+            )
+          })
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              marginTop: 100,
+              alignItems: 'center',
+            }}
+          >
+            <Icon
+              name="alert-triangle-outline"
+              fill="red"
+              style={{ width: 50, height: 50, marginBottom: 20 }}
+            />
+            <Text category={'h4'}>No Survey available right now!</Text>
+          </View>
+        )}
+      </ScrollView>
+    </AppLayout>
   )
 }
 
@@ -387,15 +156,16 @@ const mapStateToProps = (state) => {
   return {
     questions: questionsSelector(state),
     surveyQuestions: state.questions.surveyQuestions,
-    responses: state.responses.responses,
     metaData: state.metaData.server,
+    responses: state.survey.responses,
+    response: state.survey.response,
   }
 }
 
 const mapDispatchToProps = {
-  getQuestions,
-  addQuestionToSurvey,
-  setAResponse,
+  clearResponses,
+  getAllSurveys,
+  resetSurveyQuestions,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SurveyContainer)

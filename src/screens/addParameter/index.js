@@ -8,7 +8,7 @@ import AddParameterScrollView from '@components/calendar/addParameterScrollView'
 import AppLayout from '@components/layout'
 import { COLORS, SCREENS } from '@constants/strings'
 import { useDispatch } from 'react-redux'
-import { addParameterOfDay } from '@actions/calendar'
+import { addParameterOfDay } from '@actions/calendar.actions'
 import { data } from './data'
 
 export const AddParameterModal = ({ navigation, route }) => {
@@ -67,7 +67,7 @@ export const AddParameterModal = ({ navigation, route }) => {
   }
 
   return (
-    <AppLayout style={{ paddingLeft: 0, paddingRight: 0 }}>
+    <AppLayout style={{ paddingLeft: 0, paddingRight: 0 }} showTopBar={false}>
       <View style={{ flex: 1 }}>
         {renderHeader()}
         <View style={{ backgroundColor: 'white', flex: 1 }}>

@@ -1,14 +1,14 @@
 import { combineReducers } from 'redux'
-import questions from './questions'
-import responses from './response'
-import metaData from './metaData'
-import misc from './misc'
-import calendar from './calendar'
+import questions from './questions.reducer'
+import survey from './survey.reducer'
+import metaData from './metaData.reducer'
+import misc from './misc.reducer'
+import calendar from './calendar.reducer'
 
 // Add your new reducer here
 const reducers = {
   questions,
-  responses,
+  survey,
   metaData,
   misc,
   calendar,

@@ -25,30 +25,26 @@ const extract_value = (responses, question) => {
   return responses[question.key]
 }
 
-export const RenderBoolean = ({
-  question,
-  handleGetNextQuestion,
-  initialValues,
-}) => {
+const RenderBooleanC = ({ question, handleGetNextQuestion, initialValues }) => {
   const [selectedValue, setSelectedValue] = useState()
-
   useEffect(() => {
-    let questionKey = question.key.toLowerCase()
+    let questionKey = question.key
     let doesInitialValueExists = initialValues.hasOwnProperty(questionKey)
     let initialValue = initialValues[questionKey]
 
     if (doesInitialValueExists) {
       if (initialValue) {
         handleGetNextQuestion(question, true)
-        setSelectedValue(true)
+        setSelectedValue(0)
       } else {
         handleGetNextQuestion(question, false)
-        setSelectedValue(false)
+        setSelectedValue(1)
       }
     }
   }, [])
 
   const handleOnSelect = (index) => {
+    // let valueConvert = value ? '_VALUE_TRUE' : '_VALUE_FALSE'
     let value = index === 0
     setSelectedValue(index)
     handleGetNextQuestion(question, value)
@@ -72,22 +68,25 @@ export const RenderBoolean = ({
   )
 }
 
-export const RenderRadio = ({
-  question,
-  handleGetNextQuestion,
-  initialValues,
-}) => {
+const RenderRadioC = ({ question, handleGetNextQuestion, initialValues }) => {
   const { values } = question
   const [selectedValue, setSelectedValue] = useState()
   const [showInput, setShowInput] = useState(false)
   const [inputText, setInputText] = useState()
 
   useEffect(() => {
-    let questionKey = question.key.toLowerCase()
-
-    if (initialValues[questionKey]) {
-      setSelectedValue(initialValues[questionKey])
-      handleGetNextQuestion(question, initialValues[questionKey])
+    let questionKey = question.key
+    let initialValue = initialValues[questionKey]
+    if (initialValue) {
+      console.log(initialValue)
+      let indexValue = values.indexOf(initialValue)
+      if (indexValue === -1) {
+        indexValue = values.indexOf('OTHER_SPECIFY')
+        setShowInput(true)
+        setInputText(initialValue)
+      }
+      setSelectedValue(indexValue)
+      handleGetNextQuestion(question, initialValue)
     }
   }, [])
 
@@ -139,7 +138,7 @@ export const RenderRadio = ({
             onPress={handleGoNext}
             type={'primary'}
             style={{ marginTop: 5 }}
-            disabled={selectedValue.length === 0}
+            disabled={selectedValue.length === 0 || (showInput && !inputText)}
           >
             Next
           </Button>
@@ -149,11 +148,7 @@ export const RenderRadio = ({
   )
 }
 
-export const RenderLabel = ({
-  question,
-  handleGetNextQuestion,
-  initialValues,
-}) => {
+const RenderLabelC = ({ question, handleGetNextQuestion, initialValues }) => {
   // useEffect(() => {
   //   if (initialValues) {
   //     handleGetNextQuestion(question)
@@ -161,22 +156,40 @@ export const RenderLabel = ({
   // }, [])
 
   return (
-    <Button onPress={() => handleGetNextQuestion(question)}>Proceed</Button>
+    <Button onPress={() => handleGetNextQuestion(question, '_VALUE_ANY')}>
+      Proceed
+    </Button>
   )
 }
 
-export const RenderTextInput = ({
+const RenderTextInputC = ({
   question,
   handleGetNextQuestion,
   initialValues,
+  onInitialValueGoToAutoNext,
 }) => {
+  const [value, setValue] = useState('')
+  // const [displayNextBtn, setDisplayNextBtn] = useState(false)
+
+  // useEffect(() => {
+  //   let questionKey = question.key
+  //   if (initialValues[questionKey]) {
+  //     setValue(initialValues[questionKey])
+  //     handleGetNextQuestion(question, initialValues[questionKey])
+  //   }
+  // }, [])
+
   useEffect(() => {
-    if (initialValues[question.key]) {
-      handleGetNextQuestion(question, initialValues[question.key])
+    let questionKey = question.key
+
+    if (initialValues[questionKey]) {
+      setValue(initialValues[questionKey])
+      if (onInitialValueGoToAutoNext) {
+        handleGetNextQuestion(question, initialValues[questionKey])
+      }
     }
   }, [])
 
-  const [value, setValue] = useState('')
   return (
     <>
       <Input
@@ -200,18 +213,25 @@ export const RenderTextInput = ({
   )
 }
 
-export const RenderNumberInput = ({
+const RenderNumberInputC = ({
   question,
   handleGetNextQuestion,
   initialValues,
+  onInitialValueGoToAutoNext,
 }) => {
+  const [value, setValue] = useState('')
+
   useEffect(() => {
-    if (initialValues[question.key]) {
-      handleGetNextQuestion(question, initialValues[question.key])
+    let questionKey = question.key
+    let initialValue = initialValues[questionKey]
+    if (initialValue) {
+      setValue(initialValue)
+      if (onInitialValueGoToAutoNext) {
+        handleGetNextQuestion(question, initialValue)
+      }
     }
   }, [])
 
-  const [value, setValue] = useState('')
   return (
     <>
       <Input
@@ -235,18 +255,25 @@ export const RenderNumberInput = ({
   )
 }
 
-export const RenderTextAreaInput = ({
+const RenderTextAreaInputC = ({
   question,
   handleGetNextQuestion,
   initialValues,
+  onInitialValueGoToAutoNext,
 }) => {
+  const [value, setValue] = useState('')
+
   useEffect(() => {
-    if (initialValues[question.key]) {
-      handleGetNextQuestion(question, initialValues[question.key])
+    let questionKey = question.key
+    let initialValue = initialValues[questionKey]
+    if (initialValue) {
+      setValue(initialValue)
+      if (onInitialValueGoToAutoNext) {
+        handleGetNextQuestion(question, initialValue)
+      }
     }
   }, [])
 
-  const [value, setValue] = useState('')
   return (
     <>
       <Input
@@ -271,60 +298,76 @@ export const RenderTextAreaInput = ({
   )
 }
 
-export const RenderDate = ({
+const RenderDateC = ({
   question,
   handleGetNextQuestion,
   initialValues,
+  onInitialValueGoToAutoNext,
 }) => {
-  useEffect(() => {
-    if (initialValues[question.key]) {
-      handleGetNextQuestion(question, initialValues[question.key])
-    }
-  }, [])
-
-  function onChange(date) {
-    setDate(date)
-    handleGetNextQuestion(question, date)
-  }
-
-  const [date, setDate] = React.useState(moment())
-
-  return (
-    <>
-      <Datepicker
-        placeholder="Pick Date"
-        date={date}
-        dateService={dateService}
-        onSelect={(nextDate) => onChange(nextDate)}
-      />
-    </>
-  )
-}
-
-export const RenderCheckbox = ({
-  question,
-  handleGetNextQuestion,
-  initialValues,
-}) => {
+  // const [date, setDate] = React.useState(moment())
   // useEffect(() => {
   //   if (initialValues[question.key]) {
   //     handleGetNextQuestion(question, initialValues[question.key])
   //   }
   // }, [])
   //
-  // const { values } = question
-  //
-  // const [selectedValue, setSelectedValue] = useState([])
-  //
-  // const handlePress = (value) => {
-  //   if (selectedValue.includes(value)) {
-  //     let newValues = selectedValue.filter((v) => v !== value)
-  //     setSelectedValue(newValues)
-  //   } else {
-  //     setSelectedValue((prevState) => [...prevState, value])
-  //   }
+  // function onChange(date) {
+  //   setDate(date)
+  //   handleGetNextQuestion(question, date)
   // }
 
+  const [selectedValue, setSelectedValue] = useState(moment())
+  const [displayNextBtn, setDisplayNextBtn] = useState(false)
+  const dateFormat = 'YYYY-MM-DD'
+  useEffect(() => {
+    let questionKey = question.key
+
+    if (initialValues[questionKey]) {
+      let initDate = moment(initialValues[questionKey], dateFormat)
+      setSelectedValue(initDate)
+      if (onInitialValueGoToAutoNext) {
+        handleGetNextQuestion(question, initDate)
+      } else {
+        setDisplayNextBtn(true)
+      }
+    }
+  }, [])
+
+  function onChange(date) {
+    setSelectedValue(date)
+    handleGetNextQuestion(question, date)
+  }
+
+  return (
+    <>
+      <Datepicker
+        placeholder="Pick Date"
+        date={selectedValue}
+        dateService={dateService}
+        onSelect={(nextDate) => onChange(nextDate)}
+      />
+
+      {displayNextBtn && (
+        <Button
+          onClick={() =>
+            handleGetNextQuestion(question, selectedValue.format(dateFormat))
+          }
+          style={{ marginTop: 10 }}
+          // disabled={selectedValue.length === 0 || (showInput && !inputText)}
+          type="primary"
+        >
+          Next
+        </Button>
+      )}
+    </>
+  )
+}
+
+const RenderCheckboxC = ({
+  question,
+  handleGetNextQuestion,
+  initialValues,
+}) => {
   const { values } = question
 
   const [selectedValue, setSelectedValue] = useState([])
@@ -332,7 +375,7 @@ export const RenderCheckbox = ({
   const [inputText, setInputText] = useState()
 
   useEffect(() => {
-    let questionKey = question.key.toLowerCase()
+    let questionKey = question.key
     if (initialValues[questionKey]) {
       setSelectedValue(initialValues[questionKey])
       handleGetNextQuestion(question, initialValues[questionKey])
@@ -351,14 +394,17 @@ export const RenderCheckbox = ({
   }
 
   const handleOnSelect = (value) => {
+    let values = []
     if (selectedValue.includes(value)) {
-      let newValues = selectedValue.filter((v) => v !== value)
-      setSelectedValue(newValues)
+      let filteredValues = selectedValue.filter((item) => item !== value)
+      values = filteredValues
+      setSelectedValue((prevValue) => [...filteredValues])
     } else {
-      setSelectedValue((prevState) => [...prevState, value])
+      setSelectedValue((prevValue) => [...prevValue, value])
+      values = [...selectedValue, value]
     }
 
-    if (value === 'OTHER_SPECIFY') {
+    if (values.includes('OTHER_SPECIFY')) {
       setShowInput(true)
     } else {
       setShowInput(false)
@@ -405,9 +451,9 @@ export const RenderCheckbox = ({
   )
 }
 
-export const RenderQuestionText = ({ index, question, initialValues }) => {
+const RenderQuestionTextC = ({ index, question, initialValues }) => {
   const { questionText, caption, preFill } = question
-  let questionKey = question.key.toLowerCase()
+  let questionKey = question.key
   let preFillValue = initialValues[questionKey]
 
   return (
@@ -451,30 +497,23 @@ export const RenderQuestionText = ({ index, question, initialValues }) => {
   )
 }
 
-export const RenderEndOfQuestion = ({ text }) => {
+const RenderEndOfQuestionC = ({ text }) => {
   return (
-    <Layout level="2" style={{ paddingTop: 30, paddingBottom: 30 }}>
+    <Layout style={{ paddingVertical: 20, marginBottom: 20, borderRadius: 10 }}>
       <View style={{ flex: 1, alignItems: 'center' }}>
-        <AntDesign name="checkcircleo" size={50} color="green" />
+        <AntDesign
+          name="checkcircleo"
+          size={50}
+          color="green"
+          style={{ marginBottom: 10 }}
+        />
         <TextNunitoSans
           text={text}
-          style={{ fontSize: 18, padding: 5, textAlign: 'justify' }}
+          style={{ fontSize: 18, padding: 5, textAlign: 'center' }}
         />
       </View>
     </Layout>
   )
-}
-
-export const TunnelRender = ({
-  nextQuestionKey,
-  currentSurveyKey,
-  handleSetNextQuestionKey,
-}) => {
-  useEffect(() => {
-    handleSetNextQuestionKey(currentSurveyKey, nextQuestionKey)
-  }, [])
-
-  return null
 }
 
 const styles = StyleSheet.create({
@@ -489,3 +528,14 @@ const styles = StyleSheet.create({
     margin: 2,
   },
 })
+
+export const RenderBoolean = React.memo(RenderBooleanC)
+export const RenderRadio = React.memo(RenderRadioC)
+export const RenderLabel = React.memo(RenderLabelC)
+export const RenderTextInput = React.memo(RenderTextInputC)
+export const RenderNumberInput = React.memo(RenderNumberInputC)
+export const RenderTextAreaInput = React.memo(RenderTextAreaInputC)
+export const RenderDate = React.memo(RenderDateC)
+export const RenderCheckbox = React.memo(RenderCheckboxC)
+export const RenderQuestionText = React.memo(RenderQuestionTextC)
+export const RenderEndOfQuestion = React.memo(RenderEndOfQuestionC)

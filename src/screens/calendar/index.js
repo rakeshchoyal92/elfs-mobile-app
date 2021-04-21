@@ -20,7 +20,7 @@ const CalendarsScreen = ({ navigation }) => {
 
   return (
     <AppLayout navigation={navigation}>
-      <ScrollView style={{ paddingTop: 20 }}>
+      <ScrollView>
         <CalendarContainer
           setSelectedDay={setSelectedDay}
           selectedDay={selectedDay}

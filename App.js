@@ -55,7 +55,7 @@ const LayoutWrapper = () => {
   if (Platform.OS === 'web') {
     return (
       <Fragment>
-        <WebLayout height={800} width={500}>
+        <WebLayout height={800} width={600}>
           <Navigations />
         </WebLayout>
       </Fragment>
@@ -167,6 +167,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     width: '100%',
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
   },
 })

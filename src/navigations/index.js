@@ -1,15 +1,19 @@
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
-import SurveyContainer from '@screens/survey'
 import CalendarScreen from '@screens/calendar'
 import { connect } from 'react-redux'
 import { AddParameterModal } from '@screens/addParameter'
 import { SCREENS } from '@constants/strings'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import SettingsContainer from '@screens/settings'
+import SurveyContainer from '@screens/survey'
+import SurveyReview from '@screens/survey/review'
+import SurveyFill from '@screens/survey/survey_fill'
 const CalendarStack = createStackNavigator()
+const SurveyStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
 import { AntDesign } from '@expo/vector-icons'
+import SurveyDetails from '@screens/survey/surveyDetails'
 
 const CalendarNavigator = () => {
   return (
@@ -19,7 +23,6 @@ const CalendarNavigator = () => {
         component={CalendarScreen}
         options={{
           headerShown: false,
-          showIcon: true,
         }}
       />
       <CalendarStack.Screen
@@ -28,6 +31,39 @@ const CalendarNavigator = () => {
         options={{ headerShown: false }}
       />
     </CalendarStack.Navigator>
+  )
+}
+
+const SurveyNavigator = () => {
+  return (
+    <SurveyStack.Navigator>
+      <CalendarStack.Screen
+        name={SCREENS.SURVEY}
+        component={SurveyContainer}
+        options={{ headerShown: false, showIcon: true }}
+      />
+      <CalendarStack.Screen
+        name={SCREENS.SURVEY_FILL}
+        component={SurveyFill}
+        options={{ headerShown: false, showIcon: true }}
+      />
+      <SurveyStack.Screen
+        name={SCREENS.SURVEY_REVIEW}
+        component={SurveyReview}
+        options={{
+          headerShown: false,
+          showIcon: true,
+        }}
+      />
+      <SurveyStack.Screen
+        name={SCREENS.SURVEY_DETAILS}
+        component={SurveyDetails}
+        options={{
+          headerShown: false,
+          showIcon: true,
+        }}
+      />
+    </SurveyStack.Navigator>
   )
 }
 
@@ -57,7 +93,7 @@ const Navigations = ({ auth }) => {
       }}
     >
       <Tab.Screen name={SCREENS.CALENDAR} component={CalendarNavigator} />
-      <Tab.Screen name={SCREENS.SURVEY} component={SurveyContainer} />
+      <Tab.Screen name={SCREENS.SURVEY} component={SurveyNavigator} />
       <Tab.Screen name={SCREENS.SETTINGS} component={SettingsContainer} />
     </Tab.Navigator>
   )
