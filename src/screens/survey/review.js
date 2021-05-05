@@ -16,6 +16,7 @@ import styled from 'styled-components/native'
 import { submitSurvey } from '@actions/survey.actions'
 import { RenderEndOfQuestion } from '@components/response'
 import AppLayout from '@components/layout'
+import { getAllSurveys } from '@actions/survey.actions'
 // const { Title } = Typography
 
 const BackIcon = (props) => <Icon {...props} name="arrow-circle-left-outline" />
@@ -74,6 +75,7 @@ function RenderResponse({ response }) {
 const SurveyReview = ({
   questions,
   response,
+  getAllSurveys,
   onReviewSubmit,
   loading,
   submitSurvey,
@@ -103,9 +105,11 @@ const SurveyReview = ({
   }
 
   const handleReviewSubmit = () => {
-    submitSurvey(response)
-      .then(() => setFormSubmitted(true))
-      .catch(() => console.error('asdas'))
+    submitSurvey(response).then(async () => {
+      getAllSurveys()
+      setFormSubmitted(true)
+      navigation.navigate(SCREENS.SURVEY)
+    })
   }
 
   return (
@@ -207,6 +211,7 @@ const mapStateToProps = ({ questions, survey }) => {
 
 const mapDispatchToProps = {
   submitSurvey,
+  getAllSurveys,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SurveyReview)

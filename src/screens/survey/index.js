@@ -24,9 +24,9 @@ const SurveyContainer = ({
   clearResponses,
   resetSurveyQuestions,
 }) => {
-  // useEffect(() => {
-  //   getAllSurveys()
-  // }, [getAllSurveys])
+  useEffect(() => {
+    getAllSurveys()
+  }, [getAllSurveys])
 
   const [refreshing, setRefreshing] = useState(false)
 

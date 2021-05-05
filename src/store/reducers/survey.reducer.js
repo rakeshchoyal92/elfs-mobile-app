@@ -33,6 +33,7 @@ function reducer(state = initialState, action) {
     }
     case `${SUBMIT_RESPONSES}_${ActionType.Fulfilled}`: {
       state.loading.savingResponse = false
+      state.response = []
       break
     }
     case `${SUBMIT_RESPONSES}_${ActionType.Pending}`: {
@@ -41,6 +42,7 @@ function reducer(state = initialState, action) {
     }
     case `${SUBMIT_RESPONSES}_${ActionType.Rejected}`: {
       state.loading.savingResponse = false
+      state.response = []
       break
     }
     case CLEAR_RESPONSES: {
