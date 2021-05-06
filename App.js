@@ -48,9 +48,9 @@ import {
 import { default as customTheme } from '@themes/custom-theme.json'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
+import './lang/i18n'
 
 const store = configureStore()
-
 const LayoutWrapper = () => {
   if (Platform.OS === 'web') {
     return (
@@ -71,19 +71,18 @@ const LayoutWrapper = () => {
 
 const AppWrapper = () => {
   const language = useSelector(({ misc }) => misc.language)
-
   useEffect(() => {
     const RNDir = RNI18nManager.isRTL ? 'RTL' : 'LTR'
 
-    // if (language === 'hr' && RNDir === 'LTR') {
-    //   RNI18nManager.forceRTL(true)
-    //   Updates.reloadAsync()
-    // }
-    //
-    // if (language === 'en' && RNDir === 'RTL') {
-    //   RNI18nManager.forceRTL(false)
-    //   Updates.reloadAsync()
-    // }
+    if (language === 'hr' && RNDir === 'LTR') {
+      RNI18nManager.forceRTL(true)
+      Updates.reloadAsync()
+    }
+
+    if (language === 'en' && RNDir === 'RTL') {
+      RNI18nManager.forceRTL(false)
+      Updates.reloadAsync()
+    }
   }, [language])
 
   return (

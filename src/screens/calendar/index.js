@@ -6,6 +6,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import CalendarContainer from '@screens/calendar/calendar'
 import AppLayout from '@components/layout'
 import ParameterDetail from '@screens/calendar/parameterDetails'
+import { TransText } from '@components/common/TransText'
+import translateJson from '../../../locales/en/translation.json'
 
 const CalendarsScreen = ({ navigation }) => {
   const today = new Date()
@@ -44,7 +46,12 @@ const CalendarsScreen = ({ navigation }) => {
             />
           )}
         >
-          <Text style={styles.buttonText}>Add parameter of the day</Text>
+          <React.Suspense fallback={<Text>loading....</Text>}>
+            <TransText
+              style={styles.buttonText}
+              translateKey={'addParameterOfDay'}
+            />
+          </React.Suspense>
         </Button>
 
         <ParameterDetail />
