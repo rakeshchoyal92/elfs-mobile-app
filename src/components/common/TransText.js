@@ -9,17 +9,32 @@ export function TransText({
   translateKey,
 }) {
   const { t, i18n } = useTranslation()
+  const translatedText = t(translateKey)
+
+  if (category) {
+    return (
+      <Text
+        style={{
+          fontFamily: fontFamily,
+          ...style,
+        }}
+        category={'h4'}
+      >
+        {translatedText}
+      </Text>
+    )
+  }
 
   return (
     <Text
-      category={category || 'label'}
       style={{
         fontFamily: fontFamily,
         fontSize: 16,
         ...style,
       }}
+      category={'label'}
     >
-      {t(translateKey)}
+      {translatedText}
     </Text>
   )
 }

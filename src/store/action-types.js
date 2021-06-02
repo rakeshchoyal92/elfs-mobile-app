@@ -30,6 +30,13 @@ export const USERS = {
 //Calendar
 export const SET_CALENDAR_MARKING = 'calendar/SET_CALENDAR_MARKING'
 export const SET_CALENDAR_MARKINGS = 'calendar/SET_CALENDAR_MARKINGS'
+export const SET_SELECTED_DAY = 'calendar/SET_SELECTED_DAY'
 
 // Language
 export const SET_LANGUAGE = 'misc/SET_LANGUAGE'
+
+export const AUTH = {
+  SET_USER: 'SET_USER',
+  GENERATE_PASSWORD: 'GENERATE_PASSWORD',
+  UNSET_USER: 'UNSET_USER',
+}

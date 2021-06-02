@@ -78,7 +78,6 @@ const RenderRadioC = ({ question, handleGetNextQuestion, initialValues }) => {
     let questionKey = question.key
     let initialValue = initialValues[questionKey]
     if (initialValue) {
-      console.log(initialValue)
       let indexValue = values.indexOf(initialValue)
       if (indexValue === -1) {
         indexValue = values.indexOf('OTHER_SPECIFY')

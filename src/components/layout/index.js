@@ -1,14 +1,10 @@
 import React from 'react'
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context'
-import { ScrollView, View } from 'react-native'
-import FooterComponent from '@components/footer'
-import { COLORS } from '@constants/strings'
-import { Layout } from '@ui-kitten/components'
+import { View } from 'react-native'
 import { TopBarComponent } from '@components/layout/topBar'
 import { useNavigationState } from '@react-navigation/native'
 
 export default function AppLayout({
-  type,
   navigation,
   children,
   style,
@@ -16,10 +12,6 @@ export default function AppLayout({
   showTopBar = true,
   showDrawer = true,
 }) {
-  const renderFullScreen = () => {}
-
-  const renderPaddedScreen = () => {}
-
   const canGoBack = useNavigationState((state) => {
     return state.routes.length > 1
   })
@@ -30,9 +22,7 @@ export default function AppLayout({
         <View
           style={{
             flex: 1,
-
             // backgroundColor: COLORS.BACKGROUND_COLOR,
-
             ...style,
           }}
         >
@@ -49,7 +39,8 @@ export default function AppLayout({
             style={{
               paddingLeft: 10,
               paddingRight: 10,
-              paddingTop: 10,
+              paddingTop: !showTopBar ? insets.top : 10,
+              paddingBottom: showTopBar && insets.bottom + 50,
               height: '100%',
             }}
           >

@@ -1,23 +1,13 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-// import { Typography, Button } from 'antd'
-import {
-  Button,
-  ButtonGroup,
-  Icon,
-  Layout,
-  Spinner,
-  Text,
-} from '@ui-kitten/components'
+import { Button, Icon, Spinner } from '@ui-kitten/components'
 import { ScrollView, View, Alert } from 'react-native'
 import { FONTS, SCREENS } from '@constants/strings'
 import { TextNunitoSans } from '@components/common'
-import styled from 'styled-components/native'
 import { submitSurvey } from '@actions/survey.actions'
-import { RenderEndOfQuestion } from '@components/response'
 import AppLayout from '@components/layout'
 import { getAllSurveys } from '@actions/survey.actions'
-// const { Title } = Typography
+import { ErrorBox } from '@components/common/Error'
 
 const BackIcon = (props) => <Icon {...props} name="arrow-circle-left-outline" />
 const DiscardIcon = (props) => <Icon {...props} name="close-outline" />
@@ -68,7 +58,6 @@ function RenderResponse({ response }) {
       />
     )
   }
-  console.log('asdadasda', response)
   return null
 }
 
@@ -76,14 +65,11 @@ const SurveyReview = ({
   questions,
   response,
   getAllSurveys,
-  onReviewSubmit,
-  loading,
   submitSurvey,
-  route,
   navigation,
 }) => {
-  const { savingResponse } = loading
-  const [formSubmitted, setFormSubmitted] = useState(false)
+  const [formError, setFormError] = useState(false)
+  const [formSaving, setFormSaving] = useState(false)
 
   const handleDiscardSurvey = () => {
     Alert.alert(
@@ -105,11 +91,17 @@ const SurveyReview = ({
   }
 
   const handleReviewSubmit = () => {
-    submitSurvey(response).then(async () => {
-      getAllSurveys()
-      setFormSubmitted(true)
-      navigation.navigate(SCREENS.SURVEY)
-    })
+    setFormSaving(true)
+    submitSurvey(response)
+      .then(getAllSurveys)
+      .then(() => {
+        setFormSaving(false)
+        navigation.navigate(SCREENS.SURVEY)
+      })
+      .catch(() => {
+        setFormSaving(false)
+        setFormError(true)
+      })
   }
 
   return (
@@ -120,10 +112,10 @@ const SurveyReview = ({
         style={{ paddingVertical: 20, paddingHorizontal: 5 }}
         showsVerticalScrollIndicator={false}
       >
-        {response.map((response, index) => {
+        {response.map((res, index) => {
           return (
             <View
-              key={response.key}
+              key={res.key}
               className={'survey-response-div'}
               style={{
                 paddingVertical: 10,
@@ -133,30 +125,16 @@ const SurveyReview = ({
               }}
             >
               <TextNunitoSans
-                text={`${index + 1}. ${questions[response.key]}`}
+                text={`${index + 1}. ${questions[res.key]}`}
                 fontFamily={FONTS.NunitoSans_600SemiBold}
                 adjustsFontSizeToFit
                 allowFontScaling
               />
-              <RenderResponse response={response.value} />
-              {/*{Array.isArray(response.value) &&*/}
-              {/*  response.value.map((item, index) => (*/}
-              {/*    <TextNunitoSans*/}
-              {/*      key={item}*/}
-              {/*      text={`${index + 1}. ${renderResponse(item)}`}*/}
-              {/*      fontFamily={FONTS.NunitoSans_700Bold}*/}
-              {/*      style={{ marginBottom: 5 }}*/}
-              {/*    />*/}
-              {/*  ))}*/}
-              {/*{!Array.isArray(response.value) && (*/}
-              {/*  <TextNunitoSans*/}
-              {/*    text={renderResponse(response.value)}*/}
-              {/*    fontFamily={FONTS.NunitoSans_700Bold}*/}
-              {/*  />*/}
-              {/*)}*/}
+              <RenderResponse response={res.value} />
             </View>
           )
         })}
+        {formError && <ErrorBox text={'couldNotSaveForm'} />}
         <View
           style={{
             flexDirection: 'row',
@@ -169,7 +147,7 @@ const SurveyReview = ({
             onPress={() => navigation.navigate(SCREENS.SURVEY)}
             status={'info'}
             size={'small'}
-            disabled={savingResponse}
+            disabled={formSaving}
             accessoryLeft={BackIcon}
           >
             Amend
@@ -179,7 +157,7 @@ const SurveyReview = ({
             style={{ width: '33%' }}
             onPress={() => handleDiscardSurvey()}
             status={'danger'}
-            disabled={savingResponse}
+            disabled={formSaving}
             accessoryLeft={DiscardIcon}
           >
             Discard
@@ -189,8 +167,8 @@ const SurveyReview = ({
             style={{ width: '33%' }}
             onPress={() => handleReviewSubmit()}
             status={'primary'}
-            disabled={savingResponse}
-            accessoryLeft={loading.savingResponse ? Spinner : SubmitIcon}
+            disabled={formSaving}
+            accessoryLeft={formSaving ? Spinner : SubmitIcon}
           >
             Submit
           </Button>
@@ -206,6 +184,7 @@ const mapStateToProps = ({ questions, survey }) => {
     questions: questions.questionsAsDict,
     response: survey.response,
     loading: survey.loading,
+    error: survey.loading,
   }
 }
 

@@ -14,6 +14,10 @@ const SurveyStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
 import { AntDesign } from '@expo/vector-icons'
 import SurveyDetails from '@screens/survey/surveyDetails'
+import EnterEmailScreen from '@screens/auth/enterEmail'
+import EnterOTPScreen from '@screens/auth/enterOTP'
+
+const AuthStack = createStackNavigator()
 
 const CalendarNavigator = () => {
   return (
@@ -67,7 +71,28 @@ const SurveyNavigator = () => {
   )
 }
 
-const Navigations = ({ auth }) => {
+const Navigations = ({ userBio }) => {
+  if (!userBio) {
+    return (
+      <AuthStack.Navigator>
+        <AuthStack.Screen
+          name={SCREENS.AUTH_ENTER_EMAIL}
+          component={EnterEmailScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <AuthStack.Screen
+          name={SCREENS.AUTH_ENTER_OTP}
+          component={EnterOTPScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+      </AuthStack.Navigator>
+    )
+  }
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -100,7 +125,7 @@ const Navigations = ({ auth }) => {
 }
 
 const mapStateToProps = ({ auth }) => ({
-  userBio: true,
+  userBio: auth.bio,
 })
 
 export default connect(mapStateToProps)(Navigations)

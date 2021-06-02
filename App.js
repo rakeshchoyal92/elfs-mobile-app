@@ -5,8 +5,7 @@ import {
   StyleSheet,
   I18nManager as RNI18nManager,
   Platform,
-  View,
-  KeyboardAvoidingView,
+  LogBox,
 } from 'react-native'
 import Navigations from '@navigations'
 import { NavigationContainer } from '@react-navigation/native'
@@ -15,7 +14,6 @@ import {
   ApplicationProvider,
   Layout,
   IconRegistry,
-  Text,
 } from '@ui-kitten/components'
 import useCachedResources from '@src/hooks/useCachedResources'
 import { EvaIconsPack } from '@ui-kitten/eva-icons'
@@ -50,6 +48,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 import './lang/i18n'
 
+if (Platform.OS !== 'web') {
+  LogBox.ignoreAllLogs() //Ignore all log notifications
+}
+
 const store = configureStore()
 const LayoutWrapper = () => {
   if (Platform.OS === 'web') {
@@ -76,12 +78,16 @@ const AppWrapper = () => {
 
     if (language === 'hr' && RNDir === 'LTR') {
       RNI18nManager.forceRTL(true)
-      Updates.reloadAsync()
+      if (Platform.OS !== 'web') {
+        Updates.reloadAsync()
+      }
     }
 
     if (language === 'en' && RNDir === 'RTL') {
       RNI18nManager.forceRTL(false)
-      Updates.reloadAsync()
+      if (Platform.OS !== 'web') {
+        Updates.reloadAsync()
+      }
     }
   }, [language])
 
@@ -148,11 +154,13 @@ const WebLayout = styled.View`
   height: ${(props) => props.height};
   border-radius: 40px;
   border-color: black;
-  border-width: 20px;
+  border-width: 10px;
   shadow-opacity: 0.75;
   shadow-radius: 20px;
   shadow-color: #777;
   shadow-offset: 0px 0px;
+  padding-top: 10px;
+  background: black;
 `
 
 const styles = StyleSheet.create({

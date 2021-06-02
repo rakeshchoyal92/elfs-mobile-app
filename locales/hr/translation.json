@@ -9,5 +9,6 @@
   "updateSurvey": "Update Survey",
   "completedSurveys": "Completed Surveys",
   "surveyList": "Survey List",
-  "view": "View"
+  "view": "View",
+  "couldNotSaveForm": "Survey could not be saved. Please try later"
 }

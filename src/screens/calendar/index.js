@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import { Button, Text } from '@ui-kitten/components'
 import { COLORS, FONTS, SCREENS } from '@constants/strings'
@@ -7,24 +7,40 @@ import CalendarContainer from '@screens/calendar/calendar'
 import AppLayout from '@components/layout'
 import ParameterDetail from '@screens/calendar/parameterDetails'
 import { TransText } from '@components/common/TransText'
+import { connect } from 'react-redux'
+
 import translateJson from '../../../locales/en/translation.json'
+import { setSelectedDayInCalendar } from '@actions/calendar.actions'
 
-const CalendarsScreen = ({ navigation }) => {
+const CalendarsScreen = ({ navigation, setSelectedDayInCalendar }) => {
   const today = new Date()
-
   const [selectedDay, setSelectedDay] = useState(
-    today.toLocaleDateString('en-GB', {
+    today.toLocaleDateString('en-AU', {
       month: '2-digit',
       day: '2-digit',
       year: 'numeric',
     })
   )
 
+  const handleSelectedDay = (day) => {
+    setSelectedDayInCalendar(day.dateString)
+    setSelectedDay(day)
+  }
+
   return (
-    <AppLayout navigation={navigation}>
-      <ScrollView>
+    <AppLayout
+      navigation={navigation}
+      showTopBar={false}
+      // title={new Date(today).toDateString()}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <TransText
+          translateKey={'calendar'}
+          category={'h4'}
+          style={{ marginBottom: 10 }}
+        />
         <CalendarContainer
-          setSelectedDay={setSelectedDay}
+          setSelectedDay={handleSelectedDay}
           selectedDay={selectedDay}
         />
         <Button
@@ -42,16 +58,14 @@ const CalendarsScreen = ({ navigation }) => {
             <MaterialCommunityIcons
               name="database-plus"
               size={24}
-              color="red"
+              color="white"
             />
           )}
         >
-          <React.Suspense fallback={<Text>loading....</Text>}>
-            <TransText
-              style={styles.buttonText}
-              translateKey={'addParameterOfDay'}
-            />
-          </React.Suspense>
+          <TransText
+            style={styles.buttonText}
+            translateKey={'addParameterOfDay'}
+          />
         </Button>
 
         <ParameterDetail />
@@ -60,22 +74,28 @@ const CalendarsScreen = ({ navigation }) => {
   )
 }
 
-export default CalendarsScreen
+const mapDispatchToProps = {
+  setSelectedDayInCalendar,
+}
+
+export default connect(null, mapDispatchToProps)(CalendarsScreen)
 
 const styles = StyleSheet.create({
   button: {
     height: 50,
-    backgroundColor: 'white',
+    backgroundColor: '#dd6868',
     borderColor: 'white',
     marginTop: 15,
     borderRadius: 10,
     flex: 1,
+    color: 'white',
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
   },
   buttonText: {
-    color: COLORS.PRIMARY_COLOR,
+    // color: COLORS.PRIMARY_COLOR,
+    color: 'white',
     fontFamily: FONTS.NunitoSans_700Bold,
     marginLeft: 5,
   },

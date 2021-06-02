@@ -1,5 +1,6 @@
-import { Text } from '@ui-kitten/components'
+import { Spinner } from '@ui-kitten/components'
 import React from 'react'
+import { View, StyleSheet, Text } from 'react-native'
 
 export function TextNunitoSans({
   text,
@@ -17,6 +18,7 @@ export function TextNunitoSans({
       style={{
         fontFamily: fontFamily,
         fontSize: 16,
+        textAlign: 'left',
         ...style,
       }}
     >
@@ -24,3 +26,16 @@ export function TextNunitoSans({
     </Text>
   )
 }
+
+export const LoadingIndicator = (props) => (
+  <View style={[props.style, styles.indicator]}>
+    <Spinner size="small" />
+  </View>
+)
+
+const styles = StyleSheet.create({
+  indicator: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+})

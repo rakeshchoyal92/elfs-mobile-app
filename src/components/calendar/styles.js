@@ -4,8 +4,7 @@ import Emoji from 'react-native-emoji'
 import { Text } from '@ui-kitten/components'
 
 export const StyledScrollView = styled(ScrollView)`
-  height: 80px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `
 
 export const StyledEmojiView = styled(View)`
@@ -26,7 +25,7 @@ export const StyledEmoji = styled(Emoji)`
 `
 
 export const StyledEmojiCaption = styled(Text)`
-  font-size: 10px;
+  font-size: 13px;
   margin-top: 3px;
   text-align: center;
 `

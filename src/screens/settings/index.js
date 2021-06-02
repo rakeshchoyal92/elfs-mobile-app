@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
-import { Button, Text } from '@ui-kitten/components'
+import { Button, Icon, Text } from '@ui-kitten/components'
 import { setLanguage } from '@actions/misc.actions'
 import { useDispatch, useSelector } from 'react-redux'
 import AppLayout from '@components/layout'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { FONTS } from '@constants/strings'
 import { useTranslation } from 'react-i18next'
+import { logoutUser } from '@actions/auth.actions'
+import { connect } from 'react-redux'
+import { LoadingIndicator } from '@components/common'
 
 const LANGUAGES = [
   {
@@ -22,7 +25,7 @@ const LANGUAGES = [
   },
 ]
 
-const OptionPicker = ({ onClick, selectedValue }) => {
+const OptionPicker = ({ onClick, selectedValue, values }) => {
   const [selectedKey, setSelectedKey] = useState(selectedValue)
 
   const handleValueChange = (value) => {
@@ -30,7 +33,7 @@ const OptionPicker = ({ onClick, selectedValue }) => {
     onClick(value)
   }
 
-  return LANGUAGES.map((language) => {
+  return values.map((language) => {
     return (
       <View
         key={language.key}
@@ -56,7 +59,7 @@ const OptionPicker = ({ onClick, selectedValue }) => {
   })
 }
 
-export default function SettingsContainer({ navigation }) {
+function SettingsContainer({ navigation, logoutUser, loading }) {
   const dispatch = useDispatch()
   const selectedLang = useSelector(({ misc }) => misc.language)
   const { i18n } = useTranslation()
@@ -75,19 +78,58 @@ export default function SettingsContainer({ navigation }) {
 
   return (
     <AppLayout navigation={navigation} showTopBar title="Settings">
-      <View
-        style={{
-          paddingBottom: 15,
-          borderBottomWidth: 1,
-          borderBottomColor: '#777',
-        }}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}
       >
-        <Heading text="Language" category="h4" />
-        <OptionPicker
-          onClick={(lang) => handleDispatchLang(lang)}
-          selectedValue={selectedLang}
-        />
-      </View>
+        <View
+          style={{
+            paddingBottom: 15,
+            borderBottomWidth: 1,
+            borderBottomColor: '#777',
+          }}
+        >
+          <Heading text="Language" category="h4" />
+          <OptionPicker
+            onClick={(lang) => handleDispatchLang(lang)}
+            selectedValue={selectedLang}
+            values={LANGUAGES}
+          />
+        </View>
+
+        <View
+          style={{
+            paddingVertical: 15,
+          }}
+        >
+          <Button
+            status={'danger'}
+            onPress={logoutUser}
+            disabled={loading.logoutUser}
+            accessoryLeft={(props) =>
+              loading.logoutUser ? (
+                LoadingIndicator
+              ) : (
+                <Icon
+                  style={{ color: 'color-primary-default', ...props.style }}
+                  name={'log-out-outline'}
+                />
+              )
+            }
+          >
+            Logout
+          </Button>
+        </View>
+      </ScrollView>
     </AppLayout>
   )
 }
+
+const mapStateToProps = ({ auth }) => ({
+  loading: auth.loading,
+})
+
+const mapDispatchToState = {
+  logoutUser,
+}
+
+export default connect(mapStateToProps, mapDispatchToState)(SettingsContainer)

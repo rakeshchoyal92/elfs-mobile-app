@@ -12,6 +12,8 @@ export const SCREENS = {
   SURVEY_REVIEW: 'survey_review',
   SURVEY_DETAILS: 'survey_details',
   SETTINGS: 'Settings',
+  AUTH_ENTER_EMAIL: 'enter_email',
+  AUTH_ENTER_OTP: 'enter_otp',
 }
 
 export const COLORS = {
@@ -55,17 +57,17 @@ export const FONTS = {
 }
 
 export const markingDots = {
-  bleeding: { key: 'bleeding', color: 'red', selectedDotColor: 'blue' },
+  // bleeding: { key: 'bleeding', color: 'red', selectedDotColor: 'blue' },
   periodPain: {
     key: 'periodPain',
     color: 'blue',
     selectedDotColor: 'blue',
   },
-  hadSex: { key: 'hadSex', color: 'green' },
-  experiencedSexWithPain: {
-    key: 'experiencedSexWithPain',
-    color: 'orange',
-  },
+  // hadSex: { key: 'hadSex', color: 'green' },
+  // experiencedSexWithPain: {
+  //   key: 'experiencedSexWithPain',
+  //   color: 'orange',
+  // },
   pelvicPain: { key: 'pelvicPain', color: 'black' },
-  note: { key: 'note', color: 'red' },
+  // note: { key: 'note', color: 'red' },
 }

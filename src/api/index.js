@@ -2,7 +2,12 @@ import axios from 'axios'
 import { get } from 'lodash'
 import { getData } from '@utils/storage'
 
-function responseHandler(resp) {
+function timeout(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function responseHandler(resp) {
+  await timeout(1000)
   return {
     data: resp.data,
     message: get(resp, 'data.message', resp.statusText),
@@ -11,7 +16,8 @@ function responseHandler(resp) {
   }
 }
 
-function errorHandler(e) {
+async function errorHandler(e) {
+  await timeout(1000)
   const resp = e.response
   throw get(resp, 'data.message', 'UNKNOWN_ERROR')
 }
@@ -52,6 +58,11 @@ const client = {
       .put(url, data, config)
       .then(responseHandler)
       .catch(errorHandler)
+  },
+  async delete(url, data, config = {}) {
+    let accessToken = await getAccessToken()
+    axios.defaults.headers.common.Authorization = accessToken && accessToken
+    return axios.delete(url, config).then(responseHandler).catch(errorHandler)
   },
 }
 

@@ -10,6 +10,7 @@ import { SCREENS } from '@constants/strings'
 import { CLEAR_RESPONSES } from '@store/action-types'
 import { resetSurveyQuestions } from '@actions/questions.actions'
 import moment from 'moment'
+import { TransText } from '@components/common/TransText'
 
 const ViewIcons = (props) => <Icon name="eye-outline" {...props} />
 const wait = (timeout) => {
@@ -81,9 +82,11 @@ const SurveyContainer = ({
           </Button>
         </View>
 
-        <Text category={'h5'} style={{ paddingVertical: 10 }}>
-          Completed Surveys
-        </Text>
+        <TransText
+          category={'h5'}
+          style={{ paddingVertical: 10 }}
+          translateKey={'completedSurveys'}
+        />
 
         {responses && responses.length >= 1 ? (
           responses.map((response) => {

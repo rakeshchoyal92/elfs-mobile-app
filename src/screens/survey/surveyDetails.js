@@ -23,7 +23,6 @@ const SurveyDetails = ({
     getQuestions()
     let res = responses.find((item) => item.uuid === responseId)
     setResponse(res)
-    console.log(questions)
   }, [])
 
   const renderResponse = (response) => {
@@ -45,7 +44,7 @@ const SurveyDetails = ({
       showTopBar
       title={new Date(response.created_at).toDateString()}
     >
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {Object.keys(questions).map((key, index) => {
           const value = response[key]
           if (![null, undefined].includes(value) && questions[key]) {

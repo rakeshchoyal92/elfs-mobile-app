@@ -10,5 +10,6 @@
   "completedSurveys": "Completed Surveys",
   "surveyList": "Survey List",
   "view": "View",
-  "Settings": "Settings"
+  "Settings": "Settings",
+  "couldNotSaveForm": "Survey could not be saved. Please try later"
 }

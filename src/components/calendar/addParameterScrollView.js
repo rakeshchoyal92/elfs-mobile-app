@@ -9,6 +9,36 @@ import {
 } from '@components/calendar/styles'
 import { StyledScrollView } from '@components/calendar/styles'
 import { pickBy } from 'lodash'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faBolt } from '@fortawesome/free-solid-svg-icons'
+
+const Bolts = ({ number, color }) => {
+  const arrayGenerator = () =>
+    Array(number)
+      .fill(1)
+      .map((x, y) => x + y)
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'center',
+      }}
+    >
+      {arrayGenerator().map((item) => {
+        return (
+          <FontAwesomeIcon
+            key={item}
+            icon={faBolt}
+            size={15}
+            color={color}
+            style={{ marginLeft: item === 1 ? 0 : -5 }}
+          />
+        )
+      })}
+    </View>
+  )
+}
 
 export default function AddParameterScrollView({ data, onSubmit }) {
   const [selectedValues, setSelectedValues] = useState({})
@@ -33,24 +63,40 @@ export default function AddParameterScrollView({ data, onSubmit }) {
         {data.map((type) => (
           <TouchableOpacity
             key={type.key}
-            style={{ marginRight: 25 }}
+            style={{
+              marginRight: 15,
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+              borderRadius: 5,
+              backgroundColor:
+                selectedValues?.[key] === type.key
+                  ? 'rgba(52,96,243,0.24)'
+                  : 'white',
+            }}
             onPress={() => handleSelect(type.key)}
           >
-            <StyledEmojiView>
-              <Emoji name={type.icon} style={{ fontSize: 30 }} />
-            </StyledEmojiView>
+            {/*{type.type === 'singleIcon' && (*/}
+            {/*  <StyledEmojiView>*/}
+            {/*    <Emoji name={type.icon} style={{ fontSize: 30 }} />*/}
+            {/*  </StyledEmojiView>*/}
+            {/*)}*/}
+
+            {type.type === 'multipleIcon' && (
+              <Bolts number={type.number} color={type.color} />
+            )}
+
             <View style={{ alignItems: 'center' }}>
               <StyledEmojiCaption
                 style={{
-                  fontFamily: FONTS.NunitoSans_400Regular,
+                  fontFamily:
+                    selectedValues?.[key] === type.key
+                      ? FONTS.NunitoSans_700Bold
+                      : FONTS.NunitoSans_400Regular,
                   color: selectedValues?.[key] === type.key ? 'black' : '#777',
                 }}
               >
                 {type.key}
               </StyledEmojiCaption>
-              {selectedValues?.[key] === type.key && (
-                <Emoji key={type} name="white_check_mark" />
-              )}
             </View>
           </TouchableOpacity>
         ))}
@@ -93,9 +139,10 @@ export default function AddParameterScrollView({ data, onSubmit }) {
     return (
       <Text
         style={{
-          marginBottom: 10,
+          marginBottom: 15,
           fontFamily: FONTS.NunitoSans_700Bold,
           textAlign: 'left',
+          fontSize: 16,
         }}
       >
         {title}
@@ -113,7 +160,9 @@ export default function AddParameterScrollView({ data, onSubmit }) {
           </View>
         )
       })}
-      <Button onPress={handleOnSubmit}> Save </Button>
+      <Button style={{ marginVertical: 20 }} onPress={handleOnSubmit}>
+        Save
+      </Button>
     </View>
   )
 }

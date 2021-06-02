@@ -4,10 +4,10 @@ export const data = [
     type: 'checkbox',
     key: 'bleeding',
     data: [
-      { key: 'Spot', icon: 'anger' },
-      { key: 'Light', icon: 'anger' },
-      { key: 'Normal', icon: 'anger' },
-      { key: 'Heavy', icon: 'anger' },
+      { key: 'Spot', type: 'multipleIcon', number: 1, color: 'red' },
+      { key: 'Light', type: 'multipleIcon', number: 2, color: 'red' },
+      { key: 'Normal', type: 'multipleIcon', number: 3, color: 'red' },
+      { key: 'Heavy', type: 'multipleIcon', number: 4, color: 'red' },
     ],
   },
   {
@@ -15,29 +15,30 @@ export const data = [
     title: 'Period Pain',
     key: 'periodPain',
     data: [
-      { key: 'None', icon: 'blush' },
-      { key: 'Mild', icon: 'unamused' },
-      { key: 'Moderate', icon: 'angry' },
-      { key: 'Severe', icon: 'cry' },
+      { key: 'None', type: 'multipleIcon', number: 1, color: 'orange' },
+      { key: 'Mild', type: 'multipleIcon', number: 2, color: 'orange' },
+      { key: 'Moderate', type: 'multipleIcon', number: 3, color: 'orange' },
+      { key: 'Severe', type: 'multipleIcon', number: 4, color: 'orange' },
     ],
   },
   {
     title: 'Had Sex',
     key: 'hadSex',
     type: 'radio',
-    data: [{ key: 'Yes', icon: 'heart' }],
+    data: [{ key: 'Yes', type: 'singleIcon', icon: 'heart' }],
   },
   {
     title: 'Experienced sex with pain',
-    key: 'experiencedSexWithPain',
+    key: 'experiencedPainWithSex',
     type: 'radio',
-    data: [{ key: 'Yes', icon: 'disappointed' }],
+    data: [{ key: 'Yes', type: 'singleIcon', icon: 'disappointed' }],
   },
   {
     title: 'Pelvic Pain',
     key: 'pelvicPain',
     type: 'radio',
-    data: [{ key: 'Yes', icon: 'disappointed' }],
+
+    data: [{ key: 'Yes', type: 'multipleIcon', number: 1, color: 'black' }],
   },
   {
     title: 'Note',
