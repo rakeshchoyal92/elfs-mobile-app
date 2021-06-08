@@ -8,6 +8,8 @@ export const SCREENS = {
   CALENDAR: 'Calendar',
   ADD_PARAMETER: 'Add_parameter',
   SURVEY: 'Survey',
+  AUTH: 'auth',
+  USER: 'user',
   SURVEY_FILL: 'survey_fill',
   SURVEY_REVIEW: 'survey_review',
   SURVEY_DETAILS: 'survey_details',

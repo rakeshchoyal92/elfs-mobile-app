@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { COLORS, FONTS } from '@constants/strings'
+import { FONTS } from '@constants/strings'
 import { View, StyleSheet } from 'react-native'
 import {
   Button,
-  ButtonGroup,
   CheckBox,
   Datepicker,
-  Icon,
   Input,
   Layout,
   Radio,
   RadioGroup,
-  Text,
 } from '@ui-kitten/components'
 import moment from 'moment'
 import { AntDesign } from '@expo/vector-icons'
@@ -199,6 +196,7 @@ const RenderTextInputC = ({
         returnKeyType="next"
         placeholder="Type your response here"
         onEndEditing={() => handleGetNextQuestion(question, value)}
+        textStyle={{ textAlign: 'left' }}
       />
       <Button
         onPress={() => handleGetNextQuestion(question, value)}
@@ -241,6 +239,7 @@ const RenderNumberInputC = ({
         enablesReturnKeyAutomatically
         returnKeyType="done"
         onEndEditing={() => handleGetNextQuestion(question, value)}
+        textStyle={{ textAlign: 'left' }}
       />
       <Button
         onPress={() => handleGetNextQuestion(question, value)}
@@ -277,7 +276,7 @@ const RenderTextAreaInputC = ({
     <>
       <Input
         multiline={true}
-        textStyle={{ minHeight: 64 }}
+        textStyle={{ minHeight: 64, textAlign: 'left' }}
         value={value}
         placeholder="Type your response here"
         onChangeText={(value) => setValue(value)}

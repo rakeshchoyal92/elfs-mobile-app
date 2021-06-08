@@ -17,6 +17,5 @@ export const FooterContainer = styled(View)`
 
 export const ContentContainer = styled(KeyboardAwareScrollView)`
   flex-grow: 2;
-  background-color: white;
   padding: 30px 0;
 `

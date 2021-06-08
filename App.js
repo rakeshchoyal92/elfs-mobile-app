@@ -47,6 +47,7 @@ import { default as customTheme } from '@themes/custom-theme.json'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 import './lang/i18n'
+import { StatusBar } from 'expo-status-bar'
 
 if (Platform.OS !== 'web') {
   LogBox.ignoreAllLogs() //Ignore all log notifications
@@ -57,7 +58,7 @@ const LayoutWrapper = () => {
   if (Platform.OS === 'web') {
     return (
       <Fragment>
-        <WebLayout height={800} width={600}>
+        <WebLayout>
           <Navigations />
         </WebLayout>
       </Fragment>
@@ -73,6 +74,8 @@ const LayoutWrapper = () => {
 
 const AppWrapper = () => {
   const language = useSelector(({ misc }) => misc.language)
+  const theme = useSelector(({ misc }) => misc.theme)
+  console.log({ theme })
   useEffect(() => {
     const RNDir = RNI18nManager.isRTL ? 'RTL' : 'LTR'
 
@@ -92,9 +95,10 @@ const AppWrapper = () => {
   }, [language])
 
   return (
-    <ApplicationProvider {...eva} theme={{ ...eva.light, ...customTheme }}>
+    <ApplicationProvider {...eva} theme={{ ...eva[theme], ...customTheme }}>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+        <NavigationContainer linking={{ enabled: true }}>
           <LayoutWrapper />
         </NavigationContainer>
       </SafeAreaProvider>
@@ -145,22 +149,22 @@ const WebLayout = styled.View`
   align-content: center;
   justify-content: center;
   align-self: center;
-  //width: 100%;
+  width: 100%;
   //background-color: white;
   position: relative;
-  margin: 40px auto;
+  //margin: 40px auto;
   overflow: scroll;
-  width: ${(props) => props.width};
-  height: ${(props) => props.height};
-  border-radius: 40px;
-  border-color: black;
-  border-width: 10px;
-  shadow-opacity: 0.75;
-  shadow-radius: 20px;
-  shadow-color: #777;
-  shadow-offset: 0px 0px;
-  padding-top: 10px;
-  background: black;
+  // width: ${(props) => props.width};
+  // height: ${(props) => props.height};
+  //border-radius: 40px;
+  //border-color: black;
+  //border-width: 10px;
+  //shadow-opacity: 0.75;
+  //shadow-radius: 20px;
+  //shadow-color: #777;
+  //shadow-offset: 0px 0px;
+  //padding-top: 10px;
+  //background: black;
 `
 
 const styles = StyleSheet.create({

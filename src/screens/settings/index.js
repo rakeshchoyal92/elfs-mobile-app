@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Icon, Text } from '@ui-kitten/components'
 import { setLanguage } from '@actions/misc.actions'
 import { useDispatch, useSelector } from 'react-redux'
 import AppLayout from '@components/layout'
-import { ScrollView, View } from 'react-native'
+import { Platform, ScrollView, Switch, View } from 'react-native'
 import { FONTS } from '@constants/strings'
 import { useTranslation } from 'react-i18next'
 import { logoutUser } from '@actions/auth.actions'
 import { connect } from 'react-redux'
 import { LoadingIndicator } from '@components/common'
+import { setTheme } from '@actions/misc.actions'
 
 const LANGUAGES = [
   {
@@ -40,7 +41,7 @@ const OptionPicker = ({ onClick, selectedValue, values }) => {
         style={{
           padding: 5,
           backgroundColor:
-            selectedKey === language.key ? '#d7d2d2' : 'transparent',
+            selectedKey === language.key ? '#ec4a4a' : 'transparent',
         }}
       >
         <Text
@@ -59,7 +60,50 @@ const OptionPicker = ({ onClick, selectedValue, values }) => {
   })
 }
 
-function SettingsContainer({ navigation, logoutUser, loading }) {
+const ThemeSwitcher = ({ theme }) => {
+  const dispatch = useDispatch()
+  const [isEnabled, setIsEnabled] = useState(false)
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      setIsEnabled(true)
+    } else {
+      setIsEnabled(false)
+    }
+  }, [theme])
+
+  const toggleSwitch = (value) => {
+    if (value) {
+      dispatch(setTheme('dark'))
+    } else {
+      dispatch(setTheme('light'))
+    }
+    setIsEnabled((previousState) => !previousState)
+  }
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 5,
+      }}
+    >
+      <Text>Dark Theme</Text>
+      <Switch
+        trackColor={{ false: '#767577', true: '#81b0ff' }}
+        thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+        ios_backgroundColor="#3e3e3e"
+        onValueChange={toggleSwitch}
+        value={isEnabled}
+      />
+    </View>
+  )
+}
+
+function SettingsContainer({ navigation, logoutUser, loading, theme }) {
   const dispatch = useDispatch()
   const selectedLang = useSelector(({ misc }) => misc.language)
   const { i18n } = useTranslation()
@@ -81,19 +125,33 @@ function SettingsContainer({ navigation, logoutUser, loading }) {
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}
       >
-        <View
-          style={{
-            paddingBottom: 15,
-            borderBottomWidth: 1,
-            borderBottomColor: '#777',
-          }}
-        >
-          <Heading text="Language" category="h4" />
-          <OptionPicker
-            onClick={(lang) => handleDispatchLang(lang)}
-            selectedValue={selectedLang}
-            values={LANGUAGES}
-          />
+        <View>
+          <View
+            style={{
+              paddingBottom: 15,
+              borderBottomWidth: 1,
+              borderBottomColor: '#777',
+              marginBottom: 15,
+            }}
+          >
+            <Heading text="Language" category="h4" />
+            <OptionPicker
+              onClick={(lang) => handleDispatchLang(lang)}
+              selectedValue={selectedLang}
+              values={LANGUAGES}
+            />
+          </View>
+
+          <View
+            style={{
+              paddingBottom: 15,
+              borderBottomWidth: 1,
+              borderBottomColor: '#777',
+              marginBottom: 15,
+            }}
+          >
+            <ThemeSwitcher theme={theme} />
+          </View>
         </View>
 
         <View
@@ -124,8 +182,9 @@ function SettingsContainer({ navigation, logoutUser, loading }) {
   )
 }
 
-const mapStateToProps = ({ auth }) => ({
+const mapStateToProps = ({ auth, misc }) => ({
   loading: auth.loading,
+  theme: misc.theme,
 })
 
 const mapDispatchToState = {

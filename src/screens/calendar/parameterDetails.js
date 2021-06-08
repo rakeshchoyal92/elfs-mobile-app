@@ -1,15 +1,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { View } from 'react-native'
-import { Text } from '@ui-kitten/components'
+import { Layout, Text } from '@ui-kitten/components'
 
 function ParameterDetail({ selectedParameter }) {
   return (
-    <View
+    <Layout
+      level={'2'}
       style={{
         paddingTop: 10,
         paddingBottom: 10,
-        backgroundColor: 'white',
         borderRadius: 10,
         marginTop: 15,
         minHeight: 200,
@@ -19,7 +19,7 @@ function ParameterDetail({ selectedParameter }) {
       }}
     >
       <Text>Info on cycle length and other stats</Text>
-    </View>
+    </Layout>
   )
 }
 

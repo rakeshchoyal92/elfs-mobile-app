@@ -1,6 +1,6 @@
-import { Spinner } from '@ui-kitten/components'
+import { Spinner, Text } from '@ui-kitten/components'
 import React from 'react'
-import { View, StyleSheet, Text } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 
 export function TextNunitoSans({
   text,
@@ -19,6 +19,7 @@ export function TextNunitoSans({
         fontFamily: fontFamily,
         fontSize: 16,
         textAlign: 'left',
+        // writingDirection: 'rtl',
         ...style,
       }}
     >

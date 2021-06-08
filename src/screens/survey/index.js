@@ -91,13 +91,14 @@ const SurveyContainer = ({
         {responses && responses.length >= 1 ? (
           responses.map((response) => {
             return (
-              <View
+              <Layout
+                level="1"
                 key={response.uuid}
                 style={{
                   height: 45,
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  backgroundColor: '#ead8d8',
+                  // backgroundColor: '#ead8d8',
                   marginVertical: 2,
                   paddingVertical: 4,
                   paddingHorizontal: 5,
@@ -131,7 +132,7 @@ const SurveyContainer = ({
                     View
                   </Button>
                 </View>
-              </View>
+              </Layout>
             )
           })
         ) : (

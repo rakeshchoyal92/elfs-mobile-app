@@ -2,59 +2,16 @@ import { FONTS } from '@constants/strings'
 import { Calendar, LocaleConfig } from 'react-native-calendars'
 import React from 'react'
 import { connect } from 'react-redux'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 
-LocaleConfig.locales['fr'] = {
-  monthNames: [
-    'Janvier',
-    'Février',
-    'Mars',
-    'Avril',
-    'Mai',
-    'Juin',
-    'Juillet',
-    'Août',
-    'Septembre',
-    'Octobre',
-    'Novembre',
-    'Décembre',
-  ],
-  monthNamesShort: [
-    'Janv.',
-    'Févr.',
-    'Mars',
-    'Avril',
-    'Mai',
-    'Juin',
-    'Juil.',
-    'Août',
-    'Sept.',
-    'Oct.',
-    'Nov.',
-    'Déc.',
-  ],
-  dayNames: [
-    'Dimanche',
-    'Lundi',
-    'Mardi',
-    'Mercredi',
-    'Jeudi',
-    'Vendredi',
-    'Samedi',
-  ],
-  dayNamesShort: ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'],
-  today: "Aujourd'hui",
-}
-LocaleConfig.defaultLocale = 'fr'
-
-function CalendarContainer({ setSelectedDay, parameters, markedDate }) {
+function CalendarContainer({ setSelectedDay, parameters, markedDate, theme }) {
   return (
     <View>
       <Calendar
         style={{
           borderTopRightRadius: 10,
           borderTopLeftRadius: 10,
-          backgroundColor: 'white',
+          backgroundColor: theme === 'dark' ? 'black' : 'white',
         }}
         markedDates={{ ...parameters, ...markedDate }}
         markingType={'multi-dot'}
@@ -68,31 +25,25 @@ function CalendarContainer({ setSelectedDay, parameters, markedDate }) {
           textDayHeaderFontFamily: FONTS.NunitoSans_400Regular,
           todayTextColor: 'red',
           textDayFontSize: 12,
-          calendarBackground: '#ffffff',
           textMonthFontSize: 18,
           textDayHeaderFontSize: 12,
+          // These color change based on the theme
+          calendarBackground: theme === 'dark' ? 'black' : 'white',
+          monthTextColor: theme === 'dark' ? 'white' : 'black',
+          dayTextColor: theme === 'dark' ? 'white' : 'black',
+          textDisabledColor: '#858a8d',
         }}
       />
-      {/*<View*/}
-      {/*  style={{*/}
-      {/*    height: 40,*/}
-      {/*    backgroundColor: 'rgba(174,100,156,0.64)',*/}
-      {/*    marginTop: 1,*/}
-      {/*    borderBottomLeftRadius: 10,*/}
-      {/*    borderBottomRightRadius: 10,*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  <Text>HELLO</Text>*/}
-      {/*</View>*/}
     </View>
   )
 }
 
-const mapStateToProps = ({ calendar }) => {
+const mapStateToProps = ({ calendar, misc }) => {
   return {
     parameters: calendar.parameters,
     markedDate: calendar.markedDate,
     selectedParameter: calendar.selectedParameter,
+    theme: misc.theme,
   }
 }
 

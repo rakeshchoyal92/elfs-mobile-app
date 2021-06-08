@@ -16,21 +16,19 @@ const EnterEmailScreen = ({ generatePassword, navigation, loading }) => {
     <AppLayout navigation={navigation} title="Login">
       <KeyboardAwareScrollView
         contentContainerStyle={{
-          flexGrow: 1,
           justifyContent: 'center',
-          marginTop: -70,
+        }}
+        style={{
+          flex: 1,
+          paddingTop: 50,
         }}
       >
-        <View
-          style={{
-            width: 150,
-            height: 150,
-            borderRadius: 150,
-            // backgroundColor: 'wheat',
-            alignSelf: 'center',
-          }}
-        >
-          <Icon fill="green" name="log-in-outline" style={{ height: 150 }} />
+        <View style={{ alignItems: 'center' }}>
+          <Icon
+            fill="green"
+            name="log-in-outline"
+            style={{ width: 150, height: 150 }}
+          />
         </View>
 
         <View>

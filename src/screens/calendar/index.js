@@ -28,17 +28,13 @@ const CalendarsScreen = ({ navigation, setSelectedDayInCalendar }) => {
   }
 
   return (
-    <AppLayout
-      navigation={navigation}
-      showTopBar={false}
-      // title={new Date(today).toDateString()}
-    >
+    <AppLayout navigation={navigation} showTopBar={true} title={'Calendar'}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <TransText
-          translateKey={'calendar'}
-          category={'h4'}
-          style={{ marginBottom: 10 }}
-        />
+        {/*<TransText*/}
+        {/*  translateKey={'calendar'}*/}
+        {/*  category={'h4'}*/}
+        {/*  style={{ marginBottom: 10 }}*/}
+        {/*/>*/}
         <CalendarContainer
           setSelectedDay={handleSelectedDay}
           selectedDay={selectedDay}
@@ -84,7 +80,7 @@ const styles = StyleSheet.create({
   button: {
     height: 50,
     backgroundColor: '#dd6868',
-    borderColor: 'white',
+    borderColor: '#dd6868',
     marginTop: 15,
     borderRadius: 10,
     flex: 1,

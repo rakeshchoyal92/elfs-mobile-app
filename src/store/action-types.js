@@ -34,6 +34,7 @@ export const SET_SELECTED_DAY = 'calendar/SET_SELECTED_DAY'
 
 // Language
 export const SET_LANGUAGE = 'misc/SET_LANGUAGE'
+export const SET_THEME = 'misc/SET_THEME'
 
 export const AUTH = {
   SET_USER: 'SET_USER',

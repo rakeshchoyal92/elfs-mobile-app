@@ -7,6 +7,7 @@ import { SCREENS } from '@constants/strings'
 import { useDispatch } from 'react-redux'
 import { addParameterOfDay } from '@actions/calendar.actions'
 import { data } from './data'
+import { Layout } from '@ui-kitten/components'
 
 export const AddParameterModal = ({ navigation, route }) => {
   const { date } = route.params
@@ -36,12 +37,9 @@ export const AddParameterModal = ({ navigation, route }) => {
       title={date}
       navigation={navigation}
     >
-      <View style={{ flex: 1 }}>
-        {/*{renderHeader()}*/}
-        <View style={{ backgroundColor: 'white', flex: 1 }}>
-          {renderContent()}
-        </View>
-      </View>
+      <Layout style={{ flex: 1 }} level="4">
+        {renderContent()}
+      </Layout>
     </AppLayout>
   )
 }

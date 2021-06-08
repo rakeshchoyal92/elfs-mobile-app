@@ -1,8 +1,9 @@
 import React from 'react'
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context'
-import { View } from 'react-native'
+import { Platform, ScrollView, View } from 'react-native'
 import { TopBarComponent } from '@components/layout/topBar'
 import { useNavigationState } from '@react-navigation/native'
+import { Layout } from '@ui-kitten/components'
 
 export default function AppLayout({
   navigation,
@@ -10,7 +11,6 @@ export default function AppLayout({
   style,
   title,
   showTopBar = true,
-  showDrawer = true,
 }) {
   const canGoBack = useNavigationState((state) => {
     return state.routes.length > 1
@@ -19,10 +19,10 @@ export default function AppLayout({
   return (
     <SafeAreaInsetsContext.Consumer>
       {(insets) => (
-        <View
+        <Layout
+          level={'4'}
           style={{
             flex: 1,
-            // backgroundColor: COLORS.BACKGROUND_COLOR,
             ...style,
           }}
         >
@@ -32,21 +32,37 @@ export default function AppLayout({
               navigation={navigation}
               title={title}
               canGoBack={canGoBack}
-              showDrawer={showDrawer}
             />
           )}
-          <View
-            style={{
-              paddingLeft: 10,
-              paddingRight: 10,
-              paddingTop: !showTopBar ? insets.top : 10,
-              paddingBottom: showTopBar && insets.bottom + 50,
-              height: '100%',
-            }}
-          >
-            {children}
-          </View>
-        </View>
+
+          {Platform.OS === 'web' ? (
+            <View
+              style={{
+                paddingLeft: 10,
+                paddingRight: 10,
+                paddingTop: !showTopBar ? insets.top : 10,
+                paddingBottom: showTopBar && insets.bottom + 50,
+                height: '100%',
+                alignItems: 'center',
+              }}
+            >
+              <ScrollView style={{ width: 800 }}>{children}</ScrollView>
+            </View>
+          ) : (
+            <View
+              style={{
+                paddingLeft: 10,
+                paddingRight: 10,
+                paddingTop: !showTopBar ? insets.top : 10,
+                paddingBottom: showTopBar && insets.bottom + 50,
+                height: '100%',
+                // alignItems: Platform.OS === 'web' && 'center',
+              }}
+            >
+              {children}
+            </View>
+          )}
+        </Layout>
       )}
     </SafeAreaInsetsContext.Consumer>
   )

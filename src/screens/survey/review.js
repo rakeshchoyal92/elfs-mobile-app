@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { Button, Icon, Spinner } from '@ui-kitten/components'
-import { ScrollView, View, Alert } from 'react-native'
+import { ScrollView, View, Alert, Platform } from 'react-native'
 import { FONTS, SCREENS } from '@constants/strings'
 import { TextNunitoSans } from '@components/common'
-import { submitSurvey } from '@actions/survey.actions'
+import { clearResponses, submitSurvey } from '@actions/survey.actions'
 import AppLayout from '@components/layout'
 import { getAllSurveys } from '@actions/survey.actions'
 import { ErrorBox } from '@components/common/Error'
@@ -67,11 +67,17 @@ const SurveyReview = ({
   getAllSurveys,
   submitSurvey,
   navigation,
+  clearResponses,
 }) => {
   const [formError, setFormError] = useState(false)
   const [formSaving, setFormSaving] = useState(false)
 
   const handleDiscardSurvey = () => {
+    if (Platform.OS === 'web') {
+      clearResponses()
+      navigation.reset({ index: 0, routes: [{ name: SCREENS.SURVEY }] })
+      navigation.navigate(SCREENS.SURVEY)
+    }
     Alert.alert(
       'Discard survey',
       'This action is non-reversible. Are you sure you would like to discard this survey?',
@@ -83,7 +89,11 @@ const SurveyReview = ({
         },
         {
           text: 'Yes',
-          onPress: () => console.log('OK pressed'),
+          onPress: () => {
+            clearResponses()
+            navigation.reset({ index: 0, routes: [{ name: SCREENS.SURVEY }] })
+            navigation.navigate(SCREENS.SURVEY)
+          },
           style: 'destructive',
         },
       ]
@@ -191,6 +201,7 @@ const mapStateToProps = ({ questions, survey }) => {
 const mapDispatchToProps = {
   submitSurvey,
   getAllSurveys,
+  clearResponses,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SurveyReview)
