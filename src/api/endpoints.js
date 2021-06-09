@@ -1,4 +1,6 @@
-const BASE = `http://localhost:8000/api`
+import Constants from 'expo-constants'
+
+const BASE = Constants.manifest.extra.API_HOST || `http://localhost:8000/api`
 
 const ENDPOINTS = {
   QUESTIONS: () => `${BASE}/questions`,

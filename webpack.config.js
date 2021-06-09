@@ -1,3 +1,4 @@
+require('dotenv/config')
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 
 module.exports = async function (env, argv) {
