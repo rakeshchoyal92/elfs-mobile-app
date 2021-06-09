@@ -24,9 +24,9 @@ function CalendarContainer({ setSelectedDay, parameters, markedDate, theme }) {
           textMonthFontFamily: FONTS.NunitoSans_400Regular,
           textDayHeaderFontFamily: FONTS.NunitoSans_400Regular,
           todayTextColor: 'red',
-          textDayFontSize: 12,
+          textDayFontSize: 14,
           textMonthFontSize: 18,
-          textDayHeaderFontSize: 12,
+          textDayHeaderFontSize: 14,
           // These color change based on the theme
           calendarBackground: theme === 'dark' ? 'black' : 'white',
           monthTextColor: theme === 'dark' ? 'white' : 'black',

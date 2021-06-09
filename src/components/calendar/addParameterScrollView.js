@@ -11,6 +11,7 @@ import { StyledScrollView } from '@components/calendar/styles'
 import { pickBy } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faBolt } from '@fortawesome/free-solid-svg-icons'
+import { TextNunitoSans } from '@components/common'
 
 const Bolts = ({ number, color }) => {
   const arrayGenerator = () =>
@@ -86,17 +87,11 @@ export default function AddParameterScrollView({ data, onSubmit }) {
             )}
 
             <View style={{ alignItems: 'center' }}>
-              <StyledEmojiCaption
-                style={{
-                  fontFamily:
-                    selectedValues?.[key] === type.key
-                      ? FONTS.NunitoSans_700Bold
-                      : FONTS.NunitoSans_400Regular,
-                  color: selectedValues?.[key] === type.key ? 'black' : '#777',
-                }}
-              >
-                {type.key}
-              </StyledEmojiCaption>
+              <TextNunitoSans
+                text={type.key}
+                style={{ fontSize: 12 }}
+                category={'hint'}
+              />
             </View>
           </TouchableOpacity>
         ))}
@@ -139,7 +134,7 @@ export default function AddParameterScrollView({ data, onSubmit }) {
     return (
       <Text
         style={{
-          marginBottom: 15,
+          marginBottom: 8,
           fontFamily: FONTS.NunitoSans_700Bold,
           textAlign: 'left',
           fontSize: 16,

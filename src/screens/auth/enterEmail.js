@@ -49,6 +49,8 @@ const EnterEmailScreen = ({ generatePassword, navigation, loading }) => {
                   setResponseFromServer(res.value.message)
                   navigation.navigate(SCREENS.AUTH_ENTER_OTP, {
                     responseFromServer: res.value.message,
+                    //FIXME: REMOVE OTP ON PROD
+                    OTP: res.value.OTP,
                     emailOrMobile: email,
                   })
                 })

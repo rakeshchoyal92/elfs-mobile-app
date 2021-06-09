@@ -25,21 +25,25 @@ export const TopBarComponent = ({
   const renderLeftAccessory = (props) => {
     return canGoBack ? (
       <TouchableOpacity>
-        <MaterialIcons
-          {...props}
-          onPress={() => navigation.goBack()}
-          name="arrow-back"
-          size={26}
-        />
+        <Text>
+          <MaterialIcons
+            {...props}
+            onPress={() => navigation.goBack()}
+            name="arrow-back"
+            size={26}
+          />
+        </Text>
       </TouchableOpacity>
     ) : (
       <TouchableOpacity>
-        <MaterialIcons
-          {...props}
-          onPress={() => navigation.navigate(SCREENS.CALENDAR)}
-          name="home"
-          size={26}
-        />
+        <Text>
+          <MaterialIcons
+            {...props}
+            onPress={() => navigation.navigate(SCREENS.CALENDAR)}
+            name="home"
+            size={26}
+          />
+        </Text>
       </TouchableOpacity>
     )
   }
