@@ -4,16 +4,21 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { View } from 'react-native'
 
-function CalendarContainer({ setSelectedDay, parameters, markedDate, theme }) {
+function CalendarContainer({
+  setSelectedDay,
+  parameters,
+  markedDateFormatted,
+  theme,
+}) {
   return (
     <View>
       <Calendar
         style={{
           borderTopRightRadius: 10,
           borderTopLeftRadius: 10,
-          backgroundColor: theme === 'dark' ? 'black' : 'white',
+          backgroundColor: 'rgba(150,213,241,100)',
         }}
-        markedDates={{ ...parameters, ...markedDate }}
+        markedDates={{ ...parameters, ...markedDateFormatted }}
         markingType={'multi-dot'}
         monthFormat={'MMM yyyy'}
         onDayPress={(day) => {
@@ -28,10 +33,11 @@ function CalendarContainer({ setSelectedDay, parameters, markedDate, theme }) {
           textMonthFontSize: 18,
           textDayHeaderFontSize: 14,
           // These color change based on the theme
-          calendarBackground: theme === 'dark' ? 'black' : 'white',
-          monthTextColor: theme === 'dark' ? 'white' : 'black',
-          dayTextColor: theme === 'dark' ? 'white' : 'black',
+          calendarBackground: 'rgba(176,224,245,0.76)',
+          monthTextColor: 'black',
+          dayTextColor: 'black',
           textDisabledColor: '#858a8d',
+          textSectionTitleColor: 'black',
         }}
       />
     </View>
@@ -41,8 +47,8 @@ function CalendarContainer({ setSelectedDay, parameters, markedDate, theme }) {
 const mapStateToProps = ({ calendar, misc }) => {
   return {
     parameters: calendar.parameters,
-    markedDate: calendar.markedDate,
-    selectedParameter: calendar.selectedParameter,
+    markedDateFormatted: calendar.markedDateFormatted,
+    selectedParameterWithValues: calendar.selectedParameterWithValues,
     theme: misc.theme,
   }
 }

@@ -25,19 +25,22 @@ export const data = [
     title: 'Had Sex',
     key: 'hadSex',
     type: 'radio',
+    color: 'red',
     data: [{ key: 'Yes', type: 'singleIcon', icon: 'heart' }],
   },
   {
     title: 'Experienced sex with pain',
+    shortTitle: 'Sex With Pain',
     key: 'experiencedPainWithSex',
     type: 'radio',
+    color: 'orange',
     data: [{ key: 'Yes', type: 'singleIcon', icon: 'disappointed' }],
   },
   {
     title: 'Pelvic Pain',
     key: 'pelvicPain',
     type: 'radio',
-
+    color: 'black',
     data: [{ key: 'Yes', type: 'multipleIcon', number: 1, color: 'black' }],
   },
   {

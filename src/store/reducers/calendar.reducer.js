@@ -7,9 +7,10 @@ import {
 import { markingDots } from '@constants/strings'
 
 const initialState = {
-  parameters: {},
-  selectedParameter: null,
-  markedDate: {},
+  parameters: {}, // holds formatted values supported by react-native-calendar
+  values: [], // Holds raw values -> date and selected values
+  selectedParameterWithValues: null, // Holds params of the selected date
+  markedDateFormatted: {}, // Holds marked date value with formatted values
 }
 
 function reducer(state = initialState, action) {
@@ -19,24 +20,30 @@ function reducer(state = initialState, action) {
       break
     }
     case SET_CALENDAR_MARKING: {
-      const { date, values } = action.payload
-      state.parameters[date] = makeParameter(values)
-      state.selectedParameter = {
-        date,
-        values,
-      }
+      const { date, param, values } = action.payload
+      state.parameters[date] = param
+      state.values.push({ date, values })
+      state.selectedParameterWithValues = { date, values }
       break
     }
     case SET_SELECTED_DAY: {
       const date = action.payload
-      const mm = state.parameters[date]
-      state.markedDate = {
+      const params = state.parameters[date]
+      state.markedDateFormatted = {
         [date]: {
-          ...mm,
+          ...params,
           selected: true,
           marked: true,
           selectedColor: '#b1acac',
         },
+      }
+      const selectedParameterWithValuesParam = state.values.find(
+        (item) => item.date === date
+      )
+      if (selectedParameterWithValuesParam) {
+        state.selectedParameterWithValues = selectedParameterWithValuesParam
+      } else {
+        state.selectedParameterWithValues = null
       }
       break
     }
@@ -45,37 +52,4 @@ function reducer(state = initialState, action) {
   }
 }
 
-/**
- * Function to mark dots
- * @param values
- */
-const makeParameter = (values) => {
-  let output = {
-    dots: [],
-  }
-
-  for (const property in values) {
-    if (markingDots[property]) {
-      output['dots'].push(markingDots[property])
-    }
-
-    if (property === 'bleeding') {
-      const bleedingValue = values[property]
-      output = {
-        ...output,
-        selected: true,
-        selectedColor:
-          bleedingValue === 'Spot'
-            ? '#ea7697'
-            : bleedingValue === 'Light'
-            ? '#e94070'
-            : bleedingValue === 'Normal'
-            ? '#ab2e52'
-            : '#8f022a',
-      }
-    }
-  }
-
-  return output
-}
 export default produce(reducer, initialState)

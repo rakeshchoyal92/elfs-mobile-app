@@ -11,6 +11,7 @@ import thunk from 'redux-thunk'
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
+  // whitelist: ['auth'],
 }
 
 export default function configureStore() {

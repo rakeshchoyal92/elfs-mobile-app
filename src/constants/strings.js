@@ -62,8 +62,7 @@ export const markingDots = {
   // bleeding: { key: 'bleeding', color: 'red', selectedDotColor: 'blue' },
   periodPain: {
     key: 'periodPain',
-    color: 'blue',
-    selectedDotColor: 'blue',
+    color: 'orange',
   },
   // hadSex: { key: 'hadSex', color: 'green' },
   // experiencedSexWithPain: {

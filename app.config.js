@@ -2,7 +2,7 @@ import 'dotenv/config'
 
 export default {
   expo: {
-    name: 'elfs',
+    name: 'elfs0:2',
     slug: 'elfs',
     version: '1.0.0',
     extra: {
