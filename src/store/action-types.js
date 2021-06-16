@@ -31,6 +31,8 @@ export const USERS = {
 export const SET_CALENDAR_MARKING = 'calendar/SET_CALENDAR_MARKING'
 export const SET_CALENDAR_MARKINGS = 'calendar/SET_CALENDAR_MARKINGS'
 export const SET_SELECTED_DAY = 'calendar/SET_SELECTED_DAY'
+export const SET_PARAMETER_DATA = 'calendar/SET_PARAMETER_DATA'
+export const SET_PARAMETER_DATA_ALL = 'calendar/SET_PARAMETER_DATA_ALL'
 
 // Language
 export const SET_LANGUAGE = 'misc/SET_LANGUAGE'

@@ -2,17 +2,10 @@ import { Button, Input, Text } from '@ui-kitten/components'
 import { View, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { FONTS } from '@constants/strings'
-import Emoji from 'react-native-emoji'
-import {
-  StyledEmojiCaption,
-  StyledEmojiView,
-} from '@components/calendar/styles'
 import { StyledScrollView } from '@components/calendar/styles'
 import { pickBy } from 'lodash'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { TextNunitoSans } from '@components/common'
-import { Bolts } from '@components/bolts'
+import { IconMultiplier } from '@components/Icons/fa-icon-multiplier'
 
 export default function AddParameterScrollView({ data, onSubmit }) {
   const [selectedValues, setSelectedValues] = useState({})
@@ -56,11 +49,25 @@ export default function AddParameterScrollView({ data, onSubmit }) {
             {/*)}*/}
 
             {type.type === 'multipleIcon' && (
-              <Bolts number={type.number} color={type.color} />
+              <IconMultiplier
+                number={type.number}
+                font={type.font}
+                color={type.color}
+              />
             )}
 
-            <View style={{ alignItems: 'center' }}>
-              <TextNunitoSans text={type.key} style={{ fontSize: 12 }} />
+            <View
+              style={{
+                alignItems: 'center',
+              }}
+            >
+              <TextNunitoSans
+                text={type.key}
+                style={{
+                  fontSize: 12,
+                  marginTop: 5,
+                }}
+              />
             </View>
           </TouchableOpacity>
         ))}

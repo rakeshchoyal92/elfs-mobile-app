@@ -1,9 +1,9 @@
 import { View } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faBolt } from '@fortawesome/free-solid-svg-icons'
+import { faBolt, faTint } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
 
-export const Bolts = ({ number, color }) => {
+export const IconMultiplier = ({ number, font, color }) => {
   const arrayGenerator = () =>
     Array(number)
       .fill(1)
@@ -20,10 +20,10 @@ export const Bolts = ({ number, color }) => {
         return (
           <FontAwesomeIcon
             key={item}
-            icon={faBolt}
+            icon={font === 'bolt' ? faBolt : faTint}
             size={15}
             color={color}
-            style={{ marginLeft: item === 1 ? 0 : -5 }}
+            style={{ marginLeft: item === 1 ? 0 : -2 }}
           />
         )
       })}

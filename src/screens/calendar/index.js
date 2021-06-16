@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, ScrollView, View } from 'react-native'
 import { Button, Layout, Text } from '@ui-kitten/components'
 import { FONTS, SCREENS } from '@constants/strings'
@@ -10,16 +10,24 @@ import { TransText } from '@components/common/TransText'
 import { connect } from 'react-redux'
 import moment from 'moment'
 
-import { setSelectedDayInCalendar } from '@actions/calendar.actions'
+import {
+  getParameterOfTheDay,
+  setSelectedDayInCalendar,
+} from '@actions/calendar.actions'
 import { TextNunitoSans } from '@components/common'
 
 const CalendarsScreen = ({
   navigation,
   setSelectedDayInCalendar,
   selectedParameterWithValues,
+  getParameterOfTheDay,
 }) => {
   const today = moment(new Date()).format('YYYY-MM-DD')
   const [selectedDay, setSelectedDay] = useState(today)
+
+  useEffect(() => {
+    getParameterOfTheDay()
+  }, [])
 
   const handleSelectedDay = (day) => {
     setSelectedDayInCalendar(day.dateString)
@@ -48,6 +56,9 @@ const CalendarsScreen = ({
             flexDirection: 'row',
             borderBottomLeftRadius: 10,
             borderBottomRightRadius: 10,
+            borderWidth: 1,
+            borderColor: 'orange',
+            borderTopWidth: 0,
           }}
         >
           {/*Bleeding*/}
@@ -162,6 +173,7 @@ const mapStateToProps = ({ calendar }) => {
 
 const mapDispatchToProps = {
   setSelectedDayInCalendar,
+  getParameterOfTheDay,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(CalendarsScreen)

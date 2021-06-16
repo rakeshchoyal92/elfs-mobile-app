@@ -16,7 +16,10 @@ function CalendarContainer({
         style={{
           borderTopRightRadius: 10,
           borderTopLeftRadius: 10,
-          backgroundColor: 'rgba(150,213,241,100)',
+          // backgroundColor: 'rgba(150,213,241,100)',
+          borderWidth: 1,
+          borderColor: 'orange',
+          borderBottomWidth: 0,
         }}
         markedDates={{ ...parameters, ...markedDateFormatted }}
         markingType={'multi-dot'}
@@ -33,7 +36,8 @@ function CalendarContainer({
           textMonthFontSize: 18,
           textDayHeaderFontSize: 14,
           // These color change based on the theme
-          calendarBackground: 'rgba(176,224,245,0.76)',
+          // calendarBackground: 'rgba(176,224,245,0.76)',
+          // calendarBackground: 'rgba(176,224,245,0.76)',
           monthTextColor: 'black',
           dayTextColor: 'black',
           textDisabledColor: '#858a8d',

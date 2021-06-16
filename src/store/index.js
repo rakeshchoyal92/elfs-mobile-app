@@ -14,8 +14,13 @@ const persistConfig = {
   // whitelist: ['auth'],
 }
 
+const actionLogger = (store) => (next) => (action) => {
+  console.log(`Middleware triggered: ${action.type} | ${action.data}`)
+  next(action)
+}
+
 export default function configureStore() {
-  const middlewares = applyMiddleware(thunk, promise)
+  const middlewares = applyMiddleware(thunk, promise, actionLogger)
   const persistedReducer = persistReducer(persistConfig, reducers)
   const store = createStore(persistedReducer, composeWithDevTools(middlewares))
   const persistor = persistStore(store)

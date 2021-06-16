@@ -1,14 +1,62 @@
-import { SET_CALENDAR_MARKING, SET_SELECTED_DAY } from '@store/action-types'
+import {
+  SET_CALENDAR_MARKING,
+  SET_PARAMETER_DATA,
+  SET_PARAMETER_DATA_ALL,
+  SET_SELECTED_DAY,
+} from '@store/action-types'
 import { markingDots } from '@constants/strings'
+import { saveParameter, getParameters } from '@api/calendar_parameter'
+import moment from 'moment'
 
-export const addParameterOfDay = (date, values) => {
+export const addParameterOfDay = (date, values) => async (dispatch) => {
   const calendarParams = makeParameter(values)
+  const dateFormatted = moment(date, 'YYYY-MM-DD').format()
+  const data = {
+    date: dateFormatted,
+    ...values,
+  }
+
+  const firstAction = dispatch({
+    type: SET_PARAMETER_DATA,
+    async payload() {
+      return await saveParameter(data)
+    },
+  })
+
+  return firstAction.then((data) => {
+    return dispatch({
+      type: SET_CALENDAR_MARKING,
+      payload: {
+        date,
+        values: data.value,
+        param: calendarParams,
+      },
+    })
+  })
+}
+
+export const getParameterOfTheDay = () => {
   return {
-    type: SET_CALENDAR_MARKING,
-    payload: {
-      date,
-      values,
-      param: calendarParams,
+    type: SET_PARAMETER_DATA_ALL,
+    async payload() {
+      let values = await getParameters()
+      let paramFormatted = {}
+      let valuesFormatted = []
+      values.map((value) => {
+        const { date, ...restValue } = value
+        const calendarParams = makeParameter(restValue)
+        const dateFormatted = moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD')
+        const data = {
+          values: restValue,
+          date: dateFormatted,
+        }
+        valuesFormatted.push(data)
+        paramFormatted[dateFormatted] = calendarParams
+      })
+      return {
+        values: valuesFormatted,
+        parameters: paramFormatted,
+      }
     },
   }
 }

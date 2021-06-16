@@ -3,9 +3,11 @@ import { connect } from 'react-redux'
 import { Platform, View } from 'react-native'
 import { Layout } from '@ui-kitten/components'
 import { data as paramData } from '@screens/addParameter/data'
-import { Bolts } from '@components/bolts'
+import { IconMultiplier } from '@components/Icons/fa-icon-multiplier'
 import { TextNunitoSans } from '@components/common'
 import { FONTS } from '@constants/strings'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
 
 function ParameterDetail({ data }) {
   const extractParamInfo = (key, response) => {
@@ -34,76 +36,93 @@ function ParameterDetail({ data }) {
           }}
         >
           {Object.keys(values).map((item) => {
-            if (item !== 'note') {
-              const {
-                title,
-                shortTitle = null,
-                data,
-                color = 'grey',
-              } = extractParamInfo(item, values[item])
-              return (
-                <Layout
-                  level={'4'}
-                  key={title}
-                  style={{
-                    flex: 1,
-                    flexBasis: '30%',
-                    height: Platform.OS === 'web' ? 70 : 50,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    margin: 5,
-                    borderRadius: 10,
-                  }}
-                >
-                  <View>
-                    <TextNunitoSans
-                      fontFamily={FONTS.NunitoSans_600SemiBold}
-                      text={shortTitle || title}
-                    />
+            if (
+              ![undefined, null].includes(values[item]) &&
+              paramData.find((e) => e.key === item)
+            ) {
+              if (item !== 'note') {
+                const {
+                  title,
+                  shortTitle = null,
+                  data,
+                  color = 'grey',
+                } = extractParamInfo(item, values[item])
+                return (
+                  <Layout
+                    level={'4'}
+                    key={title}
+                    style={{
+                      flex: 1,
+                      flexBasis: '30%',
+                      height: Platform.OS === 'web' ? 70 : 50,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      margin: 5,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <View>
+                      <TextNunitoSans
+                        fontFamily={FONTS.NunitoSans_600SemiBold}
+                        text={shortTitle || title}
+                      />
 
-                    <View
-                      style={{
-                        marginTop: 3,
-                        justifyContent: 'center',
-                        alignContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {data?.type === 'multipleIcon' ? (
-                        <Bolts number={data.number} color={data.color} />
-                      ) : (
-                        <View
-                          style={{
-                            width: 13,
-                            height: 13,
-                            borderRadius: 13,
-                            backgroundColor: color,
-                          }}
-                        />
-                      )}
+                      <View
+                        style={{
+                          marginTop: 3,
+                          justifyContent: 'center',
+                          alignContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {data?.type === 'multipleIcon' ? (
+                          <IconMultiplier
+                            number={data.number}
+                            font={data.font}
+                            color={data.color}
+                          />
+                        ) : (
+                          <View
+                            style={
+                              {
+                                // width: 13,
+                                // height: 13,
+                                // borderRadius: 13,
+                                // backgroundColor: color,
+                              }
+                            }
+                          >
+                            <FontAwesomeIcon
+                              icon={faCheck}
+                              size={15}
+                              color="green"
+                            />
+                          </View>
+                        )}
+                      </View>
                     </View>
-                  </View>
-                </Layout>
-              )
-            } else {
-              return (
-                <Layout
-                  style={{
-                    flex: 1,
-                    flexBasis: '70%',
-                    margin: 5,
-                    borderRadius: 10,
-                    padding: 10,
-                  }}
-                  level={'4'}
-                >
-                  <TextNunitoSans
-                    text={'Notes:'}
-                    fontFamily={FONTS.NunitoSans_800ExtraBold}
-                  />
-                  <TextNunitoSans text={values['note']} />
-                </Layout>
-              )
+                  </Layout>
+                )
+              } else {
+                return (
+                  <Layout
+                    style={{
+                      flex: 1,
+                      flexBasis: '70%',
+                      margin: 5,
+                      borderRadius: 10,
+                      padding: 10,
+                    }}
+                    level={'4'}
+                  >
+                    <TextNunitoSans
+                      text={'Notes:'}
+                      fontFamily={FONTS.NunitoSans_800ExtraBold}
+                    />
+                    <TextNunitoSans text={values['note']} />
+                  </Layout>
+                )
+              }
             }
           })}
         </View>
