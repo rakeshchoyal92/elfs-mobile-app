@@ -22,6 +22,7 @@ export const COLORS = {
   SELECTED_RESPONSE: '#1DA57A',
   PRIMARY_COLOR: '#F7A538',
   BACKGROUND_COLOR: '#f2f4f8',
+  BACKGROUND_PINK_1: '#ffb7ce',
 }
 
 export const RESPONSE_TYPES = {

@@ -6,6 +6,7 @@ import AppLayout from '@components/layout'
 import { TextNunitoSans } from '@components/common'
 import { FONTS } from '@constants/strings'
 import { getQuestions } from '@actions/questions.actions'
+import moment from 'moment'
 
 const ViewIcons = (props) => <Icon name="eye-outline" {...props} />
 
@@ -25,15 +26,51 @@ const SurveyDetails = ({
     setResponse(res)
   }, [])
 
-  const renderResponse = (response) => {
+  function RenderResponse({ response }) {
+    const isDate = moment(response, 'YYYY-MM-DD', true).isValid()
     if (typeof response === 'boolean') {
       if (response) {
-        return 'Yes'
+        return (
+          <TextNunitoSans
+            text="Yes"
+            fontFamily={FONTS.NunitoSans_700Bold}
+            style={{ marginBottom: 5 }}
+          />
+        )
       } else {
-        return 'No'
+        return (
+          <TextNunitoSans
+            text="No"
+            fontFamily={FONTS.NunitoSans_700Bold}
+            style={{ marginBottom: 5 }}
+          />
+        )
       }
+    } else if (Array.isArray(response)) {
+      return response.map((item, index) => (
+        <TextNunitoSans
+          key={item}
+          text={`${index + 1}. ${item}`}
+          fontFamily={FONTS.NunitoSans_700Bold}
+          style={{ marginBottom: 5 }}
+        />
+      ))
+    } else if (isDate) {
+      return (
+        <TextNunitoSans
+          text={moment(response, 'YYYY-MM-DD').format('DD/MM/YYYY')}
+          fontFamily={FONTS.NunitoSans_700Bold}
+          style={{ marginBottom: 5 }}
+        />
+      )
     } else {
-      return response
+      return (
+        <TextNunitoSans
+          text={response}
+          fontFamily={FONTS.NunitoSans_700Bold}
+          style={{ marginBottom: 5 }}
+        />
+      )
     }
   }
 
@@ -65,21 +102,22 @@ const SurveyDetails = ({
                   adjustsFontSizeToFit
                   allowFontScaling
                 />
-                {Array.isArray(value) &&
-                  value.map((e, index) => (
-                    <TextNunitoSans
-                      key={e}
-                      text={`${index + 1}. ${renderResponse(e)}`}
-                      fontFamily={FONTS.NunitoSans_700Bold}
-                      style={{ marginBottom: 5 }}
-                    />
-                  ))}
-                {!Array.isArray(value) && (
-                  <TextNunitoSans
-                    text={renderResponse(value)}
-                    fontFamily={FONTS.NunitoSans_700Bold}
-                  />
-                )}
+                <RenderResponse response={value} />
+                {/*{Array.isArray(value) &&*/}
+                {/*  value.map((e, index) => (*/}
+                {/*    <TextNunitoSans*/}
+                {/*      key={e}*/}
+                {/*      text={`${index + 1}. ${renderResponse(e)}`}*/}
+                {/*      fontFamily={FONTS.NunitoSans_700Bold}*/}
+                {/*      style={{ marginBottom: 5 }}*/}
+                {/*    />*/}
+                {/*  ))}*/}
+                {/*{!Array.isArray(value) && (*/}
+                {/*  <TextNunitoSans*/}
+                {/*    text={renderResponse(value)}*/}
+                {/*    fontFamily={FONTS.NunitoSans_700Bold}*/}
+                {/*  />*/}
+                {/*)}*/}
               </View>
             )
           }

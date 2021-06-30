@@ -2,9 +2,9 @@ import 'dotenv/config'
 
 export default {
   expo: {
-    name: 'elfs0:2',
+    name: 'ELFS',
     slug: 'elfs',
-    version: '1.0.0',
+    version: '0.1',
     extra: {
       API_HOST: process.env.API_HOST,
     },
@@ -20,9 +20,13 @@ export default {
     },
     assetBundlePatterns: ['**/*'],
     ios: {
-      supportsTablet: true,
+      buildNumber: '1',
+      bundleIdentifier: 'au.edu.unimelb.eresearch.elfs',
     },
     android: {
+      package: 'au.edu.unimelb.eresearch.elfs',
+      versionCode: 1,
+      permissions: [],
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#FFFFFF',

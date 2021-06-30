@@ -5,7 +5,7 @@ import { Layout } from '@ui-kitten/components'
 import { data as paramData } from '@screens/addParameter/data'
 import { IconMultiplier } from '@components/Icons/fa-icon-multiplier'
 import { TextNunitoSans } from '@components/common'
-import { FONTS } from '@constants/strings'
+import { COLORS, FONTS } from '@constants/strings'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faCheck } from '@fortawesome/free-solid-svg-icons'
 
@@ -38,9 +38,10 @@ function ParameterDetail({ data }) {
           {Object.keys(values).map((item) => {
             if (
               ![undefined, null].includes(values[item]) &&
-              paramData.find((e) => e.key === item)
+              paramData.find((e) => e.key === item) &&
+              values[item]
             ) {
-              if (item !== 'note') {
+              if (item !== 'notes') {
                 const {
                   title,
                   shortTitle = null,
@@ -59,12 +60,14 @@ function ParameterDetail({ data }) {
                       alignItems: 'center',
                       margin: 5,
                       borderRadius: 10,
+                      backgroundColor: COLORS.BACKGROUND_PINK_1,
                     }}
                   >
                     <View>
                       <TextNunitoSans
                         fontFamily={FONTS.NunitoSans_600SemiBold}
                         text={shortTitle || title}
+                        style={{ color: 'black' }}
                       />
 
                       <View
@@ -82,16 +85,7 @@ function ParameterDetail({ data }) {
                             color={data.color}
                           />
                         ) : (
-                          <View
-                            style={
-                              {
-                                // width: 13,
-                                // height: 13,
-                                // borderRadius: 13,
-                                // backgroundColor: color,
-                              }
-                            }
-                          >
+                          <View>
                             <FontAwesomeIcon
                               icon={faCheck}
                               size={15}
@@ -106,20 +100,26 @@ function ParameterDetail({ data }) {
               } else {
                 return (
                   <Layout
+                    key={'notes'}
                     style={{
                       flex: 1,
                       flexBasis: '70%',
                       margin: 5,
                       borderRadius: 10,
                       padding: 10,
+                      backgroundColor: COLORS.BACKGROUND_PINK_1,
                     }}
                     level={'4'}
                   >
                     <TextNunitoSans
                       text={'Notes:'}
                       fontFamily={FONTS.NunitoSans_800ExtraBold}
+                      style={{ color: 'black' }}
                     />
-                    <TextNunitoSans text={values['note']} />
+                    <TextNunitoSans
+                      text={values['notes']}
+                      style={{ color: 'black' }}
+                    />
                   </Layout>
                 )
               }
@@ -132,7 +132,7 @@ function ParameterDetail({ data }) {
   }
   return (
     <Layout
-      level={'1'}
+      level={'4'}
       style={{
         paddingTop: 10,
         paddingBottom: 10,

@@ -19,7 +19,7 @@ function RenderResponse({ response }) {
       return (
         <TextNunitoSans
           text="Yes"
-          fontFamily={FONTS.NunitoSans_700Bold}
+          fontFamily={FONTS.NunitoSans_400Regular}
           style={{ marginBottom: 5 }}
         />
       )
@@ -27,17 +27,17 @@ function RenderResponse({ response }) {
       return (
         <TextNunitoSans
           text="No"
-          fontFamily={FONTS.NunitoSans_700Bold}
+          fontFamily={FONTS.NunitoSans_400Regular}
           style={{ marginBottom: 5 }}
         />
       )
     }
   } else if (Array.isArray(response)) {
-    response.map((item, index) => (
+    return response.map((item, index) => (
       <TextNunitoSans
         key={item}
         text={`${index + 1}. ${item}`}
-        fontFamily={FONTS.NunitoSans_700Bold}
+        fontFamily={FONTS.NunitoSans_400Regular}
         style={{ marginBottom: 5 }}
       />
     ))
@@ -45,7 +45,7 @@ function RenderResponse({ response }) {
     return (
       <TextNunitoSans
         text={new Date(response).toDateString()}
-        fontFamily={FONTS.NunitoSans_700Bold}
+        fontFamily={FONTS.NunitoSans_400Regular}
         style={{ marginBottom: 5 }}
       />
     )
@@ -53,7 +53,7 @@ function RenderResponse({ response }) {
     return (
       <TextNunitoSans
         text={response}
-        fontFamily={FONTS.NunitoSans_700Bold}
+        fontFamily={FONTS.NunitoSans_400Regular}
         style={{ marginBottom: 5 }}
       />
     )
@@ -136,9 +136,7 @@ const SurveyReview = ({
             >
               <TextNunitoSans
                 text={`${index + 1}. ${questions[res.key]}`}
-                fontFamily={FONTS.NunitoSans_600SemiBold}
-                adjustsFontSizeToFit
-                allowFontScaling
+                fontFamily={FONTS.NunitoSans_700Bold}
               />
               <RenderResponse response={res.value} />
             </View>

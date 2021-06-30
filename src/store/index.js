@@ -11,7 +11,7 @@ import thunk from 'redux-thunk'
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  // whitelist: ['auth'],
+  whitelist: ['auth'],
 }
 
 const actionLogger = (store) => (next) => (action) => {

@@ -3,9 +3,14 @@ import {
   SET_PARAMETER_DATA,
   SET_PARAMETER_DATA_ALL,
   SET_SELECTED_DAY,
+  UPDATE_CALENDAR_MARKING,
 } from '@store/action-types'
 import { markingDots } from '@constants/strings'
-import { saveParameter, getParameters } from '@api/calendar_parameter'
+import {
+  saveParameter,
+  getParameters,
+  updateParameter,
+} from '@api/calendar_parameter'
 import moment from 'moment'
 
 export const addParameterOfDay = (date, values) => async (dispatch) => {
@@ -16,14 +21,12 @@ export const addParameterOfDay = (date, values) => async (dispatch) => {
     ...values,
   }
 
-  const firstAction = dispatch({
+  return dispatch({
     type: SET_PARAMETER_DATA,
     async payload() {
       return await saveParameter(data)
     },
-  })
-
-  return firstAction.then((data) => {
+  }).then((data) => {
     return dispatch({
       type: SET_CALENDAR_MARKING,
       payload: {
@@ -59,6 +62,35 @@ export const getParameterOfTheDay = () => {
       }
     },
   }
+}
+
+export const updateAParameter = (date, values) => (dispatch) => {
+  const calendarParams = makeParameter(values)
+  const dateFormatted = moment(date, 'YYYY-MM-DD').format()
+  const data = {
+    date: dateFormatted,
+    ...values,
+  }
+  console.log('START')
+  return dispatch({
+    type: SET_PARAMETER_DATA,
+    async payload() {
+      console.log('ONE')
+      let res = await updateParameter(data)
+      console.log('TWO')
+      return res
+    },
+  }).then((data) => {
+    console.log('THREE')
+    return dispatch({
+      type: UPDATE_CALENDAR_MARKING,
+      payload: {
+        date,
+        values: data.value,
+        param: calendarParams,
+      },
+    })
+  })
 }
 
 export const setSelectedDayInCalendar = (date) => {

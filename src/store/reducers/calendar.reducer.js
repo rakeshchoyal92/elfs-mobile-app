@@ -5,6 +5,7 @@ import {
   SET_PARAMETER_DATA,
   SET_PARAMETER_DATA_ALL,
   SET_SELECTED_DAY,
+  UPDATE_CALENDAR_MARKING,
 } from '@store/action-types'
 import { ActionType } from 'redux-promise-middleware'
 
@@ -30,6 +31,26 @@ function reducer(state = initialState, action) {
       state.parameters[date] = param
       state.values.push({ date, values })
       state.selectedParameterWithValues = { date, values }
+      break
+    }
+    case UPDATE_CALENDAR_MARKING: {
+      const { date, param, values } = action.payload
+      state.parameters[date] = param
+      state.selectedParameterWithValues = { date, values }
+      console.log(state.values)
+      const modValues = state.values.map((item) => {
+        if (item.values.uuid === values.uuid) {
+          console.log('HERE MATCH')
+          return {
+            date,
+            values,
+          }
+        } else {
+          return item
+        }
+      })
+      // state.values.push({ date, modValues })
+      state.values = modValues
       break
     }
     case `${SET_PARAMETER_DATA}_${ActionType.Fulfilled}`: {

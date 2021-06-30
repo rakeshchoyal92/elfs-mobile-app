@@ -13,14 +13,9 @@ import {
 import moment from 'moment'
 import { AntDesign } from '@expo/vector-icons'
 import { TextNunitoSans } from '@components/common'
-
 import { MomentDateService } from '@ui-kitten/moment'
 
-const dateService = new MomentDateService()
-
-const extract_value = (responses, question) => {
-  return responses[question.key]
-}
+const dateService = new MomentDateService('en-AU')
 
 const RenderBooleanC = ({ question, handleGetNextQuestion, initialValues }) => {
   const [selectedValue, setSelectedValue] = useState()
@@ -332,8 +327,9 @@ const RenderDateC = ({
   }, [])
 
   function onChange(date) {
+    const dateFormatted = moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD')
     setSelectedValue(date)
-    handleGetNextQuestion(question, date)
+    handleGetNextQuestion(question, dateFormatted)
   }
 
   return (

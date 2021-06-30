@@ -14,6 +14,8 @@ export function TextNunitoSans({
 
   return (
     <Text
+      adjustsFontSizeToFit
+      allowFontScaling
       category={category || 'label'}
       style={{
         fontFamily: fontFamily,

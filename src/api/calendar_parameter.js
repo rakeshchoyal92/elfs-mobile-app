@@ -8,3 +8,7 @@ export const saveParameter = (data) => {
 export const getParameters = (data) => {
   return client.get(EP.CALENDAR_PARAMETER(), data).then((res) => res.data)
 }
+
+export const updateParameter = (data) => {
+  return client.put(EP.CALENDAR_PARAMETER(), data).then((res) => res.data)
+}

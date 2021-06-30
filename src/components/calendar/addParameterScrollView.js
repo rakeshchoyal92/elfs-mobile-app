@@ -1,23 +1,52 @@
 import { Button, Input, Text } from '@ui-kitten/components'
 import { View, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FONTS } from '@constants/strings'
 import { StyledScrollView } from '@components/calendar/styles'
 import { pickBy } from 'lodash'
-import { TextNunitoSans } from '@components/common'
+import { LoadingIndicator, TextNunitoSans } from '@components/common'
 import { IconMultiplier } from '@components/Icons/fa-icon-multiplier'
 
-export default function AddParameterScrollView({ data, onSubmit }) {
+export default function AddParameterScrollView({
+  data,
+  onSubmit,
+  defaultSelectedValues,
+  loading,
+}) {
   const [selectedValues, setSelectedValues] = useState({})
 
+  useEffect(() => {
+    if (![null, undefined].includes(defaultSelectedValues)) {
+      Object.keys(defaultSelectedValues).map((key) => {
+        const value = defaultSelectedValues[key]
+        if (value) {
+          if (typeof value === 'boolean') {
+            setSelectedValues((prevState) => ({
+              ...prevState,
+              [key]: 'Yes',
+            }))
+          } else {
+            setSelectedValues((prevState) => ({
+              ...prevState,
+              [key]: defaultSelectedValues[key],
+            }))
+          }
+        }
+      })
+    }
+  }, [defaultSelectedValues])
+
+  // console.log(selectedValues)
+  // console.log({ defaultSelectedValues })
   const handleOnSubmit = () => {
     // Filter items that are not set/null
-    const filterNull = pickBy(selectedValues, (item) => item !== null && item)
-    onSubmit(filterNull)
+    // const filterNull = pickBy(selectedValues, (item) => item !== null && item)
+    onSubmit(selectedValues)
   }
 
   const renderRadio = (data, key) => {
     const handleSelect = (value) => {
+      console.log({ value, selectedValues })
       if (selectedValues?.[key] === value) {
         setSelectedValues((prevState) => ({ ...prevState, [key]: null }))
       } else {
@@ -42,12 +71,6 @@ export default function AddParameterScrollView({ data, onSubmit }) {
             }}
             onPress={() => handleSelect(type.key)}
           >
-            {/*{type.type === 'singleIcon' && (*/}
-            {/*  <StyledEmojiView>*/}
-            {/*    <Emoji name={type.icon} style={{ fontSize: 30 }} />*/}
-            {/*  </StyledEmojiView>*/}
-            {/*)}*/}
-
             {type.type === 'multipleIcon' && (
               <IconMultiplier
                 number={type.number}
@@ -131,7 +154,12 @@ export default function AddParameterScrollView({ data, onSubmit }) {
           </View>
         )
       })}
-      <Button style={{ marginVertical: 20 }} onPress={handleOnSubmit}>
+      <Button
+        style={{ marginVertical: 20 }}
+        onPress={handleOnSubmit}
+        disabled={loading}
+        accessoryLeft={loading && LoadingIndicator}
+      >
         Save
       </Button>
     </View>

@@ -1,4 +1,4 @@
-import { FONTS } from '@constants/strings'
+import { COLORS, FONTS } from '@constants/strings'
 import { Calendar, LocaleConfig } from 'react-native-calendars'
 import React from 'react'
 import { connect } from 'react-redux'
@@ -17,8 +17,8 @@ function CalendarContainer({
           borderTopRightRadius: 10,
           borderTopLeftRadius: 10,
           // backgroundColor: 'rgba(150,213,241,100)',
-          borderWidth: 1,
-          borderColor: 'orange',
+          // borderWidth: 1,
+          // borderColor: 'orange',
           borderBottomWidth: 0,
         }}
         markedDates={{ ...parameters, ...markedDateFormatted }}

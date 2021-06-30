@@ -1,22 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ContentContainer } from '@screens/calendar/layout.styles'
 import AddParameterScrollView from '@components/calendar/addParameterScrollView'
 import AppLayout from '@components/layout'
 import { SCREENS } from '@constants/strings'
 import { useDispatch, useSelector, connect } from 'react-redux'
-import { addParameterOfDay } from '@actions/calendar.actions'
+import { addParameterOfDay, updateAParameter } from '@actions/calendar.actions'
 import { data } from './data'
 import { Layout } from '@ui-kitten/components'
 
-const AddParameterModal = ({ navigation, route }) => {
+const AddParameterModal = ({
+  navigation,
+  route,
+  selectedParameterWithValues,
+}) => {
   const { date } = route.params
   const dispatch = useDispatch()
+  const [loading, setLoading] = useState()
 
   const handleOnSubmit = (values) => {
-    dispatch(addParameterOfDay(date, values))
-    navigation.navigate(SCREENS.CALENDAR)
-  }
+    setLoading(true)
+    const action = () =>
+      selectedParameterWithValues
+        ? dispatch(updateAParameter(date, values))
+        : dispatch(addParameterOfDay(date, values))
 
+    action()
+      .then(() => {
+        setLoading(false)
+        navigation.navigate(SCREENS.CALENDAR)
+      })
+      .catch(() => setLoading(false))
+  }
   const renderContent = () => {
     return (
       <ContentContainer
@@ -24,7 +38,12 @@ const AddParameterModal = ({ navigation, route }) => {
         extraScrollHeight={100}
         showsVerticalScrollIndicator={false}
       >
-        <AddParameterScrollView data={data} onSubmit={handleOnSubmit} />
+        <AddParameterScrollView
+          data={data}
+          onSubmit={handleOnSubmit}
+          defaultSelectedValues={selectedParameterWithValues?.values}
+          loading={loading}
+        />
       </ContentContainer>
     )
   }
@@ -46,6 +65,7 @@ const AddParameterModal = ({ navigation, route }) => {
 const mapStateToProps = ({ calendar }) => {
   return {
     loading: calendar.loading,
+    selectedParameterWithValues: calendar.selectedParameterWithValues,
   }
 }
 
