@@ -6,7 +6,7 @@ import { FONTS, SCREENS } from '@constants/strings'
 import { TextNunitoSans } from '@components/common'
 import { clearResponses, submitSurvey } from '@actions/survey.actions'
 import AppLayout from '@components/layout'
-import { getAllSurveys } from '@actions/survey.actions'
+import { getSurveys } from '@actions/survey.actions'
 import { ErrorBox } from '@components/common/Error'
 
 const BackIcon = (props) => <Icon {...props} name="arrow-circle-left-outline" />
@@ -58,19 +58,21 @@ function RenderResponse({ response }) {
       />
     )
   }
-  return null
 }
 
 const SurveyReview = ({
   questions,
   response,
-  getAllSurveys,
+  getSurveys,
   submitSurvey,
   navigation,
   clearResponses,
+  route,
 }) => {
   const [formError, setFormError] = useState(false)
   const [formSaving, setFormSaving] = useState(false)
+  const updateResponse = route?.params?.updateResponse
+  const surveyId = route.params.surveyId
 
   const handleDiscardSurvey = () => {
     if (Platform.OS === 'web') {
@@ -102,8 +104,7 @@ const SurveyReview = ({
 
   const handleReviewSubmit = () => {
     setFormSaving(true)
-    submitSurvey(response)
-      .then(getAllSurveys)
+    submitSurvey(response, surveyId, updateResponse)
       .then(() => {
         setFormSaving(false)
         navigation.navigate(SCREENS.SURVEY)
@@ -171,15 +172,27 @@ const SurveyReview = ({
             Discard
           </Button>
 
-          <Button
-            style={{ width: '33%' }}
-            onPress={() => handleReviewSubmit()}
-            status={'primary'}
-            disabled={formSaving}
-            accessoryLeft={formSaving ? Spinner : SubmitIcon}
-          >
-            Submit
-          </Button>
+          {updateResponse ? (
+            <Button
+              style={{ width: '33%' }}
+              onPress={() => handleReviewSubmit()}
+              status={'primary'}
+              disabled={formSaving}
+              accessoryLeft={formSaving ? Spinner : SubmitIcon}
+            >
+              Update
+            </Button>
+          ) : (
+            <Button
+              style={{ width: '33%' }}
+              onPress={() => handleReviewSubmit()}
+              status={'primary'}
+              disabled={formSaving}
+              accessoryLeft={formSaving ? Spinner : SubmitIcon}
+            >
+              Submit
+            </Button>
+          )}
         </View>
         {/*</View>*/}
       </ScrollView>
@@ -198,7 +211,7 @@ const mapStateToProps = ({ questions, survey }) => {
 
 const mapDispatchToProps = {
   submitSurvey,
-  getAllSurveys,
+  getSurveys,
   clearResponses,
 }
 

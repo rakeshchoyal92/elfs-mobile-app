@@ -1,22 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ScrollView, View, RefreshControl } from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
 import { connect } from 'react-redux'
-import { clearResponses, getAllSurveys } from '@actions/survey.actions'
-import { Button, Icon, Layout, Spinner, Text } from '@ui-kitten/components'
+import { clearResponses, getSurveys } from '@actions/survey.actions'
+import { Divider, Icon, List, ListItem } from '@ui-kitten/components'
 import AppLayout from '@components/layout'
 import { TextNunitoSans } from '@components/common'
 import { SCREENS } from '@constants/strings'
-import { CLEAR_RESPONSES } from '@store/action-types'
 import { resetSurveyQuestions } from '@actions/questions.actions'
 import moment from 'moment'
 import { TransText } from '@components/common/TransText'
-import ReRenderer from '@components/reRenderer'
-
-const ViewIcons = (props) => <Icon name="eye-outline" {...props} />
-const wait = (timeout) => {
-  return new Promise((resolve) => setTimeout(resolve, timeout))
-}
 
 const TimeSince = ({ value }) => {
   const [timeSince, setTimeSince] = useState(moment(value).fromNow())
@@ -33,22 +26,66 @@ const TimeSince = ({ value }) => {
 
 const SurveyContainer = ({
   navigation,
-  getAllSurveys,
-  responses,
+  surveys,
+  getSurveys,
   response,
   clearResponses,
   resetSurveyQuestions,
 }) => {
-  useEffect(() => {
-    getAllSurveys()
-  }, [getAllSurveys])
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('focussed!')
+      getSurveys()
+    })
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe
+  }, [navigation])
 
   const [refreshing, setRefreshing] = useState(false)
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(false)
-    getAllSurveys().then(() => setRefreshing(false))
+    getSurveys().then(() => setRefreshing(false))
   }, [])
+
+  const renderItem = ({ item, index }) => (
+    <ListItem
+      title={`${new Date(item.createdAt).toLocaleDateString()}`}
+      description={<TimeSince value={item.createdAt} />}
+      // accessoryLeft={() => <RenderRightItemAccessory {...item} />}
+      style={{
+        backgroundColor:
+          item.status === 'COMPLETED'
+            ? 'rgba(137,236,109,0.65)'
+            : item.status === 'NEEDS_UPDATE'
+            ? 'rgba(227,62,134,0.65)'
+            : 'rgba(227,150,62,0.65)',
+      }}
+      onPress={() => {
+        if (item.status === 'COMPLETED') {
+          navigation.navigate(SCREENS.SURVEY_DETAILS, {
+            surveyId: item.uuid,
+            isInitialSurvey: item.surveyNumber === 1,
+          })
+        } else if (item.status === 'NEEDS_UPDATE') {
+          resetSurveyQuestions()
+          navigation.navigate(SCREENS.SURVEY_FILL, {
+            // draft: true,
+            surveyId: item.uuid,
+            updateResponse: true,
+            isInitialSurvey: item.surveyNumber === 1,
+          })
+        } else {
+          clearResponses()
+          navigation.navigate(SCREENS.SURVEY_FILL, {
+            surveyId: item.uuid,
+            isInitialSurvey: item.surveyNumber === 1,
+          })
+        }
+      }}
+    />
+  )
 
   return (
     <AppLayout navigation={navigation} showTopBar title="Survey List">
@@ -56,104 +93,168 @@ const SurveyContainer = ({
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
+        showsVerticalScrollIndicator={false}
       >
-        {response && response.length >= 1 && (
+        {surveys && surveys.length >= 1 && (
           <View>
-            <Text
-              category={'h6'}
-              style={{ paddingVertical: 10, textAlign: 'center' }}
-            >
-              You have a incomplete survey. Click on 'Complete Draft Survey' to
-              complete.
-            </Text>
-            <Button
-              onPress={() => {
-                resetSurveyQuestions()
-                navigation.navigate(SCREENS.SURVEY_FILL, {
-                  draft: true,
-                })
-              }}
-              status={'danger'}
-              style={{ marginBottom: 25 }}
-            >
-              Complete Draft Survey
-            </Button>
-            <Text category={'h5'} style={{ textAlign: 'center' }}>
-              OR
-            </Text>
-          </View>
-        )}
-
-        <View style={{ paddingVertical: 20 }}>
-          <Button
-            status={'info'}
-            onPress={() => {
-              clearResponses()
-              navigation.navigate(SCREENS.SURVEY_FILL)
-            }}
-            accessoryLeft={(props) => <Icon {...props} name="plus-outline" />}
-          >
-            Add a New Survey
-          </Button>
-        </View>
-
-        {responses && responses.length >= 1 && (
-          <View>
-            <TransText
-              category={'h5'}
-              style={{ paddingVertical: 10 }}
-              translateKey={'completedSurveys'}
-            />
-
-            {responses.map((response) => {
-              return (
-                <Layout
-                  level="1"
-                  key={response.uuid}
+            {surveys.find((item) => item.status === 'INIT') && (
+              <View>
+                <View
                   style={{
-                    height: 45,
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    // backgroundColor: '#ead8d8',
-                    marginVertical: 1,
-                    paddingVertical: 4,
-                    paddingHorizontal: 5,
-                    flex: 1,
                     flexDirection: 'row',
-                    borderRadius: 10,
+                    alignItems: 'center',
                   }}
-                  contentContainerStyle={{}}
                 >
-                  <View style={{ flexDirection: 'row' }}>
-                    <TextNunitoSans
-                      style={{ marginLeft: 10 }}
-                      text={`${new Date(
-                        response.created_at
-                      ).toLocaleDateString()} - `}
-                    />
-                    <ReRenderer interval={1000}>
-                      <TimeSince value={response.created_at} />
-                    </ReRenderer>
-                  </View>
+                  <Icon
+                    name={'award-outline'}
+                    style={{ width: 25, height: 25, marginRight: 7 }}
+                    fill="black"
+                  />
+                  <TransText
+                    style={{ paddingVertical: 10 }}
+                    translateKey={'newSurvey'}
+                  />
+                </View>
+                <List
+                  data={surveys.filter((item) => item.status === 'INIT')}
+                  ItemSeparatorComponent={Divider}
+                  renderItem={renderItem}
+                />
+              </View>
+            )}
 
-                  <View style={{ width: 70 }}>
-                    <Button
-                      status={'info'}
-                      accessoryLeft={ViewIcons}
-                      size={'small'}
-                      onPress={() =>
-                        navigation.navigate(SCREENS.SURVEY_DETAILS, {
-                          responseId: response.uuid,
-                        })
-                      }
-                    >
-                      View
-                    </Button>
-                  </View>
-                </Layout>
-              )
-            })}
+            {surveys.find((item) => item.status === 'NEEDS_UPDATE') && (
+              <View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 20,
+                  }}
+                >
+                  <Icon
+                    name={'alert-triangle-outline'}
+                    style={{ width: 25, height: 25, marginRight: 7 }}
+                    fill="black"
+                  />
+                  <TransText
+                    style={{ paddingVertical: 10 }}
+                    translateKey={'updateSurvey'}
+                  />
+                </View>
+
+                <List
+                  data={surveys.filter(
+                    (item) => item.status === 'NEEDS_UPDATE'
+                  )}
+                  ItemSeparatorComponent={Divider}
+                  renderItem={renderItem}
+                />
+              </View>
+            )}
+
+            {surveys.find((item) => item.status === 'COMPLETED') && (
+              <View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 20,
+                  }}
+                >
+                  <Icon
+                    name={'checkmark-square-outline'}
+                    style={{ width: 25, height: 25, marginRight: 7 }}
+                    fill="black"
+                  />
+                  <TransText
+                    style={{ paddingVertical: 10 }}
+                    translateKey={'completedSurveys'}
+                  />
+                </View>
+                <List
+                  data={surveys.filter((item) => item.status === 'COMPLETED')}
+                  ItemSeparatorComponent={Divider}
+                  renderItem={renderItem}
+                />
+              </View>
+            )}
           </View>
+          // <View>
+          //   <TransText
+          //     category={'h5'}
+          //     style={{ paddingVertical: 10 }}
+          //     translateKey={'surveys'}
+          //   />
+          //
+          //   {surveys.map((survey) => {
+          //     console.log(survey)
+          //     return (
+          //       <Layout
+          //         level="1"
+          //         key={survey.uuid}
+          //         style={{
+          //           height: 45,
+          //           justifyContent: 'space-between',
+          //           alignItems: 'center',
+          //           // backgroundColor: '#ead8d8',
+          //           marginVertical: 1,
+          //           paddingVertical: 4,
+          //           paddingHorizontal: 5,
+          //           flex: 1,
+          //           flexDirection: 'row',
+          //           borderRadius: 10,
+          //         }}
+          //         contentContainerStyle={{}}
+          //       >
+          //         <View style={{ flexDirection: 'row' }}>
+          //           <TextNunitoSans
+          //             style={{ marginLeft: 10 }}
+          //             text={`${new Date(
+          //               survey.createdAt
+          //             ).toLocaleDateString()} - `}
+          //           />
+          //           <TimeSince value={survey.createdAt} />
+          //         </View>
+          //
+          //         {/*<View>*/}
+          //         {/*  {survey.needs_update ? (*/}
+          //         {/*    <Button*/}
+          //         {/*      status={'danger'}*/}
+          //         {/*      accessoryLeft={ViewIcons}*/}
+          //         {/*      size={'small'}*/}
+          //         {/*      onPress={() => {*/}
+          //         {/*        resetSurveyQuestions()*/}
+          //         {/*        overRideResponse(response)*/}
+          //         {/*        console.log(response)*/}
+          //         {/*        navigation.navigate(SCREENS.SURVEY_FILL, {*/}
+          //         {/*          draft: true,*/}
+          //         {/*          response: response,*/}
+          //         {/*          updateResponse: true,*/}
+          //         {/*        })*/}
+          //         {/*      }}*/}
+          //         {/*    >*/}
+          //         {/*      Update*/}
+          //         {/*    </Button>*/}
+          //         {/*  ) : (*/}
+          //         {/*    <Button*/}
+          //         {/*      status={'info'}*/}
+          //         {/*      accessoryLeft={ViewIcons}*/}
+          //         {/*      size={'small'}*/}
+          //         {/*      onPress={() =>*/}
+          //         {/*        navigation.navigate(SCREENS.SURVEY_DETAILS, {*/}
+          //         {/*          responseId: response.uuid,*/}
+          //         {/*        })*/}
+          //         {/*      }*/}
+          //         {/*    >*/}
+          //         {/*      View*/}
+          //         {/*    </Button>*/}
+          //         {/*  )}*/}
+          //         {/*</View>*/}
+          //       </Layout>
+          //     )
+          //   })}
+          // </View>
         )}
       </ScrollView>
     </AppLayout>
@@ -167,12 +268,13 @@ const mapStateToProps = (state) => {
     metaData: state.metaData.server,
     responses: state.survey.responses,
     response: state.survey.response,
+    surveys: state.survey.surveys,
   }
 }
 
 const mapDispatchToProps = {
   clearResponses,
-  getAllSurveys,
+  getSurveys,
   resetSurveyQuestions,
 }
 

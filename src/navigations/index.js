@@ -71,7 +71,7 @@ const SurveyNavigator = () => {
   )
 }
 
-const Navigations = ({ userBio }) => {
+const Navigations = ({ userBio, theme }) => {
   if (!userBio) {
     return (
       <AuthStack.Navigator>
@@ -93,6 +93,25 @@ const Navigations = ({ userBio }) => {
     )
   }
 
+  const tabBarOptions =
+    theme === 'dark'
+      ? {
+          activeTintColor: 'tomato',
+          inactiveTintColor: 'gray',
+          borderTop: 1,
+          borderTopColor: '#777',
+          activeBackgroundColor: 'black',
+          inactiveBackgroundColor: 'black',
+        }
+      : {
+          activeTintColor: 'tomato',
+          inactiveTintColor: 'gray',
+          borderTop: 1,
+          borderTopColor: '#777',
+          activeBackgroundColor: 'white',
+          inactiveBackgroundColor: 'white',
+        }
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -110,12 +129,7 @@ const Navigations = ({ userBio }) => {
           return <AntDesign name={iconName} size={size} color={color} />
         },
       })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-        borderTop: 1,
-        borderTopColor: '#777',
-      }}
+      tabBarOptions={tabBarOptions}
     >
       <Tab.Screen name={SCREENS.CALENDAR} component={CalendarNavigator} />
       <Tab.Screen name={SCREENS.SURVEY} component={SurveyNavigator} />
@@ -124,8 +138,9 @@ const Navigations = ({ userBio }) => {
   )
 }
 
-const mapStateToProps = ({ auth }) => ({
+const mapStateToProps = ({ auth, misc }) => ({
   userBio: auth.bio,
+  theme: misc.theme,
 })
 
 export default connect(mapStateToProps)(Navigations)

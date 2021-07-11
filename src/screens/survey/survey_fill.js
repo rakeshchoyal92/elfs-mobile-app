@@ -1,10 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { View, Platform, ScrollView, KeyboardAvoidingView } from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import { addQuestionToSurvey, getQuestions } from '@actions/questions.actions'
 import { RESPONSE_TYPES, SCREENS } from '@constants/strings'
-import { setAResponse } from '@actions/survey.actions'
+import {
+  clearResponses,
+  getASurvey,
+  getMetaData,
+  setASurveyResponse,
+} from '@actions/survey.actions'
 import {
   RenderBoolean,
   RenderCheckbox,
@@ -18,9 +23,10 @@ import {
   RenderTextInput,
 } from '@components/response'
 import { setMetaData } from '@actions/metaData.actions'
-import { Button, Layout, Spinner, Text } from '@ui-kitten/components'
+import { Button } from '@ui-kitten/components'
 import * as Animatable from 'react-native-animatable'
 import AppLayout from '@components/layout'
+import { LoadingIndicator } from '@components/common'
 
 const TESTING = false
 const VARIABLE_MATCHING_STRATEGY = {
@@ -52,25 +58,35 @@ const initialValuesParticipant = {
   regular_medication: 'this is prefilled regular medication example',
 }
 
+function isNumeric(value) {
+  return /^\d+$/.test(value)
+}
+
 const RenderQuestion = React.memo(
   ({
     question,
     handleGetNextQuestion,
     initialValues,
-    setAResponse,
+    setASurveyResponse,
     index,
     setCurrentQuestionIndex,
     setHeights,
     navigation,
+    updateResponse,
+    surveyId,
+    metaData,
   }) => {
     const { responseType, questionText, isEndOfSurvey } = question
+
     const responseProps = {
       question,
       handleGetNextQuestion,
       initialValues,
-      setAResponse,
+      setASurveyResponse,
       onInitialValueGoToAutoNext: true,
+      metaData,
     }
+
     return (
       <Animatable.View
         style={{ paddingTop: 1, paddingBottom: 40 }}
@@ -88,7 +104,12 @@ const RenderQuestion = React.memo(
             <RenderEndOfQuestion text={questionText} />
             <Button
               status={'info'}
-              onPress={() => navigation.navigate(SCREENS.SURVEY_REVIEW)}
+              onPress={() =>
+                navigation.navigate(SCREENS.SURVEY_REVIEW, {
+                  updateResponse,
+                  surveyId,
+                })
+              }
             >
               Review Responses
             </Button>
@@ -99,6 +120,7 @@ const RenderQuestion = React.memo(
           <RenderQuestionText
             index={index + 1}
             question={question}
+            metaData={metaData}
             initialValues={initialValues}
           />
         )}
@@ -138,23 +160,73 @@ const SurveyFill = (props) => {
     getQuestions,
     surveyQuestions,
     addQuestionToSurvey,
-    setAResponse,
+    setASurveyResponse,
     response,
-    metaData,
+    // metaData,
     navigation,
     route,
-    initialValues = props.route?.params?.draft ? props.responseDict : {},
+    getASurvey,
+    responseDict,
+    responseFromServer,
+    clearResponses,
+    getMetaData,
+    // metaData,
+    // initialValues = props.route?.params?.draft ? props.responseDict : {},
+    updateResponse = props.route?.params?.updateResponse,
+    isInitialSurvey = props.route?.params?.isInitialSurvey,
     // initialValues = props.responseDict ? props.responseDict : {},
   } = props
 
+  const { surveyId } = route.params
   const [nextSurveyKey, setNextSurveyKey] = useState()
   const [tunnelInfo, setTunnelInfo] = useState()
   const [viewHeights, setViewHeights] = useState([-10])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState()
   const listViewRef = useRef()
+  const [loadingResponse, setLoadingResponse] = useState(false)
+  const [fetchingMetaData, setFetchingMetaData] = useState(true)
+  const [initialValues, setInitialValue] = useState({})
+  const [metaData, setMetaData] = useState()
+  // const [responseFlat, setResponseFlat] = useState({})
+  let lastResponse = {}
+  // useEffect(() => {
+  //   let responseFlat = response.reduce((acc, response) => {
+  //     const { key, value } = response
+  //     acc[key] = value
+  //     return acc
+  //   }, {})
+  //
+  //   setResponseFlat(responseFlat)
+  // }, [response])
 
   useEffect(() => {
-    getQuestions()
+    setFetchingMetaData(true)
+
+    getQuestions(isInitialSurvey)
+      .then(() => getMetaData(surveyId))
+      .then((res) => {
+        const { value } = res
+        setMetaData(value)
+        setFetchingMetaData(false)
+      })
+      .catch(() => setFetchingMetaData(false))
+
+    if (updateResponse) {
+      setLoadingResponse(true)
+      getASurvey(surveyId)
+        .then((res) => {
+          setInitialValue(res.value.surveyResponse)
+          setLoadingResponse(false)
+        })
+        .catch(() => setLoadingResponse(false))
+    }
+
+    if (props.route?.params?.draft) {
+      setInitialValue(responseDict)
+    }
+
+    // Clear survey responses if any present
+    clearResponses()
   }, [getQuestions])
 
   /**
@@ -197,11 +269,11 @@ const SurveyFill = (props) => {
   const getTunnelInfo = (tunnelKey) =>
     questions.find((q) => q.key === tunnelKey)
 
-  let responseFlat = response.reduce((acc, response) => {
-    const { key, value } = response
-    acc[key] = value
-    return acc
-  }, {})
+  // let responseFlat = response.reduce((acc, response) => {
+  //   const { key, value } = response
+  //   acc[key] = value
+  //   return acc
+  // }, {})
 
   const handleTunnelRouting = (key, type) => {
     let currentTunnelInfo = getTunnelInfo(key)
@@ -237,20 +309,27 @@ const SurveyFill = (props) => {
      * @returns {boolean || string}
      */
     const evaluate = (condition) => {
-      const {
-        extractValueFrom,
-        matchingStrategy,
-        onValue,
-        variable,
-      } = condition
+      const { extractValueFrom, matchingStrategy, onValue, variable } =
+        condition
 
       if (extractValueFrom) {
         let valueObtainedFromServerSurvey
-        if (extractValueFrom === 'SERVER') {
-          valueObtainedFromServerSurvey = metaData[variable]
-        } else {
-          valueObtainedFromServerSurvey = responseFlat[variable]
+
+        //FIXME: First check the current survey followed by metadata from the server
+        // surveyValue holds value of survey response. Last response is since last
+        // question response is not updated at responseDict at this point
+        const surveyValues = {
+          ...lastResponse,
+          ...responseDict,
         }
+
+        if (surveyValues.hasOwnProperty(variable)) {
+          valueObtainedFromServerSurvey = surveyValues[variable]
+        } else {
+          valueObtainedFromServerSurvey = metaData[variable]
+        }
+        // console.log('Evaluate', variable, valueObtainedFromServerSurvey)
+        // response: state.survey.response,
 
         switch (matchingStrategy) {
           case VARIABLE_MATCHING_STRATEGY.NULL_NOTNULL: {
@@ -268,7 +347,19 @@ const SurveyFill = (props) => {
           }
 
           case VARIABLE_MATCHING_STRATEGY.EQUAL: {
-            return valueObtainedFromServerSurvey === onValue
+            if (isNumeric(onValue)) {
+              return valueObtainedFromServerSurvey === Number(onValue)
+            } else {
+              return valueObtainedFromServerSurvey === onValue
+            }
+          }
+
+          case VARIABLE_MATCHING_STRATEGY.GREATER: {
+            return valueObtainedFromServerSurvey > Number(onValue)
+          }
+
+          case VARIABLE_MATCHING_STRATEGY.LESSER: {
+            return valueObtainedFromServerSurvey < Number(onValue)
           }
         }
       } else {
@@ -281,6 +372,7 @@ const SurveyFill = (props) => {
 
     if (type === 'SINGLE') {
       let conditionEvaluated = evaluate(conditions[0])
+      console.log('SINGLE', condition.key, conditionEvaluated)
       if (conditionEvaluated) {
         let nextQuestionKey = conditionalNext.goToOnTrue
         let goToOnTrue = conditionalNext.goToOnTrue
@@ -301,7 +393,7 @@ const SurveyFill = (props) => {
         } else if (goToOnFalse === TUNNEL.RETURN) {
           return handleTunnelRouting(goToOnFalse, TUNNEL.EXIT)
         } else if (goToOnFalse.startsWith(TUNNEL.STARTS)) {
-          return handleTunnelRouting(goToOnFalse, TUNNEL.RETURN)
+          return handleTunnelRouting(goToOnFalse, TUNNEL.ENTER)
           // return currentTunnel.startQ
         } else {
           return nextQuestionKey
@@ -331,7 +423,7 @@ const SurveyFill = (props) => {
       result = eval(resultExpression)
       let goToOnTrue = conditionalNext.goToOnTrue
       let goToOnFalse = conditionalNext.goToOnFalse
-
+      console.log('MULTI', condition.key, result)
       if (result) {
         if (goToOnTrue.startsWith('c_')) {
           return evaluateCondition(goToOnTrue)
@@ -368,7 +460,10 @@ const SurveyFill = (props) => {
     }
 
     // Store response in redux
-    setAResponse(key, valueSelected)
+    setASurveyResponse(key, valueSelected)
+    lastResponse = {
+      [key]: valueSelected,
+    }
 
     if (typeof valueSelected === 'boolean') {
       if (valueSelected) {
@@ -443,11 +538,14 @@ const SurveyFill = (props) => {
   const questionProps = {
     handleGetNextQuestion,
     initialValues,
-    setAResponse,
+    setASurveyResponse,
     onInitialValueGoToAutoNext: true,
     setCurrentQuestionIndex,
     setHeights,
     navigation,
+    updateResponse,
+    surveyId,
+    metaData,
   }
 
   return (
@@ -457,9 +555,15 @@ const SurveyFill = (props) => {
     >
       <AppLayout
         navigation={navigation}
-        title={route?.params?.draft ? 'Update Survey' : 'New Survey'}
+        title={
+          route?.params?.draft || route?.params.updateResponse
+            ? 'Update Survey'
+            : 'New Survey'
+        }
       >
-        {surveyQuestions && (
+        {loadingResponse && <LoadingIndicator />}
+        {fetchingMetaData && <LoadingIndicator />}
+        {surveyQuestions && metaData && (
           <ScrollView
             style={{ paddingVertical: 20 }}
             ref={listViewRef}
@@ -490,6 +594,7 @@ const mapStateToProps = (state) => {
     surveyQuestions: state.questions.surveyQuestions,
     response: state.survey.response,
     responseDict: state.survey.response_dict,
+    responseFromServer: state.survey.selectedSurvey?.surveyResponse,
     metaData: state.metaData.server,
   }
 }
@@ -497,8 +602,11 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = {
   getQuestions,
   addQuestionToSurvey,
-  setAResponse,
+  setASurveyResponse,
   setMetaData,
+  getASurvey,
+  getMetaData,
+  clearResponses,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SurveyFill)

@@ -116,17 +116,22 @@ const makeParameter = (values) => {
 
     if (property === 'bleeding') {
       const bleedingValue = values[property]
+      // output = {
+      //   ...output,
+      //   selected: true,
+      //   selectedColor:
+      //     bleedingValue === 'Spot'
+      //       ? '#ea7697'
+      //       : bleedingValue === 'Light'
+      //       ? '#e94070'
+      //       : bleedingValue === 'Normal'
+      //       ? '#ab2e52'
+      //       : '#8f022a',
+      // }
       output = {
         ...output,
         selected: true,
-        selectedColor:
-          bleedingValue === 'Spot'
-            ? '#ea7697'
-            : bleedingValue === 'Light'
-            ? '#e94070'
-            : bleedingValue === 'Normal'
-            ? '#ab2e52'
-            : '#8f022a',
+        selectedColor: '#f1314e',
       }
     }
   }

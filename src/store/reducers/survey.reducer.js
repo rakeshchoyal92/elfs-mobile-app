@@ -1,24 +1,30 @@
 import produce from 'immer'
 import {
   CLEAR_RESPONSES,
-  SET_RESPONSE,
-  SET_RESPONSES,
+  OVERRIDE_RESPONSE,
+  SET_SURVEY_RESPONSE,
+  SET_SURVEY_RESPONSES,
   SUBMIT_RESPONSES,
+  SET_SURVEY,
+  SET_SURVEYS,
 } from '@store/action-types'
 import { ActionType } from 'redux-promise-middleware'
 
 const initialState = {
+  surveys: [],
+  selectedSurvey: null,
   response: [],
-  responses: [],
   response_dict: {},
   loading: {
+    fetchingSurveys: false,
+    fetchingSurvey: false,
     savingResponse: false,
   },
 }
 
 function reducer(state = initialState, action) {
   switch (action.type) {
-    case SET_RESPONSE: {
+    case SET_SURVEY_RESPONSE: {
       const { key, value } = action.payload
       const keyIndex = state.response.findIndex((item) => item.key === key)
       // Remove all response till the current response index.
@@ -31,9 +37,16 @@ function reducer(state = initialState, action) {
       state.response_dict[key] = value
       break
     }
+    case OVERRIDE_RESPONSE: {
+      const { payload } = action
+      state.response_dict = payload
+      break
+    }
     case `${SUBMIT_RESPONSES}_${ActionType.Fulfilled}`: {
       state.loading.savingResponse = false
       state.response = []
+      state.response_dict = {}
+      state.selectedSurvey = null
       break
     }
     case `${SUBMIT_RESPONSES}_${ActionType.Pending}`: {
@@ -42,7 +55,7 @@ function reducer(state = initialState, action) {
     }
     case `${SUBMIT_RESPONSES}_${ActionType.Rejected}`: {
       state.loading.savingResponse = false
-      state.response = []
+      // state.response = []
       break
     }
     case CLEAR_RESPONSES: {
@@ -50,8 +63,32 @@ function reducer(state = initialState, action) {
       state.response_dict = {}
       break
     }
-    case `${SET_RESPONSES}_${ActionType.Fulfilled}`: {
-      state.responses = action.payload
+    case `${SET_SURVEYS}_${ActionType.Fulfilled}`: {
+      state.surveys = action.payload
+      state.loading.fetchingSurveys = false
+      break
+    }
+    case `${SET_SURVEYS}_${ActionType.Pending}`: {
+      state.loading.fetchingSurveys = true
+      break
+    }
+    case `${SET_SURVEYS}_${ActionType.Rejected}`: {
+      state.loading.fetchingSurveys = false
+      state.surveys = null
+      break
+    }
+    case `${SET_SURVEY}_${ActionType.Fulfilled}`: {
+      state.selectedSurvey = action.payload
+      state.loading.fetchingSurvey = false
+      break
+    }
+    case `${SET_SURVEY}_${ActionType.Pending}`: {
+      state.loading.fetchingSurvey = true
+      break
+    }
+    case `${SET_SURVEY}_${ActionType.Rejected}`: {
+      state.loading.fetchingSurvey = false
+      state.selectedSurvey = null
       break
     }
     default:

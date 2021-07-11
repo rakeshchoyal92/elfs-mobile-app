@@ -175,9 +175,9 @@ const RenderTextInputC = ({
 
     if (initialValues[questionKey]) {
       setValue(initialValues[questionKey])
-      if (onInitialValueGoToAutoNext) {
-        handleGetNextQuestion(question, initialValues[questionKey])
-      }
+      // if (onInitialValueGoToAutoNext) {
+      //   handleGetNextQuestion(question, initialValues[questionKey])
+      // }
     }
   }, [])
 
@@ -218,9 +218,9 @@ const RenderNumberInputC = ({
     let initialValue = initialValues[questionKey]
     if (initialValue) {
       setValue(initialValue)
-      if (onInitialValueGoToAutoNext) {
-        handleGetNextQuestion(question, initialValue)
-      }
+      // if (onInitialValueGoToAutoNext) {
+      //   handleGetNextQuestion(question, initialValue)
+      // }
     }
   }, [])
 
@@ -261,9 +261,9 @@ const RenderTextAreaInputC = ({
     let initialValue = initialValues[questionKey]
     if (initialValue) {
       setValue(initialValue)
-      if (onInitialValueGoToAutoNext) {
-        handleGetNextQuestion(question, initialValue)
-      }
+      // if (onInitialValueGoToAutoNext) {
+      //   handleGetNextQuestion(question, initialValue)
+      // }
     }
   }, [])
 
@@ -308,8 +308,8 @@ const RenderDateC = ({
   //   setDate(date)
   //   handleGetNextQuestion(question, date)
   // }
-
-  const [selectedValue, setSelectedValue] = useState(moment())
+  const { optionalSkipText } = question
+  const [selectedValue, setSelectedValue] = useState()
   const [displayNextBtn, setDisplayNextBtn] = useState(false)
   const dateFormat = 'YYYY-MM-DD'
   useEffect(() => {
@@ -319,7 +319,7 @@ const RenderDateC = ({
       let initDate = moment(initialValues[questionKey], dateFormat)
       setSelectedValue(initDate)
       if (onInitialValueGoToAutoNext) {
-        handleGetNextQuestion(question, initDate)
+        handleGetNextQuestion(question, initialValues[questionKey])
       } else {
         setDisplayNextBtn(true)
       }
@@ -351,6 +351,17 @@ const RenderDateC = ({
           type="primary"
         >
           Next
+        </Button>
+      )}
+      {optionalSkipText && (
+        <Button
+          onPress={() => {
+            handleGetNextQuestion(question, '_VALUE_ANY')
+          }}
+          style={{ marginTop: 10 }}
+          status={'danger'}
+        >
+          {optionalSkipText}
         </Button>
       )}
     </>
@@ -445,8 +456,8 @@ const RenderCheckboxC = ({
   )
 }
 
-const RenderQuestionTextC = ({ index, question, initialValues }) => {
-  const { questionText, caption, preFill } = question
+const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
+  const { questionText, caption, preFill, showMetaDataKey } = question
   let questionKey = question.key
   let preFillValue = initialValues[questionKey]
 
@@ -463,6 +474,17 @@ const RenderQuestionTextC = ({ index, question, initialValues }) => {
         {caption && (
           <TextNunitoSans
             text={caption}
+            category={'c1'}
+            fontFamily={FONTS.NunitoSans_300Light_Italic}
+            style={{ fontSize: 12 }}
+          />
+        )}
+      </View>
+
+      <View style={{ paddingLeft: 3, paddingBottom: 10 }}>
+        {showMetaDataKey && metaData && metaData?.[showMetaDataKey] && (
+          <TextNunitoSans
+            text={`Previous Response: ${metaData?.[showMetaDataKey]}`}
             category={'c1'}
             fontFamily={FONTS.NunitoSans_300Light_Italic}
             style={{ fontSize: 12 }}

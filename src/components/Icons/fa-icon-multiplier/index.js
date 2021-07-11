@@ -1,6 +1,5 @@
 import { View } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faBolt, faTint } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
 
 export const IconMultiplier = ({ number, font, color }) => {
@@ -20,8 +19,8 @@ export const IconMultiplier = ({ number, font, color }) => {
         return (
           <FontAwesomeIcon
             key={item}
-            icon={font === 'bolt' ? faBolt : faTint}
-            size={15}
+            icon={font}
+            size={20}
             color={color}
             style={{ marginLeft: item === 1 ? 0 : -2 }}
           />

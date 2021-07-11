@@ -87,12 +87,15 @@ function reducer(state = initialState, action) {
       const currentQuestionPos = state.surveyQuestions.findIndex(
         (q) => q.key === currentKey
       )
-
       if (currentQuestionPos === 0) {
         const nextQuestion = state.questions.find(
           (question) => question.key === nextKey
         )
         if (nextQuestion) {
+          state.surveyQuestions = state.surveyQuestions.slice(
+            0,
+            currentQuestionPos + 1
+          )
           state.surveyQuestions.push(nextQuestion)
         } else {
           message.warn('Next question is not set!')

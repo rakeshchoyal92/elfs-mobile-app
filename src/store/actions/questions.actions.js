@@ -5,11 +5,11 @@ import {
 } from '@store/action-types'
 import { getQuestions as getQuestionsApi } from '@api/questions.api'
 
-export const getQuestions = () => {
+export const getQuestions = (isFirstSurvey) => {
   return {
     type: SET_QUESTIONS,
     async payload() {
-      return getQuestionsApi()
+      return getQuestionsApi(isFirstSurvey)
     },
   }
 }

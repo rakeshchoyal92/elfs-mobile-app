@@ -1,15 +1,16 @@
 import {
-  SET_RESPONSE,
+  SET_SURVEY_RESPONSE,
   CLEAR_RESPONSES,
   SUBMIT_RESPONSES,
-  SET_RESPONSES,
-  ADD_QUESTION_TO_SURVEY,
+  SET_SURVEYS,
+  SET_SURVEY,
 } from '@store/action-types'
-import { saveSurvey, getSurveys } from '@api/survey.api'
+// import { saveSurvey, getSurveys } from '@api/survey.api'
+import * as surveyApi from '@api/survey.api'
 
-export const setAResponse = (key, value) => {
+export const setASurveyResponse = (key, value) => {
   return {
-    type: SET_RESPONSE,
+    type: SET_SURVEY_RESPONSE,
     payload: {
       key: key,
       value: value,
@@ -24,25 +25,51 @@ export const clearResponses = () => {
   }
 }
 
-export const submitSurvey = (data) => {
+export const submitSurvey = (data, surveyId, shouldUpdate) => {
   const modData = data.reduce((acc, val) => {
-    acc[val.key] = val.value
+    if (val.value === '_VALUE_ANY') {
+      acc[val.key] = null
+    } else {
+      acc[val.key] = val.value
+    }
     return acc
   }, {})
 
   return {
     type: SUBMIT_RESPONSES,
     async payload() {
-      return await saveSurvey(modData)
+      if (shouldUpdate) {
+        return await surveyApi.updateSurvey(modData, surveyId)
+      } else {
+        return await surveyApi.saveSurvey(modData, surveyId)
+      }
     },
   }
 }
 
-export const getAllSurveys = () => {
+export const getSurveys = () => {
   return {
-    type: SET_RESPONSES,
+    type: SET_SURVEYS,
     async payload() {
-      return await getSurveys()
+      return await surveyApi.getSurveys()
+    },
+  }
+}
+
+export const getASurvey = (surveyId) => {
+  return {
+    type: SET_SURVEY,
+    async payload() {
+      return await surveyApi.getASurvey(surveyId)
+    },
+  }
+}
+
+export const getMetaData = (surveyId) => {
+  return {
+    type: 'asd',
+    async payload() {
+      return await surveyApi.getMetaData(surveyId)
     },
   }
 }

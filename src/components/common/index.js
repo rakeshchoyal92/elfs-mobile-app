@@ -32,7 +32,7 @@ export function TextNunitoSans({
 
 export const LoadingIndicator = (props) => (
   <View style={[props.style, styles.indicator]}>
-    <Spinner size="small" />
+    <Spinner size={props.size || 'small'} />
   </View>
 )
 

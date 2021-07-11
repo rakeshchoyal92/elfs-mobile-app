@@ -3,27 +3,33 @@ import { ScrollView, View } from 'react-native'
 import { connect } from 'react-redux'
 import { Icon } from '@ui-kitten/components'
 import AppLayout from '@components/layout'
-import { TextNunitoSans } from '@components/common'
+import { LoadingIndicator, TextNunitoSans } from '@components/common'
 import { FONTS } from '@constants/strings'
 import { getQuestions } from '@actions/questions.actions'
 import moment from 'moment'
+import { getASurvey } from '@actions/survey.actions'
 
 const ViewIcons = (props) => <Icon name="eye-outline" {...props} />
 
 const SurveyDetails = ({
-  responses,
+  response,
   navigation,
   route,
   questions,
   getQuestions,
+  getASurvey,
+  surveyLoadings,
 }) => {
-  const { responseId } = route.params
-  const [response, setResponse] = useState([])
+  const { surveyId, isInitialSurvey } = route.params
+  // const [response, setResponse] = useState()
+  // const [loading, setLoading] = useState(true)
+  // const [error, setError] = useState(false)
 
   useEffect(() => {
-    getQuestions()
-    let res = responses.find((item) => item.uuid === responseId)
-    setResponse(res)
+    // getQuestions().then(() => getASurvey(surveyId))
+    getASurvey(surveyId).then((res) => {
+      return getQuestions(isInitialSurvey)
+    })
   }, [])
 
   function RenderResponse({ response }) {
@@ -79,49 +85,37 @@ const SurveyDetails = ({
     <AppLayout
       navigation={navigation}
       showTopBar
-      title={new Date(response.created_at).toDateString()}
+      title={response ? new Date(response?.created_at).toDateString() : ''}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        {Object.keys(questions).map((key, index) => {
-          const value = response[key]
-          if (![null, undefined].includes(value) && questions[key]) {
-            return (
-              <View
-                key={key}
-                className={'survey-response-div'}
-                style={{
-                  paddingVertical: 10,
-                  borderBottomWidth: 1,
-                  borderBottomStyle: 'solid',
-                  borderBottomColor: '#d4c2c2',
-                }}
-              >
-                <TextNunitoSans
-                  text={`${count++}. ${questions[key]}`}
-                  fontFamily={FONTS.NunitoSans_600SemiBold}
-                  adjustsFontSizeToFit
-                  allowFontScaling
-                />
-                <RenderResponse response={value} />
-                {/*{Array.isArray(value) &&*/}
-                {/*  value.map((e, index) => (*/}
-                {/*    <TextNunitoSans*/}
-                {/*      key={e}*/}
-                {/*      text={`${index + 1}. ${renderResponse(e)}`}*/}
-                {/*      fontFamily={FONTS.NunitoSans_700Bold}*/}
-                {/*      style={{ marginBottom: 5 }}*/}
-                {/*    />*/}
-                {/*  ))}*/}
-                {/*{!Array.isArray(value) && (*/}
-                {/*  <TextNunitoSans*/}
-                {/*    text={renderResponse(value)}*/}
-                {/*    fontFamily={FONTS.NunitoSans_700Bold}*/}
-                {/*  />*/}
-                {/*)}*/}
-              </View>
-            )
-          }
-        })}
+        {surveyLoadings.fetchingSurvey && <LoadingIndicator size={'large'} />}
+        {response &&
+          !surveyLoadings.fetchingSurvey &&
+          Object.keys(questions).map((key, index) => {
+            const value = response[key]
+            if (![null, undefined].includes(value) && questions[key]) {
+              return (
+                <View
+                  key={key}
+                  className={'survey-response-div'}
+                  style={{
+                    paddingVertical: 10,
+                    borderBottomWidth: 1,
+                    borderBottomStyle: 'solid',
+                    borderBottomColor: '#d4c2c2',
+                  }}
+                >
+                  <TextNunitoSans
+                    text={`${count++}. ${questions[key]}`}
+                    fontFamily={FONTS.NunitoSans_600SemiBold}
+                    adjustsFontSizeToFit
+                    allowFontScaling
+                  />
+                  <RenderResponse response={value} />
+                </View>
+              )
+            }
+          })}
       </ScrollView>
     </AppLayout>
   )
@@ -129,13 +123,15 @@ const SurveyDetails = ({
 
 const mapStateToDispatch = ({ survey, questions }) => {
   return {
-    responses: survey.responses,
     questions: questions.questionsAsDict,
+    response: survey.selectedSurvey?.surveyResponse,
+    surveyLoadings: survey.loading,
   }
 }
 
 const mapDispatchToProps = {
   getQuestions,
+  getASurvey,
 }
 
 export default connect(mapStateToDispatch, mapDispatchToProps)(SurveyDetails)

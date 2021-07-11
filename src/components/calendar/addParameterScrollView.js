@@ -3,9 +3,9 @@ import { View, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { FONTS } from '@constants/strings'
 import { StyledScrollView } from '@components/calendar/styles'
-import { pickBy } from 'lodash'
 import { LoadingIndicator, TextNunitoSans } from '@components/common'
 import { IconMultiplier } from '@components/Icons/fa-icon-multiplier'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
 export default function AddParameterScrollView({
   data,
@@ -77,6 +77,26 @@ export default function AddParameterScrollView({
                 font={type.font}
                 color={type.color}
               />
+            )}
+
+            {type.type === 'singleIcon' && (
+              <FontAwesomeIcon icon={type.icon} size={20} color={type.color} />
+            )}
+
+            {type.type === 'twoIcons' && (
+              <View style={{ flexDirection: 'row' }}>
+                <FontAwesomeIcon
+                  icon={type.icon1}
+                  size={20}
+                  color={type.color1}
+                  style={{ marginRight: 5 }}
+                />
+                <FontAwesomeIcon
+                  icon={type.icon2}
+                  size={20}
+                  color={type.color2}
+                />
+              </View>
             )}
 
             <View

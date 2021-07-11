@@ -155,29 +155,36 @@ const DrawerContent = ({ navigation, state }) => {
 }
 
 const Navigations = ({ userBio }) => {
-  return !userBio ? (
+  const Navigation = () =>
+    !userBio ? (
+      <Stack.Navigator headerMode="none">
+        <Stack.Screen name={SCREENS.AUTH} component={AuthNavigator} />
+      </Stack.Navigator>
+    ) : (
+      <DrawerNavigator.Navigator
+        drawerPosition={'left'}
+        drawerType={'permanent'}
+        drawerContent={(props) => <DrawerContent {...props} />}
+      >
+        <DrawerNavigator.Screen
+          name={SCREENS.CALENDAR}
+          component={CalendarNavigator}
+        />
+        <DrawerNavigator.Screen
+          name={SCREENS.SURVEY}
+          component={SurveyNavigator}
+        />
+        <DrawerNavigator.Screen
+          name={SCREENS.SETTINGS}
+          component={SettingsContainer}
+        />
+      </DrawerNavigator.Navigator>
+    )
+
+  return (
     <Stack.Navigator headerMode="none">
-      <Stack.Screen name={SCREENS.AUTH} component={AuthNavigator} />
+      <Stack.Screen name={'mobile'} component={Navigation} />
     </Stack.Navigator>
-  ) : (
-    <DrawerNavigator.Navigator
-      drawerPosition={'left'}
-      drawerType={'permanent'}
-      drawerContent={(props) => <DrawerContent {...props} />}
-    >
-      <DrawerNavigator.Screen
-        name={SCREENS.CALENDAR}
-        component={CalendarNavigator}
-      />
-      <DrawerNavigator.Screen
-        name={SCREENS.SURVEY}
-        component={SurveyNavigator}
-      />
-      <DrawerNavigator.Screen
-        name={SCREENS.SETTINGS}
-        component={SettingsContainer}
-      />
-    </DrawerNavigator.Navigator>
   )
 }
 

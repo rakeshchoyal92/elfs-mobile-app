@@ -7,6 +7,8 @@ console.log({ BASE })
 const ENDPOINTS = {
   QUESTIONS: () => `${BASE}/questions`,
   SURVEYS: () => `${BASE}/surveys`,
+  SURVEYS_ID: (survey_id) => `${BASE}/surveys/${survey_id}`,
+  META_DATA: (survey_id) => `${BASE}/surveys/${survey_id}/metaData`,
   CALENDAR_PARAMETER: () => `${BASE}/calendar_parameter`,
   GENERATE_PASSWORD: (data) =>
     `${BASE}/auth/participant/${data}/generatePassword`,

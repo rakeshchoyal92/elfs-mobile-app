@@ -5,6 +5,8 @@ import metaData from './metaData.reducer'
 import misc from './misc.reducer'
 import calendar from './calendar.reducer'
 import auth from './auth.reducers'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { ActionType } from 'redux-promise-middleware'
 
 // Add your new reducer here
 const reducers = {
@@ -16,6 +18,14 @@ const reducers = {
   auth,
 }
 
-const rootReducer = combineReducers(reducers)
+const appReducer = combineReducers(reducers)
+
+const rootReducer = (state, action) => {
+  if (action.type === `RESET_STORE_${ActionType.Fulfilled}`) {
+    return appReducer(undefined, action)
+  }
+
+  return appReducer(state, action)
+}
 
 export default rootReducer

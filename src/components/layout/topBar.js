@@ -10,7 +10,7 @@ import {
 } from '@ui-kitten/components'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useSelector } from 'react-redux'
-import { SCREENS } from '@constants/strings'
+import { FONTS, SCREENS } from '@constants/strings'
 
 export const TopBarComponent = ({
   navigation,
@@ -70,11 +70,13 @@ export const TopBarComponent = ({
 
 const themedStyles = StyleService.create({
   container: {
-    borderBottomWidth: 1,
+    // borderBottomWidth: 1,
+    backgroundColor: 'background-basic-color-4',
   },
   titleText: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontfamily: FONTS.NunitoSans_800ExtraBold,
   },
   logo: {
     // width: 30,

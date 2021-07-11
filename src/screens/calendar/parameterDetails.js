@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Platform, View } from 'react-native'
-import { Layout } from '@ui-kitten/components'
+import { Layout, Text } from '@ui-kitten/components'
 import { data as paramData } from '@screens/addParameter/data'
 import { IconMultiplier } from '@components/Icons/fa-icon-multiplier'
 import { TextNunitoSans } from '@components/common'
@@ -11,6 +11,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons'
 
 function ParameterDetail({ data }) {
   const extractParamInfo = (key, response) => {
+    console.log({ key, response })
     const item = paramData.find((item) => item.key === key)
     const { title, shortTitle, color, data = [] } = item
     let responseVal = data.find((item) => item.key === response)
@@ -48,6 +49,7 @@ function ParameterDetail({ data }) {
                   data,
                   color = 'grey',
                 } = extractParamInfo(item, values[item])
+                // console.log({ data })
                 return (
                   <Layout
                     level={'4'}
@@ -78,19 +80,17 @@ function ParameterDetail({ data }) {
                           alignItems: 'center',
                         }}
                       >
-                        {data?.type === 'multipleIcon' ? (
+                        {data?.type === 'multipleIcon' && (
                           <IconMultiplier
                             number={data.number}
                             font={data.font}
                             color={data.color}
                           />
-                        ) : (
+                        )}
+
+                        {data?.type === 'twoIcons' && (
                           <View>
-                            <FontAwesomeIcon
-                              icon={faCheck}
-                              size={15}
-                              color="green"
-                            />
+                            <Text>A</Text>
                           </View>
                         )}
                       </View>

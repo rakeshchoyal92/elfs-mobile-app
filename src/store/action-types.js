@@ -9,12 +9,16 @@ export const SET_QUESTION_KEY_TO_DETAIL = 'questions/SET_QUESTION_KEY_TO_DETAIL'
 //Survey
 export const ADD_QUESTION_TO_SURVEY = 'survey/ADD_QUESTION_TO_SURVEY'
 export const RESET_SURVEY_QUESTIONS = 'survey/RESET_SURVEY_QUESTIONS'
+export const SET_SURVEY_NEXT = 'survey/SET_SURVEY_NEXT'
+export const SET_SURVEYS = 'survey/SET_SURVEYS'
+export const SET_RESPONSE = 'survey/SET_RESPONSE'
 
 //Answers
-export const SET_RESPONSE = 'survey/SET_RESPONSE'
-export const SET_RESPONSES = 'survey/SET_RESPONSES'
+export const SET_SURVEY_RESPONSE = 'survey/SET_SURVEY_RESPONSE'
+export const SET_SURVEY_RESPONSES = 'survey/SET_SURVEY_RESPONSES'
 export const CLEAR_RESPONSES = 'survey/CLEAR_RESPONSES'
 export const SUBMIT_RESPONSES = 'survey/SUBMIT_RESPONSES'
+export const OVERRIDE_RESPONSE = 'survey/OVERRIDE_RESPONSE'
 
 //MetaData
 export const SET_METADATA = 'meta_data/SET_METADATA'

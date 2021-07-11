@@ -44,17 +44,20 @@ import {
   NunitoSans_900Black_Italic,
 } from '@expo-google-fonts/nunito-sans'
 import { default as customTheme } from '@themes/custom-theme.json'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 import './lang/i18n'
 import { StatusBar } from 'expo-status-bar'
+import * as ScreenOrientation from 'expo-screen-orientation'
 
 if (Platform.OS !== 'web') {
   LogBox.ignoreAllLogs() //Ignore all log notifications
 }
 
 const store = configureStore()
+
 const LayoutWrapper = () => {
+  const theme = useSelector(({ misc }) => misc.theme)
   if (Platform.OS === 'web') {
     return (
       <Fragment>
@@ -75,7 +78,7 @@ const LayoutWrapper = () => {
 const AppWrapper = () => {
   const language = useSelector(({ misc }) => misc.language)
   const theme = useSelector(({ misc }) => misc.theme)
-  console.log({ theme })
+
   useEffect(() => {
     const RNDir = RNI18nManager.isRTL ? 'RTL' : 'LTR'
 
@@ -178,6 +181,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     width: '100%',
-    // backgroundColor: 'white',
   },
 })
