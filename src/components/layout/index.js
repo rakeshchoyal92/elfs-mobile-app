@@ -46,7 +46,9 @@ export default function AppLayout({
                 alignItems: 'center',
               }}
             >
-              <ScrollView style={{ width: 800 }}>{children}</ScrollView>
+              <ScrollView style={{ maxWidth: 800, width: '100%' }}>
+                {children}
+              </ScrollView>
             </View>
           ) : (
             <View

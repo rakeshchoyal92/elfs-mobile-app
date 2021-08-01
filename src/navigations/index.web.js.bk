@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 import CalendarScreen from '@screens/calendar'
 import { connect, useDispatch } from 'react-redux'
 import AddParameterModal from '@screens/addParameter'
-import { SCREENS } from '@constants/strings'
+import { LAYOUT, SCREENS } from '@constants/strings'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import SettingsContainer from '@screens/settings'
 import SurveyContainer from '@screens/survey'
@@ -16,7 +16,7 @@ import SurveyDetails from '@screens/survey/surveyDetails'
 import EnterEmailScreen from '@screens/auth/enterEmail'
 import EnterOTPScreen from '@screens/auth/enterOTP'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { View } from 'react-native'
+import { Dimensions, Platform, View } from 'react-native'
 import {
   Button,
   Drawer,
@@ -155,6 +155,8 @@ const DrawerContent = ({ navigation, state }) => {
 }
 
 const Navigations = ({ userBio }) => {
+  const widthInit = Dimensions.get('window').width
+
   const Navigation = () =>
     !userBio ? (
       <Stack.Navigator headerMode="none">
@@ -162,8 +164,12 @@ const Navigations = ({ userBio }) => {
       </Stack.Navigator>
     ) : (
       <DrawerNavigator.Navigator
-        drawerPosition={'left'}
-        drawerType={'permanent'}
+        drawerPosition={
+          widthInit >= LAYOUT.DRAWER_PERMANENT_AT_WIDTH ? 'left' : 'right'
+        }
+        drawerType={
+          widthInit >= LAYOUT.DRAWER_PERMANENT_AT_WIDTH ? 'permanent' : 'front'
+        }
         drawerContent={(props) => <DrawerContent {...props} />}
       >
         <DrawerNavigator.Screen

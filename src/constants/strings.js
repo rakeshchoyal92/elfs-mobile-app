@@ -73,3 +73,7 @@ export const markingDots = {
   pelvicPain: { key: 'pelvicPain', color: 'black' },
   // note: { key: 'note', color: 'red' },
 }
+
+export const LAYOUT = {
+  DRAWER_PERMANENT_AT_WIDTH: 800,
+}

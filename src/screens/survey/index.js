@@ -24,6 +24,12 @@ const TimeSince = ({ value }) => {
   return <TextNunitoSans text={timeSince} />
 }
 
+const SURVEY_STATUS = {
+  NEEDS_UPDATE: 'NEEDS_UPDATE',
+  COMPLETED: 'COMPLETED',
+  INIT: 'INIT',
+}
+
 const SurveyContainer = ({
   navigation,
   surveys,
@@ -34,10 +40,8 @@ const SurveyContainer = ({
 }) => {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      console.log('focussed!')
       getSurveys()
     })
-
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe
   }, [navigation])
