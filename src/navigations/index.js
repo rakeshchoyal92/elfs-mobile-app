@@ -72,27 +72,6 @@ const SurveyNavigator = () => {
 }
 
 const Navigations = ({ userBio, theme }) => {
-  if (!userBio) {
-    return (
-      <AuthStack.Navigator>
-        <AuthStack.Screen
-          name={SCREENS.AUTH_ENTER_EMAIL}
-          component={EnterEmailScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <AuthStack.Screen
-          name={SCREENS.AUTH_ENTER_OTP}
-          component={EnterOTPScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-      </AuthStack.Navigator>
-    )
-  }
-
   const tabBarOptions =
     theme === 'dark'
       ? {
@@ -112,29 +91,54 @@ const Navigations = ({ userBio, theme }) => {
           inactiveBackgroundColor: 'white',
         }
 
+  const Stack = createStackNavigator()
+  const Navigation = () =>
+    !userBio ? (
+      <AuthStack.Navigator>
+        <AuthStack.Screen
+          name={SCREENS.AUTH_ENTER_EMAIL}
+          component={EnterEmailScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <AuthStack.Screen
+          name={SCREENS.AUTH_ENTER_OTP}
+          component={EnterOTPScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+      </AuthStack.Navigator>
+    ) : (
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName
+
+            if (route.name === SCREENS.CALENDAR) {
+              iconName = 'calendar'
+            } else if (route.name === SCREENS.SURVEY) {
+              iconName = 'profile'
+            } else if (route.name === SCREENS.SETTINGS) {
+              iconName = 'setting'
+            }
+
+            return <AntDesign name={iconName} size={size} color={color} />
+          },
+        })}
+        tabBarOptions={tabBarOptions}
+      >
+        <Tab.Screen name={SCREENS.CALENDAR} component={CalendarNavigator} />
+        <Tab.Screen name={SCREENS.SURVEY} component={SurveyNavigator} />
+        <Tab.Screen name={SCREENS.SETTINGS} component={SettingsContainer} />
+      </Tab.Navigator>
+    )
+
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName
-
-          if (route.name === SCREENS.CALENDAR) {
-            iconName = 'calendar'
-          } else if (route.name === SCREENS.SURVEY) {
-            iconName = 'profile'
-          } else if (route.name === SCREENS.SETTINGS) {
-            iconName = 'setting'
-          }
-
-          return <AntDesign name={iconName} size={size} color={color} />
-        },
-      })}
-      tabBarOptions={tabBarOptions}
-    >
-      <Tab.Screen name={SCREENS.CALENDAR} component={CalendarNavigator} />
-      <Tab.Screen name={SCREENS.SURVEY} component={SurveyNavigator} />
-      <Tab.Screen name={SCREENS.SETTINGS} component={SettingsContainer} />
-    </Tab.Navigator>
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen name={'mobile'} component={Navigation} />
+    </Stack.Navigator>
   )
 }
 
