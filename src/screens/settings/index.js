@@ -126,21 +126,21 @@ function SettingsContainer({ navigation, logoutUser, loading, theme }) {
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}
       >
         <View>
-          <View
-            style={{
-              paddingBottom: 15,
-              borderBottomWidth: 1,
-              borderBottomColor: '#777',
-              marginBottom: 15,
-            }}
-          >
-            <Heading text="Language" category="h4" />
-            <OptionPicker
-              onClick={(lang) => handleDispatchLang(lang)}
-              selectedValue={selectedLang}
-              values={LANGUAGES}
-            />
-          </View>
+          {/*<View*/}
+          {/*  style={{*/}
+          {/*    paddingBottom: 15,*/}
+          {/*    borderBottomWidth: 1,*/}
+          {/*    borderBottomColor: '#777',*/}
+          {/*    marginBottom: 15,*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  <Heading text="Language" category="h4" />*/}
+          {/*  <OptionPicker*/}
+          {/*    onClick={(lang) => handleDispatchLang(lang)}*/}
+          {/*    selectedValue={selectedLang}*/}
+          {/*    values={LANGUAGES}*/}
+          {/*  />*/}
+          {/*</View>*/}
 
           <View
             style={{

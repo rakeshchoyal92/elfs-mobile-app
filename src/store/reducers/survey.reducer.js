@@ -46,6 +46,7 @@ function reducer(state = initialState, action) {
       state.loading.savingResponse = false
       state.response = []
       state.response_dict = {}
+      state.surveys = []
       state.selectedSurvey = null
       break
     }

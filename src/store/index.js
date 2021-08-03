@@ -9,8 +9,9 @@ import promise from 'redux-promise-middleware'
 import thunk from 'redux-thunk'
 
 const persistConfig = {
-  key: 'root',
+  key: 'elfs-mobile-app-1',
   storage: AsyncStorage,
+  whitelist: ['auth'],
 }
 
 const actionLogger = (store) => (next) => (action) => {

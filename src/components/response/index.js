@@ -228,7 +228,7 @@ const RenderNumberInputC = ({
     <>
       <Input
         value={value}
-        onChangeText={(value) => setValue(value)}
+        onChangeText={(value) => !isNaN(value) && setValue(value)}
         keyboardType="numeric"
         placeholder="Type your response here"
         enablesReturnKeyAutomatically
@@ -296,25 +296,15 @@ const RenderDateC = ({
   handleGetNextQuestion,
   initialValues,
   onInitialValueGoToAutoNext,
+  metaData,
 }) => {
-  // const [date, setDate] = React.useState(moment())
-  // useEffect(() => {
-  //   if (initialValues[question.key]) {
-  //     handleGetNextQuestion(question, initialValues[question.key])
-  //   }
-  // }, [])
-  //
-  // function onChange(date) {
-  //   setDate(date)
-  //   handleGetNextQuestion(question, date)
-  // }
   const { optionalSkipText } = question
   const [selectedValue, setSelectedValue] = useState()
   const [displayNextBtn, setDisplayNextBtn] = useState(false)
+  const [minDate, setMinDate] = useState()
   const dateFormat = 'YYYY-MM-DD'
   useEffect(() => {
     let questionKey = question.key
-
     if (initialValues[questionKey]) {
       let initDate = moment(initialValues[questionKey], dateFormat)
       setSelectedValue(initDate)
@@ -323,6 +313,10 @@ const RenderDateC = ({
       } else {
         setDisplayNextBtn(true)
       }
+    }
+    if (metaData.first_day_last_period) {
+      const minDate = moment(metaData.first_day_last_period, 'DD-MM-YYYY')
+      setMinDate(minDate)
     }
   }, [])
 
@@ -339,6 +333,9 @@ const RenderDateC = ({
         date={selectedValue}
         dateService={dateService}
         onSelect={(nextDate) => onChange(nextDate)}
+        //TODO: Uncomment min and max in production
+        // min={question.key === 'first_day_last_period' && minDate}
+        // max={question.key === 'first_day_last_period' && moment()}
       />
 
       {displayNextBtn && (
