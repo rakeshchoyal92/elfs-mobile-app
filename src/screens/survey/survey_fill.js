@@ -187,19 +187,21 @@ const SurveyFill = (props) => {
   const [fetchingMetaData, setFetchingMetaData] = useState(true)
   const [initialValues, setInitialValue] = useState({})
   const [metaData, setMetaData] = useState()
-  // const [responseFlat, setResponseFlat] = useState({})
   let lastResponse = {}
-  // useEffect(() => {
-  //   let responseFlat = response.reduce((acc, response) => {
-  //     const { key, value } = response
-  //     acc[key] = value
-  //     return acc
-  //   }, {})
-  //
-  //   setResponseFlat(responseFlat)
-  // }, [response])
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      initialise()
+    })
+
+    return unsubscribe
+  }, [navigation])
 
   useEffect(() => {
+    initialise()
+  }, [getQuestions])
+
+  function initialise() {
     setFetchingMetaData(true)
 
     getQuestions(isInitialSurvey)
@@ -227,7 +229,7 @@ const SurveyFill = (props) => {
 
     // Clear survey responses if any present
     clearResponses()
-  }, [getQuestions])
+  }
 
   /**
    * Effect to bring the current survey question to view
@@ -563,26 +565,29 @@ const SurveyFill = (props) => {
       >
         {loadingResponse && <LoadingIndicator />}
         {fetchingMetaData && <LoadingIndicator />}
-        {surveyQuestions && metaData && (
-          <ScrollView
-            style={{ paddingVertical: 20 }}
-            ref={listViewRef}
-            scrollToOverflowEnabled
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 150 }}
-          >
-            {surveyQuestions.map((question, index) => {
-              return (
-                <RenderQuestion
-                  key={question.key}
-                  {...questionProps}
-                  index={index}
-                  question={question}
-                />
-              )
-            })}
-          </ScrollView>
-        )}
+        {surveyQuestions?.length >= 1 &&
+          metaData &&
+          !loadingResponse &&
+          !fetchingMetaData && (
+            <ScrollView
+              style={{ paddingVertical: 20 }}
+              ref={listViewRef}
+              scrollToOverflowEnabled
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 150 }}
+            >
+              {surveyQuestions.map((question, index) => {
+                return (
+                  <RenderQuestion
+                    key={question.key}
+                    {...questionProps}
+                    index={index}
+                    question={question}
+                  />
+                )
+              })}
+            </ScrollView>
+          )}
       </AppLayout>
     </KeyboardAvoidingView>
   )

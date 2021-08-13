@@ -158,8 +158,10 @@ const RenderTextInputC = ({
   handleGetNextQuestion,
   initialValues,
   onInitialValueGoToAutoNext,
+  metaData,
 }) => {
   const [value, setValue] = useState('')
+  const { preFill, optionalSkipText } = question
   // const [displayNextBtn, setDisplayNextBtn] = useState(false)
 
   // useEffect(() => {
@@ -179,6 +181,12 @@ const RenderTextInputC = ({
       //   handleGetNextQuestion(question, initialValues[questionKey])
       // }
     }
+    if (preFill?.key) {
+      let initialValue = metaData[preFill.key]
+      if (initialValue) {
+        setValue(initialValue)
+      }
+    }
   }, [])
 
   return (
@@ -193,14 +201,28 @@ const RenderTextInputC = ({
         onEndEditing={() => handleGetNextQuestion(question, value)}
         textStyle={{ textAlign: 'left' }}
       />
-      <Button
-        onPress={() => handleGetNextQuestion(question, value)}
-        style={{ marginTop: 10 }}
-        disabled={value === ''}
-        type="primary"
-      >
-        Next
-      </Button>
+      {value && (
+        <Button
+          onPress={() => handleGetNextQuestion(question, value)}
+          style={{ marginTop: 10 }}
+          disabled={value === ''}
+          type="primary"
+        >
+          Next
+        </Button>
+      )}
+
+      {!value && optionalSkipText && (
+        <Button
+          onPress={() => {
+            handleGetNextQuestion(question, '_VALUE_ANY')
+          }}
+          style={{ marginTop: 10 }}
+          status={'danger'}
+        >
+          {optionalSkipText}
+        </Button>
+      )}
     </>
   )
 }
@@ -210,8 +232,10 @@ const RenderNumberInputC = ({
   handleGetNextQuestion,
   initialValues,
   onInitialValueGoToAutoNext,
+  metaData,
 }) => {
   const [value, setValue] = useState('')
+  const { preFill } = question
 
   useEffect(() => {
     let questionKey = question.key
@@ -221,6 +245,12 @@ const RenderNumberInputC = ({
       // if (onInitialValueGoToAutoNext) {
       //   handleGetNextQuestion(question, initialValue)
       // }
+    }
+    if (preFill?.key) {
+      initialValue = metaData[preFill.key]
+      if (initialValue) {
+        setValue(initialValue.replace(/\D/g, ''))
+      }
     }
   }, [])
 
@@ -236,14 +266,16 @@ const RenderNumberInputC = ({
         onEndEditing={() => handleGetNextQuestion(question, value)}
         textStyle={{ textAlign: 'left' }}
       />
-      <Button
-        onPress={() => handleGetNextQuestion(question, value)}
-        style={{ marginTop: 10 }}
-        disabled={value === ''}
-        type="primary"
-      >
-        Next
-      </Button>
+      {value && (
+        <Button
+          onPress={() => handleGetNextQuestion(question, value)}
+          style={{ marginTop: 10 }}
+          disabled={value === ''}
+          type="primary"
+        >
+          Next
+        </Button>
+      )}
     </>
   )
 }
@@ -253,8 +285,10 @@ const RenderTextAreaInputC = ({
   handleGetNextQuestion,
   initialValues,
   onInitialValueGoToAutoNext,
+  metaData,
 }) => {
   const [value, setValue] = useState('')
+  const { preFill, optionalSkipText } = question
 
   useEffect(() => {
     let questionKey = question.key
@@ -264,6 +298,13 @@ const RenderTextAreaInputC = ({
       // if (onInitialValueGoToAutoNext) {
       //   handleGetNextQuestion(question, initialValue)
       // }
+    }
+
+    if (preFill?.key) {
+      initialValue = metaData[preFill.key]
+      if (initialValue) {
+        setValue(initialValue)
+      }
     }
   }, [])
 
@@ -279,14 +320,29 @@ const RenderTextAreaInputC = ({
         // returnKeyType="done"
         onEndEditing={() => handleGetNextQuestion(question, value)}
       />
-      <Button
-        onPress={() => handleGetNextQuestion(question, value)}
-        style={{ marginTop: 10 }}
-        disabled={value === ''}
-        type="primary"
-      >
-        Next
-      </Button>
+
+      {value && (
+        <Button
+          onPress={() => handleGetNextQuestion(question, value)}
+          style={{ marginTop: 10 }}
+          disabled={value === ''}
+          type="primary"
+        >
+          Next
+        </Button>
+      )}
+
+      {!value && optionalSkipText && (
+        <Button
+          onPress={() => {
+            handleGetNextQuestion(question, '_VALUE_ANY')
+          }}
+          style={{ marginTop: 10 }}
+          status={'danger'}
+        >
+          {optionalSkipText}
+        </Button>
+      )}
     </>
   )
 }
@@ -302,7 +358,9 @@ const RenderDateC = ({
   const [selectedValue, setSelectedValue] = useState()
   const [displayNextBtn, setDisplayNextBtn] = useState(false)
   const [minDate, setMinDate] = useState()
+  const [maxDate, setMaxDate] = useState()
   const dateFormat = 'YYYY-MM-DD'
+
   useEffect(() => {
     let questionKey = question.key
     if (initialValues[questionKey]) {
@@ -314,9 +372,18 @@ const RenderDateC = ({
         setDisplayNextBtn(true)
       }
     }
-    if (metaData.first_day_last_period) {
+    if (
+      metaData.first_day_last_period &&
+      question.key === 'first_day_last_period'
+    ) {
       const minDate = moment(metaData.first_day_last_period, 'DD-MM-YYYY')
+      //TODO: Uncomment setMinDate in production
+      // setMinDate(minDate)
       setMinDate(minDate)
+      setMaxDate(moment())
+    } else {
+      setMinDate(moment('01-01-2020', 'DD-MM-YYYY'))
+      setMaxDate(moment('01-01-2030', 'DD-MM-YYYY'))
     }
   }, [])
 
@@ -336,6 +403,8 @@ const RenderDateC = ({
         //TODO: Uncomment min and max in production
         // min={question.key === 'first_day_last_period' && minDate}
         // max={question.key === 'first_day_last_period' && moment()}
+        min={minDate}
+        max={maxDate}
       />
 
       {displayNextBtn && (
@@ -467,16 +536,38 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
         />
       </View>
 
-      <View style={{ paddingLeft: 3, paddingBottom: 10 }}>
-        {caption && (
-          <TextNunitoSans
-            text={caption}
-            category={'c1'}
-            fontFamily={FONTS.NunitoSans_300Light_Italic}
-            style={{ fontSize: 12 }}
-          />
-        )}
-      </View>
+      {caption?.type && caption?.value && (
+        <View>
+          {caption.type === 'META_DATA' && metaData[caption.value] && (
+            <TextNunitoSans
+              text={`${
+                caption.prefix ? caption.prefix : 'Your previous answer was'
+              } - ${metaData[caption.value] || 'None'}`}
+              category={'c1'}
+              fontFamily={FONTS.Roboto_400Regular}
+              style={{
+                fontSize: 14,
+                padding: 8,
+                backgroundColor: '#e0dcdc',
+                borderRadius: 5,
+              }}
+            />
+          )}
+          {caption.type === 'STATIC' && (
+            <TextNunitoSans
+              text={caption.value}
+              category={'c1'}
+              fontFamily={FONTS.Roboto_400Regular}
+              style={{
+                fontSize: 14,
+                padding: 8,
+                backgroundColor: '#e0dcdc',
+                borderRadius: 5,
+              }}
+            />
+          )}
+        </View>
+      )}
 
       <View style={{ paddingLeft: 3, paddingBottom: 10 }}>
         {showMetaDataKey && metaData && metaData?.[showMetaDataKey] && (

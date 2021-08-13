@@ -1,6 +1,7 @@
 import produce from 'immer'
 import {
   ADD_QUESTION_TO_SURVEY,
+  CLEAR_RESPONSES,
   DELETE_A_QUESTION,
   RESET_SURVEY_QUESTIONS,
   SET_QUESTION,
@@ -117,6 +118,11 @@ function reducer(state = initialState, action) {
           console.error('Next question is not set!')
         }
       }
+      break
+    }
+    case CLEAR_RESPONSES: {
+      state.surveyQuestions = [state.questions[1]]
+      state.currentSurveyKey = null
       break
     }
     default:

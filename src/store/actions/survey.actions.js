@@ -67,7 +67,7 @@ export const getASurvey = (surveyId) => {
 
 export const getMetaData = (surveyId) => {
   return {
-    type: 'asd',
+    type: 'GET_METADATA',
     async payload() {
       return await surveyApi.getMetaData(surveyId)
     },

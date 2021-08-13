@@ -8,10 +8,16 @@ import { clearResponses, submitSurvey } from '@actions/survey.actions'
 import AppLayout from '@components/layout'
 import { getSurveys } from '@actions/survey.actions'
 import { ErrorBox } from '@components/common/Error'
+import moment from 'moment'
 
 const BackIcon = (props) => <Icon {...props} name="arrow-circle-left-outline" />
 const DiscardIcon = (props) => <Icon {...props} name="close-outline" />
 const SubmitIcon = (props) => <Icon {...props} name="checkmark-outline" />
+
+function isValidDate(dateString) {
+  let regEx = /^\d{4}-\d{2}-\d{2}$/
+  return dateString.match(regEx) != null
+}
 
 function RenderResponse({ response }) {
   if (typeof response === 'boolean') {
@@ -44,12 +50,22 @@ function RenderResponse({ response }) {
   } else if (typeof response === 'object') {
     return (
       <TextNunitoSans
-        text={new Date(response).toDateString()}
+        text={moment(response).format('dd/mm/yyyy')}
         fontFamily={FONTS.NunitoSans_400Regular}
         style={{ marginBottom: 5 }}
       />
     )
   } else {
+    if (isValidDate(response)) {
+      let dateFormatted = moment(response, 'YYYY-MM-DD').format('DD/MM/YYYY')
+      return (
+        <TextNunitoSans
+          text={dateFormatted}
+          fontFamily={FONTS.NunitoSans_400Regular}
+          style={{ marginBottom: 5 }}
+        />
+      )
+    }
     return (
       <TextNunitoSans
         text={response}

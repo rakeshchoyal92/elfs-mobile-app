@@ -39,7 +39,12 @@ export const TopBarComponent = ({
         <Text>
           <MaterialIcons
             {...props}
-            onPress={() => navigation.navigate(SCREENS.CALENDAR)}
+            onPress={() =>
+              navigation.reset({
+                index: 0,
+                routes: [{ name: SCREENS.CALENDAR }],
+              })
+            }
             name="home"
             size={26}
           />
