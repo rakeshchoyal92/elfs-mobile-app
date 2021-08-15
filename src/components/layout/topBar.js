@@ -81,7 +81,7 @@ const themedStyles = StyleService.create({
   titleText: {
     fontSize: 18,
     fontWeight: 'bold',
-    fontfamily: FONTS.NunitoSans_800ExtraBold,
+    fontFamily: FONTS.NunitoSans_800ExtraBold,
   },
   logo: {
     // width: 30,

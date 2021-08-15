@@ -19,7 +19,11 @@ async function responseHandler(resp) {
 async function errorHandler(e) {
   await timeout(1000)
   const resp = e.response
-  throw get(resp, 'data.message', 'UNKNOWN_ERROR')
+  const status = resp.status
+  throw {
+    resp,
+    status,
+  }
 }
 
 async function getAccessToken() {

@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { View, Platform, ScrollView, KeyboardAvoidingView } from 'react-native'
+import {
+  View,
+  Platform,
+  ScrollView,
+  KeyboardAvoidingView,
+  Alert,
+} from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
 import { connect, useSelector } from 'react-redux'
 import { addQuestionToSurvey, getQuestions } from '@actions/questions.actions'
@@ -26,11 +32,13 @@ import { setMetaData } from '@actions/metaData.actions'
 import { Button } from '@ui-kitten/components'
 import * as Animatable from 'react-native-animatable'
 import AppLayout from '@components/layout'
-import { LoadingIndicator } from '@components/common'
+import { LoadingIndicator, TextNunitoSans } from '@components/common'
+import { ErrorBoundary } from 'react-error-boundary'
 
 const TESTING = false
 const VARIABLE_MATCHING_STRATEGY = {
   EQUAL: 'EQUAL',
+  NOT_EQUAL: 'NOTEQUAL',
   GREATER: 'GREATER',
   LESSER: 'LESSER',
   TRUE_FALSE: 'TRUE/FALSE',
@@ -52,10 +60,15 @@ const VALUES_SELECTED = {
   SKIP: '_VALUE_SKIP',
 }
 
-const initialValuesParticipant = {
-  first_day_last_period: '20/01/2021',
-  current_weight: 60,
-  regular_medication: 'this is prefilled regular medication example',
+function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <View role="alert">
+      <TextNunitoSans>
+        Something went wrong. Please contact your Admin:
+      </TextNunitoSans>
+      <pre>{error.message}</pre>
+    </View>
+  )
 }
 
 function isNumeric(value) {
@@ -341,6 +354,10 @@ const SurveyFill = (props) => {
             return valueObtainedFromServerSurvey !== null
           }
 
+          case VARIABLE_MATCHING_STRATEGY.NOT_EQUAL: {
+            return valueObtainedFromServerSurvey !== onValue
+          }
+
           case VARIABLE_MATCHING_STRATEGY.TRUE_FALSE: {
             if (onValue === VALUES_SELECTED.FALSE) {
               return valueObtainedFromServerSurvey === false
@@ -357,11 +374,11 @@ const SurveyFill = (props) => {
           }
 
           case VARIABLE_MATCHING_STRATEGY.GREATER: {
-            return valueObtainedFromServerSurvey > Number(onValue)
+            return valueObtainedFromServerSurvey >= Number(onValue)
           }
 
           case VARIABLE_MATCHING_STRATEGY.LESSER: {
-            return valueObtainedFromServerSurvey < Number(onValue)
+            return valueObtainedFromServerSurvey <= Number(onValue)
           }
         }
       } else {
@@ -563,31 +580,33 @@ const SurveyFill = (props) => {
             : 'New Survey'
         }
       >
-        {loadingResponse && <LoadingIndicator />}
-        {fetchingMetaData && <LoadingIndicator />}
-        {surveyQuestions?.length >= 1 &&
-          metaData &&
-          !loadingResponse &&
-          !fetchingMetaData && (
-            <ScrollView
-              style={{ paddingVertical: 20 }}
-              ref={listViewRef}
-              scrollToOverflowEnabled
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 150 }}
-            >
-              {surveyQuestions.map((question, index) => {
-                return (
-                  <RenderQuestion
-                    key={question.key}
-                    {...questionProps}
-                    index={index}
-                    question={question}
-                  />
-                )
-              })}
-            </ScrollView>
-          )}
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          {loadingResponse && <LoadingIndicator />}
+          {fetchingMetaData && <LoadingIndicator />}
+          {surveyQuestions?.length >= 1 &&
+            metaData &&
+            !loadingResponse &&
+            !fetchingMetaData && (
+              <ScrollView
+                style={{ paddingVertical: 20 }}
+                ref={listViewRef}
+                scrollToOverflowEnabled
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 150 }}
+              >
+                {surveyQuestions.map((question, index) => {
+                  return (
+                    <RenderQuestion
+                      key={question.key}
+                      {...questionProps}
+                      index={index}
+                      question={question}
+                    />
+                  )
+                })}
+              </ScrollView>
+            )}
+        </ErrorBoundary>
       </AppLayout>
     </KeyboardAvoidingView>
   )

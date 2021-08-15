@@ -6,6 +6,7 @@ import {
   I18nManager as RNI18nManager,
   Platform,
   LogBox,
+  View,
 } from 'react-native'
 import Navigations from '@navigations'
 import { NavigationContainer } from '@react-navigation/native'
@@ -49,6 +50,8 @@ import { useSelector } from 'react-redux'
 import './lang/i18n'
 import { StatusBar } from 'expo-status-bar'
 import * as ScreenOrientation from 'expo-screen-orientation'
+import { TextNunitoSans } from '@components/common'
+import { ErrorBoundary } from 'react-error-boundary'
 
 if (Platform.OS !== 'web') {
   LogBox.ignoreAllLogs() //Ignore all log notifications
@@ -79,6 +82,17 @@ const AppWrapper = () => {
   const language = useSelector(({ misc }) => misc.language)
   const theme = useSelector(({ misc }) => misc.theme)
 
+  function ErrorFallback({ error, resetErrorBoundary }) {
+    return (
+      <View role="alert">
+        <TextNunitoSans>
+          Something went wrong. Please contact your Admin:
+        </TextNunitoSans>
+        <pre>{error.message}</pre>
+      </View>
+    )
+  }
+
   useEffect(() => {
     const RNDir = RNI18nManager.isRTL ? 'RTL' : 'LTR'
 
@@ -101,9 +115,11 @@ const AppWrapper = () => {
     <ApplicationProvider {...eva} theme={{ ...eva[theme], ...customTheme }}>
       <SafeAreaProvider>
         <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-        <NavigationContainer linking={{ enabled: true }}>
-          <LayoutWrapper />
-        </NavigationContainer>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <NavigationContainer linking={{ enabled: true }}>
+            <LayoutWrapper />
+          </NavigationContainer>
+        </ErrorBoundary>
       </SafeAreaProvider>
     </ApplicationProvider>
   )

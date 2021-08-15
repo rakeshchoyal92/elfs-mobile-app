@@ -201,16 +201,15 @@ const RenderTextInputC = ({
         onEndEditing={() => handleGetNextQuestion(question, value)}
         textStyle={{ textAlign: 'left' }}
       />
-      {value && (
-        <Button
-          onPress={() => handleGetNextQuestion(question, value)}
-          style={{ marginTop: 10 }}
-          disabled={value === ''}
-          type="primary"
-        >
-          Next
-        </Button>
-      )}
+
+      <Button
+        onPress={() => handleGetNextQuestion(question, value)}
+        style={{ marginTop: 10 }}
+        disabled={value === ''}
+        type="primary"
+      >
+        Next
+      </Button>
 
       {!value && optionalSkipText && (
         <Button
@@ -266,16 +265,15 @@ const RenderNumberInputC = ({
         onEndEditing={() => handleGetNextQuestion(question, value)}
         textStyle={{ textAlign: 'left' }}
       />
-      {value && (
-        <Button
-          onPress={() => handleGetNextQuestion(question, value)}
-          style={{ marginTop: 10 }}
-          disabled={value === ''}
-          type="primary"
-        >
-          Next
-        </Button>
-      )}
+
+      <Button
+        onPress={() => handleGetNextQuestion(question, value)}
+        style={{ marginTop: 10 }}
+        disabled={value === ''}
+        type="primary"
+      >
+        Next
+      </Button>
     </>
   )
 }
@@ -321,16 +319,14 @@ const RenderTextAreaInputC = ({
         onEndEditing={() => handleGetNextQuestion(question, value)}
       />
 
-      {value && (
-        <Button
-          onPress={() => handleGetNextQuestion(question, value)}
-          style={{ marginTop: 10 }}
-          disabled={value === ''}
-          type="primary"
-        >
-          Next
-        </Button>
-      )}
+      <Button
+        onPress={() => handleGetNextQuestion(question, value)}
+        style={{ marginTop: 10 }}
+        disabled={value === ''}
+        type="primary"
+      >
+        Next
+      </Button>
 
       {!value && optionalSkipText && (
         <Button
@@ -372,17 +368,16 @@ const RenderDateC = ({
         setDisplayNextBtn(true)
       }
     }
-    if (
-      metaData.first_day_last_period &&
-      question.key === 'first_day_last_period'
-    ) {
+    if (question.key === 'first_day_last_period') {
       const minDate = moment(metaData.first_day_last_period, 'DD-MM-YYYY')
-      //TODO: Uncomment setMinDate in production
-      // setMinDate(minDate)
-      setMinDate(minDate)
+      if (metaData.first_day_last_period) {
+        setMinDate(minDate)
+      } else {
+        setMinDate(moment().subtract(1, 'months'))
+      }
       setMaxDate(moment())
     } else {
-      setMinDate(moment('01-01-2020', 'DD-MM-YYYY'))
+      setMinDate(moment('01-01-1900', 'DD-MM-YYYY'))
       setMaxDate(moment('01-01-2030', 'DD-MM-YYYY'))
     }
   }, [])
@@ -533,6 +528,7 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
         <TextNunitoSans
           text={`${index}. ${questionText}`}
           fontFamily={FONTS.NunitoSans_800ExtraBold}
+          style={{ fontSize: 18 }}
         />
       </View>
 
@@ -546,10 +542,11 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
               category={'c1'}
               fontFamily={FONTS.Roboto_400Regular}
               style={{
-                fontSize: 14,
+                fontSize: 16,
                 padding: 8,
                 backgroundColor: '#e0dcdc',
                 borderRadius: 5,
+                marginTop: 5,
               }}
             />
           )}
