@@ -16,7 +16,9 @@ const SubmitIcon = (props) => <Icon {...props} name="checkmark-outline" />
 
 function isValidDate(dateString) {
   let regEx = /^\d{4}-\d{2}-\d{2}$/
-  return dateString.match(regEx) != null
+  try {
+    return dateString.match(regEx) != null
+  } catch (e) {}
 }
 
 function RenderResponse({ response }) {
@@ -169,7 +171,7 @@ const SurveyReview = ({
         >
           <Button
             style={{ width: '33%' }}
-            onPress={() => navigation.navigate(SCREENS.SURVEY)}
+            onPress={() => navigation.navigate(SCREENS.SURVEY_FILL)}
             status={'info'}
             size={'small'}
             disabled={formSaving}

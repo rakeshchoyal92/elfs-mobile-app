@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Icon, Text } from '@ui-kitten/components'
-import { setLanguage } from '@actions/misc.actions'
+import {
+  Button,
+  Divider,
+  Icon,
+  List,
+  ListItem,
+  Text,
+} from '@ui-kitten/components'
+import { getUserDetails, setLanguage } from '@actions/misc.actions'
 import { useDispatch, useSelector } from 'react-redux'
 import AppLayout from '@components/layout'
 import { Platform, ScrollView, Switch, View } from 'react-native'
@@ -8,7 +15,7 @@ import { FONTS } from '@constants/strings'
 import { useTranslation } from 'react-i18next'
 import { logoutUser } from '@actions/auth.actions'
 import { connect } from 'react-redux'
-import { LoadingIndicator } from '@components/common'
+import { LoadingIndicator, TextNunitoSans } from '@components/common'
 import { setTheme } from '@actions/misc.actions'
 
 const LANGUAGES = [
@@ -103,10 +110,24 @@ const ThemeSwitcher = ({ theme }) => {
   )
 }
 
-function SettingsContainer({ navigation, logoutUser, loading, theme }) {
+function SettingsContainer({
+  navigation,
+  logoutUser,
+  loading,
+  theme,
+  getUserDetails,
+  userDetails,
+}) {
   const dispatch = useDispatch()
   const selectedLang = useSelector(({ misc }) => misc.language)
   const { i18n } = useTranslation()
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getUserDetails()
+    })
+    return unsubscribe
+  }, [navigation])
 
   const Heading = ({ text, category }) => {
     return (
@@ -119,6 +140,21 @@ function SettingsContainer({ navigation, logoutUser, loading, theme }) {
   const handleDispatchLang = (lang) => {
     i18n.changeLanguage(lang).then(() => dispatch(setLanguage(lang)))
   }
+
+  const renderItemIcon = (props) => <Icon {...props} name="list" />
+
+  const renderItem = ({ item, index }) => (
+    <ListItem
+      title={(props) => (
+        <TextNunitoSans
+          style={{ fontSize: 14 }}
+          text={`${item.title} : ${item.description}`}
+        />
+      )}
+      // description={`${item.description}`}
+      accessoryLeft={renderItemIcon}
+    />
+  )
 
   return (
     <AppLayout navigation={navigation} showTopBar title="Settings">
@@ -154,6 +190,17 @@ function SettingsContainer({ navigation, logoutUser, loading, theme }) {
           </View>
         </View>
 
+        {userDetails && (
+          <View style={{ marginVertical: 20 }}>
+            <Heading text="User Details" category="h4" />
+            <List
+              data={userDetails}
+              ItemSeparatorComponent={Divider}
+              renderItem={renderItem}
+            />
+          </View>
+        )}
+
         <View
           style={{
             paddingVertical: 15,
@@ -185,10 +232,12 @@ function SettingsContainer({ navigation, logoutUser, loading, theme }) {
 const mapStateToProps = ({ auth, misc }) => ({
   loading: auth.loading,
   theme: misc.theme,
+  userDetails: misc.userDetailsArray,
 })
 
 const mapDispatchToState = {
   logoutUser,
+  getUserDetails,
 }
 
 export default connect(mapStateToProps, mapDispatchToState)(SettingsContainer)

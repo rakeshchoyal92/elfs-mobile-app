@@ -9,7 +9,13 @@ import {
 import { questionsSelector } from '@store/selectors/questions'
 import { connect, useSelector } from 'react-redux'
 import { addQuestionToSurvey, getQuestions } from '@actions/questions.actions'
-import { RESPONSE_TYPES, SCREENS } from '@constants/strings'
+import {
+  RESPONSE_TYPES,
+  SCREENS,
+  VARIABLE_MATCHING_STRATEGY,
+  VALUES_SELECTED,
+  TUNNEL,
+} from '@constants/strings'
 import {
   clearResponses,
   getASurvey,
@@ -34,31 +40,9 @@ import * as Animatable from 'react-native-animatable'
 import AppLayout from '@components/layout'
 import { LoadingIndicator, TextNunitoSans } from '@components/common'
 import { ErrorBoundary } from 'react-error-boundary'
+import { isNumeric } from '@utils/misc'
 
 const TESTING = false
-const VARIABLE_MATCHING_STRATEGY = {
-  EQUAL: 'EQUAL',
-  NOT_EQUAL: 'NOTEQUAL',
-  GREATER: 'GREATER',
-  LESSER: 'LESSER',
-  TRUE_FALSE: 'TRUE/FALSE',
-  NULL_NOTNULL: 'NULL/NOT_NULL',
-}
-
-const TUNNEL = {
-  STARTS: 'tunnel_',
-  ENTER: 'enter',
-  RETURN: 'return_to_tunnel',
-  EXIT: 'exit',
-}
-
-const VALUES_SELECTED = {
-  NULL: '_VALUE_NULL',
-  FALSE: '_VALUE_FALSE',
-  TRUE: '_VALUE_TRUE',
-  ANY: '_VALUE_ANY',
-  SKIP: '_VALUE_SKIP',
-}
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -69,10 +53,6 @@ function ErrorFallback({ error, resetErrorBoundary }) {
       <pre>{error.message}</pre>
     </View>
   )
-}
-
-function isNumeric(value) {
-  return /^\d+$/.test(value)
 }
 
 const RenderQuestion = React.memo(

@@ -3,6 +3,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars'
 import React from 'react'
 import { connect } from 'react-redux'
 import { View } from 'react-native'
+import { Text } from '@ui-kitten/components'
 
 function CalendarContainer({
   setSelectedDay,
@@ -27,6 +28,9 @@ function CalendarContainer({
         onDayPress={(day) => {
           setSelectedDay(day)
         }}
+        renderArrow={(direction) => (
+          <Text category={'h4'}> {direction === 'left' ? '<' : '>'} </Text>
+        )}
         theme={{
           textDayFontFamily: FONTS.NunitoSans_400Regular,
           textMonthFontFamily: FONTS.NunitoSans_400Regular,
@@ -35,6 +39,8 @@ function CalendarContainer({
           textDayFontSize: 14,
           textMonthFontSize: 18,
           textDayHeaderFontSize: 14,
+          arrowColor: 'black',
+          disabledArrowColor: '#d9e1e8',
           // These color change based on the theme
           // calendarBackground: 'rgba(176,224,245,0.76)',
           // calendarBackground: 'rgba(176,224,245,0.76)',

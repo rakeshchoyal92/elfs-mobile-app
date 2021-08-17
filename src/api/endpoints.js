@@ -14,6 +14,7 @@ const ENDPOINTS = {
     `${BASE}/auth/participant/${data}/generatePassword`,
   LOGIN_OTP: () => `${BASE}/auth/participant/loginOTP`,
   LOGOUT: () => `${BASE}/auth/logout`,
+  USER_DETAILS: () => `${BASE}/users/details`,
 }
 
 export default ENDPOINTS

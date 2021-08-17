@@ -4,6 +4,7 @@ import { questionsSelector } from '@store/selectors/questions'
 import { connect } from 'react-redux'
 import { clearResponses, getSurveys } from '@actions/survey.actions'
 import { Divider, Icon, List, ListItem } from '@ui-kitten/components'
+import { getUserDetails } from '@actions/misc.actions'
 import AppLayout from '@components/layout'
 import { TextNunitoSans } from '@components/common'
 import { SCREENS } from '@constants/strings'
@@ -37,10 +38,13 @@ const SurveyContainer = ({
   response,
   clearResponses,
   resetSurveyQuestions,
+  getUserDetails,
+  userDetails,
 }) => {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getSurveys()
+      getUserDetails()
     })
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe
@@ -49,7 +53,7 @@ const SurveyContainer = ({
   const [refreshing, setRefreshing] = useState(false)
 
   const onRefresh = React.useCallback(() => {
-    setRefreshing(false)
+    setRefreshing(true)
     getSurveys().then(() => setRefreshing(false))
   }, [])
 
@@ -99,6 +103,16 @@ const SurveyContainer = ({
         }
         showsVerticalScrollIndicator={false}
       >
+        {/*{userDetails && (*/}
+        {/*  <View>*/}
+        {/*    {userDetails.status === 'COMPLETED' && (*/}
+        {/*      <TextNunitoSans*/}
+        {/*        style={{ textAlign: 'center' }}*/}
+        {/*        text={`Hi, you have successfully completed surveys. Thank you`}*/}
+        {/*      />*/}
+        {/*    )}*/}
+        {/*  </View>*/}
+        {/*)}*/}
         {surveys && surveys.length >= 1 && (
           <View>
             {surveys.find((item) => item.status === 'INIT') && (
@@ -273,6 +287,7 @@ const mapStateToProps = (state) => {
     responses: state.survey.responses,
     response: state.survey.response,
     surveys: state.survey.surveys,
+    userDetails: state.misc.userDetails,
   }
 }
 
@@ -280,6 +295,7 @@ const mapDispatchToProps = {
   clearResponses,
   getSurveys,
   resetSurveyQuestions,
+  getUserDetails,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SurveyContainer)

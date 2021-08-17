@@ -77,3 +77,27 @@ export const markingDots = {
 export const LAYOUT = {
   DRAWER_PERMANENT_AT_WIDTH: 800,
 }
+
+export const VARIABLE_MATCHING_STRATEGY = {
+  EQUAL: 'EQUAL',
+  NOT_EQUAL: 'NOTEQUAL',
+  GREATER: 'GREATER',
+  LESSER: 'LESSER',
+  TRUE_FALSE: 'TRUE/FALSE',
+  NULL_NOTNULL: 'NULL/NOT_NULL',
+}
+
+export const TUNNEL = {
+  STARTS: 'tunnel_',
+  ENTER: 'enter',
+  RETURN: 'return_to_tunnel',
+  EXIT: 'exit',
+}
+
+export const VALUES_SELECTED = {
+  NULL: '_VALUE_NULL',
+  FALSE: '_VALUE_FALSE',
+  TRUE: '_VALUE_TRUE',
+  ANY: '_VALUE_ANY',
+  SKIP: '_VALUE_SKIP',
+}

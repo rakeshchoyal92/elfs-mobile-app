@@ -14,11 +14,116 @@ import moment from 'moment'
 import { AntDesign } from '@expo/vector-icons'
 import { TextNunitoSans } from '@components/common'
 import { MomentDateService } from '@ui-kitten/moment'
+import { VARIABLE_MATCHING_STRATEGY, VALUES_SELECTED } from '@constants/strings'
+import { isNumeric } from '@utils/misc'
+import { useSelector } from 'react-redux'
+import { questionsSelector } from '@store/selectors/questions'
 
 const dateService = new MomentDateService('en-AU')
 
+const evaluateCondition = (key, questions, responseDict, metaData) => {
+  /**
+   * Evaluates to true/false
+   * @param condition
+   * @returns {boolean || string}
+   */
+
+  const evaluate = (condition) => {
+    const { extractValueFrom, matchingStrategy, onValue, variable } = condition
+
+    if (extractValueFrom) {
+      let valueObtainedFromServerSurvey
+
+      //FIXME: First check the current survey followed by metadata from the server
+      // surveyValue holds value of survey response. Last response is since last
+      // question response is not updated at responseDict at this point
+      const surveyValues = {
+        ...responseDict,
+      }
+
+      if (surveyValues.hasOwnProperty(variable)) {
+        valueObtainedFromServerSurvey = surveyValues[variable]
+      } else {
+        valueObtainedFromServerSurvey = metaData[variable]
+      }
+      // console.log('Evaluate', variable, valueObtainedFromServerSurvey)
+      // response: state.survey.response,
+
+      switch (matchingStrategy) {
+        case VARIABLE_MATCHING_STRATEGY.NULL_NOTNULL: {
+          if (onValue === VALUES_SELECTED.NULL) {
+            return valueObtainedFromServerSurvey === null
+          }
+          return valueObtainedFromServerSurvey !== null
+        }
+
+        case VARIABLE_MATCHING_STRATEGY.NOT_EQUAL: {
+          return valueObtainedFromServerSurvey !== onValue
+        }
+
+        case VARIABLE_MATCHING_STRATEGY.TRUE_FALSE: {
+          if (onValue === VALUES_SELECTED.FALSE) {
+            return valueObtainedFromServerSurvey === false
+          }
+          return valueObtainedFromServerSurvey === true
+        }
+
+        case VARIABLE_MATCHING_STRATEGY.EQUAL: {
+          if (isNumeric(onValue)) {
+            return valueObtainedFromServerSurvey === Number(onValue)
+          } else {
+            return valueObtainedFromServerSurvey === onValue
+          }
+        }
+
+        case VARIABLE_MATCHING_STRATEGY.GREATER: {
+          return valueObtainedFromServerSurvey >= Number(onValue)
+        }
+
+        case VARIABLE_MATCHING_STRATEGY.LESSER: {
+          return valueObtainedFromServerSurvey <= Number(onValue)
+        }
+      }
+    } else {
+      console.log('Inside else block')
+    }
+  }
+
+  let condition = questions.find((question) => question.key === key)
+  const { type, conditions, conditionalNext } = condition
+
+  if (type === 'SINGLE') {
+    return evaluate(conditions[0])
+  } else {
+    let resultExpression = ''
+    let result
+
+    conditions.map((condition, index) => {
+      let currentConditionEvaluatedValue = evaluate(condition)
+
+      let logicalOperatorToNextQ =
+        condition.logicalOperatorToNextQ === 'AND' ? '&&' : '||'
+
+      // result = currentConditionEvaluatedValue
+      // evaluate conditions based on logicalOperatorToNextQ.
+      // last element has no logicalOperatorToNextQ.
+      // first index evaluate, second index evaluate with first index's logicalOperatorToNextQ and so on
+
+      resultExpression += `${currentConditionEvaluatedValue}`
+      if (index !== conditions.length - 1) {
+        resultExpression += `${logicalOperatorToNextQ} `
+      }
+    })
+
+    return eval(resultExpression)
+  }
+}
+
 const RenderBooleanC = ({ question, handleGetNextQuestion, initialValues }) => {
   const [selectedValue, setSelectedValue] = useState()
+  const { defaultSelectedValue } = question
+  const [showNextButton, setShowNextButton] = useState(false)
+
   useEffect(() => {
     let questionKey = question.key
     let doesInitialValueExists = initialValues.hasOwnProperty(questionKey)
@@ -32,11 +137,15 @@ const RenderBooleanC = ({ question, handleGetNextQuestion, initialValues }) => {
         handleGetNextQuestion(question, false)
         setSelectedValue(1)
       }
+    } else if (defaultSelectedValue) {
+      setSelectedValue(defaultSelectedValue === '_VALUE_TRUE' ? 0 : 1)
+      setShowNextButton(true)
     }
   }, [])
 
   const handleOnSelect = (index) => {
     // let valueConvert = value ? '_VALUE_TRUE' : '_VALUE_FALSE'
+    setShowNextButton(false)
     let value = index === 0
     setSelectedValue(index)
     handleGetNextQuestion(question, value)
@@ -56,15 +165,34 @@ const RenderBooleanC = ({ question, handleGetNextQuestion, initialValues }) => {
           No
         </Radio>
       </RadioGroup>
+
+      {showNextButton && (
+        <Button
+          onPress={() => {
+            setShowNextButton(false)
+            handleOnSelect(selectedValue)
+          }}
+          type={'primary'}
+          style={{ marginTop: 5, width: '100%' }}
+        >
+          Next
+        </Button>
+      )}
     </View>
   )
 }
 
-const RenderRadioC = ({ question, handleGetNextQuestion, initialValues }) => {
-  const { values } = question
+const RenderRadioC = ({
+  question,
+  handleGetNextQuestion,
+  initialValues,
+  metaData,
+}) => {
+  const { values, displayValuesOnCondition, defaultSelectedValue } = question
   const [selectedValue, setSelectedValue] = useState()
   const [showInput, setShowInput] = useState(false)
   const [inputText, setInputText] = useState()
+  const [showNextButton, setShowNextButton] = useState(false)
 
   useEffect(() => {
     let questionKey = question.key
@@ -77,13 +205,18 @@ const RenderRadioC = ({ question, handleGetNextQuestion, initialValues }) => {
         setInputText(initialValue)
       }
       setSelectedValue(indexValue)
+      setShowNextButton(false)
       handleGetNextQuestion(question, initialValue)
+    } else if (defaultSelectedValue) {
+      let indexValue = values.indexOf(defaultSelectedValue)
+      setSelectedValue(indexValue)
+      setShowNextButton(true)
     }
   }, [])
 
   const handleOnSelect = (index) => {
     const selectedValue = values[index]
-
+    setShowNextButton(false)
     if (selectedValue === 'OTHER_SPECIFY') {
       setShowInput(true)
       setSelectedValue(index)
@@ -98,23 +231,72 @@ const RenderRadioC = ({ question, handleGetNextQuestion, initialValues }) => {
     handleGetNextQuestion(question, inputText)
   }
 
+  const questions = useSelector(({ questions }) => questions.questions)
+  const responseDict = useSelector(({ survey }) => survey.response_dict)
+
+  const valueExistsInDisplayValuesOnCondition = (value) => {
+    if (displayValuesOnCondition?.length >= 1) {
+      const condition = displayValuesOnCondition.find(
+        (item) => item.value === value
+      )
+      if (condition) {
+        return condition
+      }
+      return false
+    }
+    return false
+  }
+
   return (
     <View>
       <RadioGroup selectedIndex={selectedValue} onChange={handleOnSelect}>
-        {values.map((value) => (
-          <Radio style={styles.radio} key={value}>
-            <TextNunitoSans
-              text={
-                value === 'OTHER_SPECIFY'
-                  ? 'Other (please specify)'
-                  : value[0].toUpperCase() +
-                    value.slice(1).replace(/_/g, ' ').toLowerCase()
-              }
-              fontFamily={FONTS.NunitoSans_400Regular}
-              toCapitalise
-            />
-          </Radio>
-        ))}
+        {values.map((value) => {
+          //DVOC = displayValuesOnCondition
+          const valueInDVOC = valueExistsInDisplayValuesOnCondition(value)
+          if (valueInDVOC) {
+            const { condition, value } = valueInDVOC
+            let evaluate = evaluateCondition(
+              condition,
+              questions,
+              responseDict,
+              metaData
+            )
+            console.log(evaluate, valueInDVOC, value)
+            if (evaluate) {
+              return (
+                <Radio style={styles.radio} key={value}>
+                  <TextNunitoSans
+                    text={
+                      value === 'OTHER_SPECIFY'
+                        ? 'Other (please specify)'
+                        : value[0].toUpperCase() +
+                          value.slice(1).replace(/_/g, ' ').toLowerCase()
+                    }
+                    fontFamily={FONTS.NunitoSans_400Regular}
+                    toCapitalise
+                  />
+                </Radio>
+              )
+            } else {
+              return <View key={value} style={{ marginTop: -10 }} />
+            }
+          } else {
+            return (
+              <Radio style={styles.radio} key={value}>
+                <TextNunitoSans
+                  text={
+                    value === 'OTHER_SPECIFY'
+                      ? 'Other (please specify)'
+                      : value[0].toUpperCase() +
+                        value.slice(1).replace(/_/g, ' ').toLowerCase()
+                  }
+                  fontFamily={FONTS.NunitoSans_400Regular}
+                  toCapitalise
+                />
+              </Radio>
+            )
+          }
+        })}
       </RadioGroup>
 
       {showInput && (
@@ -134,6 +316,19 @@ const RenderRadioC = ({ question, handleGetNextQuestion, initialValues }) => {
             Next
           </Button>
         </>
+      )}
+
+      {showNextButton && (
+        <Button
+          onPress={() => {
+            setShowNextButton(false)
+            handleOnSelect(selectedValue)
+          }}
+          type={'primary'}
+          style={{ marginTop: 5 }}
+        >
+          Next
+        </Button>
       )}
     </View>
   )
@@ -460,7 +655,7 @@ const RenderCheckboxC = ({
   }
 
   const handleOnSelect = (value) => {
-    let values = []
+    let values
     if (selectedValue.includes(value)) {
       let filteredValues = selectedValue.filter((item) => item !== value)
       values = filteredValues
