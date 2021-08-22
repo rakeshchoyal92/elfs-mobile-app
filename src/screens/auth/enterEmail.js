@@ -9,7 +9,7 @@ import { SCREENS } from '@constants/strings'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const EnterEmailScreen = ({ generatePassword, navigation, loading }) => {
-  const [email, setEmail] = useState()
+  const [email, setEmail] = useState('')
   const [responseFromServer, setResponseFromServer] = useState(null)
 
   return (
@@ -33,9 +33,9 @@ const EnterEmailScreen = ({ generatePassword, navigation, loading }) => {
 
         <View>
           <Input
-            placeholder="Type your Email or Mobile No."
+            placeholder="Type your Email Id"
             value={email}
-            label="Email ID or Mobile No"
+            label="Email Id"
             // disabled={responseFromServer}
             style={{ marginVertical: 15 }}
             onChangeText={(nextValue) => setEmail(nextValue)}
@@ -54,13 +54,22 @@ const EnterEmailScreen = ({ generatePassword, navigation, loading }) => {
                     emailOrMobile: email,
                   })
                 })
-                .catch((err) => setResponseFromServer(null))
+                .catch((err) => setResponseFromServer('ERROR'))
             }}
-            disabled={loading.generatePassword}
+            disabled={loading.generatePassword || email === ''}
             accessoryLeft={loading.generatePassword && LoadingIndicator}
           >
             SUBMIT
           </Button>
+
+          {responseFromServer === 'ERROR' && (
+            <TextNunitoSans
+              text={
+                'We could not find your email in our server. Please contact admin'
+              }
+              style={{ color: 'red', textAlign: 'center', marginTop: 10 }}
+            />
+          )}
         </View>
       </KeyboardAwareScrollView>
     </AppLayout>

@@ -3,7 +3,7 @@ import { ScrollView, View, RefreshControl } from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
 import { connect } from 'react-redux'
 import { clearResponses, getSurveys } from '@actions/survey.actions'
-import { Divider, Icon, List, ListItem } from '@ui-kitten/components'
+import { Divider, Icon, List, ListItem, Text } from '@ui-kitten/components'
 import { getUserDetails } from '@actions/misc.actions'
 import AppLayout from '@components/layout'
 import { TextNunitoSans } from '@components/common'
@@ -126,7 +126,7 @@ const SurveyContainer = ({
                   <Icon
                     name={'award-outline'}
                     style={{ width: 25, height: 25, marginRight: 7 }}
-                    fill="black"
+                    fill="orange"
                   />
                   <TransText
                     style={{ paddingVertical: 10 }}
@@ -153,7 +153,7 @@ const SurveyContainer = ({
                   <Icon
                     name={'alert-triangle-outline'}
                     style={{ width: 25, height: 25, marginRight: 7 }}
-                    fill="black"
+                    fill="red"
                   />
                   <TransText
                     style={{ paddingVertical: 10 }}
@@ -183,7 +183,7 @@ const SurveyContainer = ({
                   <Icon
                     name={'checkmark-square-outline'}
                     style={{ width: 25, height: 25, marginRight: 7 }}
-                    fill="black"
+                    fill="green"
                   />
                   <TransText
                     style={{ paddingVertical: 10 }}

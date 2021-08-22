@@ -17,9 +17,14 @@ import { MomentDateService } from '@ui-kitten/moment'
 import { VARIABLE_MATCHING_STRATEGY, VALUES_SELECTED } from '@constants/strings'
 import { isNumeric } from '@utils/misc'
 import { useSelector } from 'react-redux'
-import { questionsSelector } from '@store/selectors/questions'
 
 const dateService = new MomentDateService('en-AU')
+moment.updateLocale('en-AU', {
+  longDateFormat: {
+    L: 'DD/MM/YYYY',
+    l: 'D/M/YYYY',
+  },
+})
 
 const evaluateCondition = (key, questions, responseDict, metaData) => {
   /**
@@ -155,14 +160,14 @@ const RenderBooleanC = ({ question, handleGetNextQuestion, initialValues }) => {
     <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
       <RadioGroup
         onChange={handleOnSelect}
-        style={{ width: '100%', fontSize: 20 }}
+        style={{ width: '100%', fontSize: 30 }}
         selectedIndex={selectedValue}
       >
         <Radio status={'primary'} value={true}>
-          Yes
+          <TextNunitoSans text={'Yes'} style={{ fontSize: 18 }} />
         </Radio>
         <Radio status={'danger'} value={false}>
-          No
+          <TextNunitoSans text={'No'} style={{ fontSize: 18 }} />
         </Radio>
       </RadioGroup>
 
@@ -261,11 +266,11 @@ const RenderRadioC = ({
               responseDict,
               metaData
             )
-            console.log(evaluate, valueInDVOC, value)
             if (evaluate) {
               return (
                 <Radio style={styles.radio} key={value}>
                   <TextNunitoSans
+                    style={{ fontSize: 18 }}
                     text={
                       value === 'OTHER_SPECIFY'
                         ? 'Other (please specify)'
@@ -595,6 +600,8 @@ const RenderDateC = ({
         // max={question.key === 'first_day_last_period' && moment()}
         min={minDate}
         max={maxDate}
+        dateFormat="DD-MM-YYYY"
+        format={'DD-MM-YYYY'}
       />
 
       {displayNextBtn && (
@@ -685,6 +692,7 @@ const RenderCheckboxC = ({
             text={value}
             fontFamily={FONTS.NunitoSans_400Regular}
             toCapitalise
+            style={{ fontSize: 18 }}
           />
         </CheckBox>
       ))}
@@ -728,7 +736,7 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
       </View>
 
       {caption?.type && caption?.value && (
-        <View>
+        <View style={{ borderRadius: 10 }}>
           {caption.type === 'META_DATA' && metaData[caption.value] && (
             <TextNunitoSans
               text={`${
@@ -739,8 +747,8 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
               style={{
                 fontSize: 16,
                 padding: 8,
-                backgroundColor: '#e0dcdc',
-                borderRadius: 5,
+                backgroundColor: '#777',
+                color: 'white',
                 marginTop: 5,
               }}
             />
@@ -753,8 +761,8 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
               style={{
                 fontSize: 14,
                 padding: 8,
-                backgroundColor: '#e0dcdc',
-                borderRadius: 5,
+                backgroundColor: '#777',
+                color: 'white',
               }}
             />
           )}
@@ -806,6 +814,15 @@ const RenderEndOfQuestionC = ({ text }) => {
         <TextNunitoSans
           text={text}
           style={{ fontSize: 18, padding: 5, textAlign: 'center' }}
+        />
+        <TextNunitoSans
+          text="Please review your responses before submitting survey"
+          style={{
+            fontSize: 20,
+            padding: 5,
+            textAlign: 'center',
+            color: 'red',
+          }}
         />
       </View>
     </Layout>

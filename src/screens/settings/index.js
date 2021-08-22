@@ -191,9 +191,10 @@ function SettingsContainer({
         </View>
 
         {userDetails && (
-          <View style={{ marginVertical: 20 }}>
-            <Heading text="User Details" category="h4" />
+          <View style={{ marginVertical: 20, flexGrow: 2 }}>
+            <Heading text="User Details" category="h5" />
             <List
+              style={{ maxHeight: 294 }}
               data={userDetails}
               ItemSeparatorComponent={Divider}
               renderItem={renderItem}

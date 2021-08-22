@@ -5,7 +5,7 @@ import moment from 'moment'
 
 const initialState = {
   language: 'en',
-  theme: 'light',
+  theme: 'dark',
   userDetailsArray: null,
   userDetails: null,
 }
