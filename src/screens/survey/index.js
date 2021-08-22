@@ -78,6 +78,7 @@ const SurveyContainer = ({
           })
         } else if (item.status === 'NEEDS_UPDATE') {
           resetSurveyQuestions()
+          // clearResponses()
           navigation.navigate(SCREENS.SURVEY_FILL, {
             // draft: true,
             surveyId: item.uuid,

@@ -171,7 +171,11 @@ const SurveyReview = ({
         >
           <Button
             style={{ width: '33%' }}
-            onPress={() => navigation.navigate(SCREENS.SURVEY_FILL)}
+            onPress={() =>
+              navigation.navigate(SCREENS.SURVEY_FILL, {
+                amendResponse: true,
+              })
+            }
             status={'info'}
             size={'small'}
             disabled={formSaving}

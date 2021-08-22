@@ -17,7 +17,6 @@ import {
   TUNNEL,
 } from '@constants/strings'
 import {
-  clearResponses,
   getASurvey,
   getMetaData,
   setASurveyResponse,
@@ -79,7 +78,7 @@ const RenderQuestion = React.memo(
       onInitialValueGoToAutoNext: true,
       metaData,
     }
-
+    console.log({ updateResponse, initialValues })
     return (
       <Animatable.View
         style={{ paddingTop: 1, paddingBottom: 40 }}
@@ -161,12 +160,12 @@ const SurveyFill = (props) => {
     getASurvey,
     responseDict,
     responseFromServer,
-    clearResponses,
     getMetaData,
     // metaData,
     // initialValues = props.route?.params?.draft ? props.responseDict : {},
     updateResponse = props.route?.params?.updateResponse,
     isInitialSurvey = props.route?.params?.isInitialSurvey,
+    amendResponse = props.route?.params?.amendResponse,
     // initialValues = props.responseDict ? props.responseDict : {},
   } = props
 
@@ -190,10 +189,6 @@ const SurveyFill = (props) => {
     return unsubscribe
   }, [navigation])
 
-  useEffect(() => {
-    initialise()
-  }, [getQuestions])
-
   function initialise() {
     setFetchingMetaData(true)
 
@@ -215,13 +210,6 @@ const SurveyFill = (props) => {
         })
         .catch(() => setLoadingResponse(false))
     }
-
-    if (props.route?.params?.draft) {
-      setInitialValue(responseDict)
-    }
-
-    // Clear survey responses if any present
-    clearResponses()
   }
 
   /**
@@ -234,7 +222,7 @@ const SurveyFill = (props) => {
         .reduce((acc, item) => {
           return acc + item
         }, 0)
-      if (!props.route?.params?.draft) {
+      if (!amendResponse) {
         listViewRef.current.scrollTo({ y: newOffset, animate: false })
       }
     }
@@ -536,13 +524,13 @@ const SurveyFill = (props) => {
 
   const questionProps = {
     handleGetNextQuestion,
-    initialValues,
+    initialValues: updateResponse ? initialValues : responseDict,
     setASurveyResponse,
     onInitialValueGoToAutoNext: true,
     setCurrentQuestionIndex,
     setHeights,
     navigation,
-    updateResponse,
+    updateResponse: updateResponse || amendResponse,
     surveyId,
     metaData,
   }
@@ -555,7 +543,7 @@ const SurveyFill = (props) => {
       <AppLayout
         navigation={navigation}
         title={
-          route?.params?.draft || route?.params.updateResponse
+          route?.params?.amendResponse || route?.params.updateResponse
             ? 'Update Survey'
             : 'New Survey'
         }
@@ -610,7 +598,6 @@ const mapDispatchToProps = {
   setMetaData,
   getASurvey,
   getMetaData,
-  clearResponses,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SurveyFill)
