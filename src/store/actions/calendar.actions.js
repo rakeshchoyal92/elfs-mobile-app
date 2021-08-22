@@ -71,17 +71,15 @@ export const updateAParameter = (date, values) => (dispatch) => {
     date: dateFormatted,
     ...values,
   }
-  console.log('START')
+
   return dispatch({
     type: SET_PARAMETER_DATA,
     async payload() {
-      console.log('ONE')
       let res = await updateParameter(data)
-      console.log('TWO')
+
       return res
     },
   }).then((data) => {
-    console.log('THREE')
     return dispatch({
       type: UPDATE_CALENDAR_MARKING,
       payload: {

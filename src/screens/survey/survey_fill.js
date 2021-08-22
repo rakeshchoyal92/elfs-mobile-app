@@ -78,7 +78,6 @@ const RenderQuestion = React.memo(
       onInitialValueGoToAutoNext: true,
       metaData,
     }
-    console.log({ updateResponse, initialValues })
     return (
       <Animatable.View
         style={{ paddingTop: 1, paddingBottom: 40 }}
@@ -222,9 +221,8 @@ const SurveyFill = (props) => {
         .reduce((acc, item) => {
           return acc + item
         }, 0)
-      if (!amendResponse) {
-        listViewRef.current.scrollTo({ y: newOffset, animate: false })
-      }
+      if (amendResponse || updateResponse) {
+      } else listViewRef.current.scrollTo({ y: newOffset, animate: false })
     }
   }, [viewHeights])
 
@@ -359,7 +357,6 @@ const SurveyFill = (props) => {
 
     if (type === 'SINGLE') {
       let conditionEvaluated = evaluate(conditions[0])
-      console.log('SINGLE', condition.key, conditionEvaluated)
       if (conditionEvaluated) {
         let nextQuestionKey = conditionalNext.goToOnTrue
         let goToOnTrue = conditionalNext.goToOnTrue
@@ -410,7 +407,6 @@ const SurveyFill = (props) => {
       result = eval(resultExpression)
       let goToOnTrue = conditionalNext.goToOnTrue
       let goToOnFalse = conditionalNext.goToOnFalse
-      console.log('MULTI', condition.key, result)
       if (result) {
         if (goToOnTrue.startsWith('c_')) {
           return evaluateCondition(goToOnTrue)

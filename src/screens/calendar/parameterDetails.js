@@ -11,7 +11,6 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons'
 
 function ParameterDetail({ data }) {
   const extractParamInfo = (key, response) => {
-    console.log({ key, response })
     const item = paramData.find((item) => item.key === key)
     const { title, shortTitle, color, data = [] } = item
     let responseVal = data.find((item) => item.key === response)

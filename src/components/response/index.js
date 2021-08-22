@@ -377,9 +377,9 @@ const RenderTextInputC = ({
 
     if (initialValues[questionKey]) {
       setValue(initialValues[questionKey])
-      // if (onInitialValueGoToAutoNext) {
-      //   handleGetNextQuestion(question, initialValues[questionKey])
-      // }
+      if (onInitialValueGoToAutoNext) {
+        handleGetNextQuestion(question, initialValues[questionKey])
+      }
     }
     if (preFill?.key) {
       let initialValue = metaData[preFill.key]
@@ -433,17 +433,17 @@ const RenderNumberInputC = ({
   onInitialValueGoToAutoNext,
   metaData,
 }) => {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState()
   const { preFill } = question
 
   useEffect(() => {
     let questionKey = question.key
     let initialValue = initialValues[questionKey]
     if (initialValue) {
-      setValue(initialValue)
-      // if (onInitialValueGoToAutoNext) {
-      //   handleGetNextQuestion(question, initialValue)
-      // }
+      setValue(initialValue.toString())
+      if (onInitialValueGoToAutoNext) {
+        handleGetNextQuestion(question, initialValue)
+      }
     }
     if (preFill?.key) {
       initialValue = metaData[preFill.key]

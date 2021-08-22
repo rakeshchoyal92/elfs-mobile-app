@@ -81,6 +81,9 @@ const Navigations = ({ userBio, theme }) => {
           borderTopColor: '#777',
           activeBackgroundColor: 'black',
           inactiveBackgroundColor: 'black',
+          style: {
+            backgroundColor: 'black',
+          },
         }
       : {
           activeTintColor: 'tomato',
@@ -89,6 +92,9 @@ const Navigations = ({ userBio, theme }) => {
           borderTopColor: '#777',
           activeBackgroundColor: 'white',
           inactiveBackgroundColor: 'white',
+          style: {
+            backgroundColor: 'white',
+          },
         }
 
   const Stack = createStackNavigator()

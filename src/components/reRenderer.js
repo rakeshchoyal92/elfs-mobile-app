@@ -11,7 +11,6 @@ export default function ReRenderer({ interval, children }) {
       setTimer(new Date())
     }, 100)
 
-    console.log('rerender')
     return () => clearInterval(interval)
   }, [])
 

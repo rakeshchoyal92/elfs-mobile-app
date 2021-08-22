@@ -37,10 +37,8 @@ function reducer(state = initialState, action) {
       const { date, param, values } = action.payload
       state.parameters[date] = param
       state.selectedParameterWithValues = { date, values }
-      console.log(state.values)
       const modValues = state.values.map((item) => {
         if (item.values.uuid === values.uuid) {
-          console.log('HERE MATCH')
           return {
             date,
             values,

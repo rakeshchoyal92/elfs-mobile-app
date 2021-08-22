@@ -46,7 +46,6 @@ export default function AddParameterScrollView({
 
   const renderRadio = (data, key) => {
     const handleSelect = (value) => {
-      console.log({ value, selectedValues })
       if (selectedValues?.[key] === value) {
         setSelectedValues((prevState) => ({ ...prevState, [key]: null }))
       } else {
