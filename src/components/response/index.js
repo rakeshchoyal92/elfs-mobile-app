@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FONTS } from '@constants/strings'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native'
 import {
   Button,
   CheckBox,
@@ -17,6 +17,7 @@ import { MomentDateService } from '@ui-kitten/moment'
 import { VARIABLE_MATCHING_STRATEGY, VALUES_SELECTED } from '@constants/strings'
 import { isNumeric } from '@utils/misc'
 import { useSelector } from 'react-redux'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const dateService = new MomentDateService('en-AU')
 moment.updateLocale('en-AU', {
@@ -433,8 +434,8 @@ const RenderNumberInputC = ({
   onInitialValueGoToAutoNext,
   metaData,
 }) => {
-  const [value, setValue] = useState()
-  const { preFill } = question
+  const [value, setValue] = useState('')
+  const { preFill, optionalSkipText } = question
 
   useEffect(() => {
     let questionKey = question.key
@@ -472,8 +473,20 @@ const RenderNumberInputC = ({
         disabled={value === ''}
         type="primary"
       >
-        Next
+        <TextNunitoSans text={'Next'} />
       </Button>
+
+      {!value && optionalSkipText && (
+        <Button
+          onPress={() => {
+            handleGetNextQuestion(question, '_VALUE_ANY')
+          }}
+          style={{ marginTop: 10 }}
+          status={'danger'}
+        >
+          {optionalSkipText}
+        </Button>
+      )}
     </>
   )
 }

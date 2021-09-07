@@ -70,7 +70,7 @@ function RenderResponse({ response }) {
     }
     return (
       <TextNunitoSans
-        text={response}
+        text={response === '_VALUE_ANY' ? '' : response}
         fontFamily={FONTS.NunitoSans_400Regular}
         style={{ marginBottom: 5 }}
       />

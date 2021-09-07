@@ -159,7 +159,11 @@ function SettingsContainer({
   return (
     <AppLayout navigation={navigation} showTopBar title="Settings">
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'space-between',
+          paddingBottom: 50,
+        }}
       >
         <View>
           {/*<View*/}

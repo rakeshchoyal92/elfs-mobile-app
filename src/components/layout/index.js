@@ -1,9 +1,10 @@
 import React from 'react'
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context'
-import { Platform, ScrollView, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native'
 import { TopBarComponent } from '@components/layout/topBar'
 import { useNavigationState } from '@react-navigation/native'
 import { Layout } from '@ui-kitten/components'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 export default function AppLayout({
   navigation,
@@ -61,7 +62,13 @@ export default function AppLayout({
                 // alignItems: Platform.OS === 'web' && 'center',
               }}
             >
-              {children}
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'android' && 150}
+              >
+                {children}
+              </KeyboardAvoidingView>
             </View>
           )}
         </Layout>

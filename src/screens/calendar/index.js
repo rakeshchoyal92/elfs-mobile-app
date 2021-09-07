@@ -36,7 +36,10 @@ const CalendarsScreen = ({
 
   return (
     <AppLayout navigation={navigation} showTopBar={true} title={'Calendar'}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {/*<TransText*/}
         {/*  translateKey={'calendar'}*/}
         {/*  category={'h4'}*/}

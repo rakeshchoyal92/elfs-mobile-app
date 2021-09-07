@@ -1,11 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import {
-  View,
-  Platform,
-  ScrollView,
-  KeyboardAvoidingView,
-  Alert,
-} from 'react-native'
+import { View, ScrollView, Platform, KeyboardAvoidingView } from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
 import { connect, useSelector } from 'react-redux'
 import { addQuestionToSurvey, getQuestions } from '@actions/questions.actions'
@@ -40,6 +34,7 @@ import AppLayout from '@components/layout'
 import { LoadingIndicator, TextNunitoSans } from '@components/common'
 import { ErrorBoundary } from 'react-error-boundary'
 import { isNumeric } from '@utils/misc'
+import { useHeaderHeight } from '@react-navigation/stack'
 
 const TESTING = false
 
@@ -168,6 +163,8 @@ const SurveyFill = (props) => {
     // initialValues = props.responseDict ? props.responseDict : {},
   } = props
 
+  const headerHeight = useHeaderHeight()
+  console.log({ headerHeight })
   const { surveyId } = route.params
   const [nextSurveyKey, setNextSurveyKey] = useState()
   const [tunnelInfo, setTunnelInfo] = useState()
@@ -532,47 +529,42 @@ const SurveyFill = (props) => {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
+    <AppLayout
+      navigation={navigation}
+      title={
+        route?.params?.amendResponse || route?.params.updateResponse
+          ? 'Update Survey'
+          : 'New Survey'
+      }
     >
-      <AppLayout
-        navigation={navigation}
-        title={
-          route?.params?.amendResponse || route?.params.updateResponse
-            ? 'Update Survey'
-            : 'New Survey'
-        }
-      >
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          {loadingResponse && <LoadingIndicator />}
-          {fetchingMetaData && <LoadingIndicator />}
-          {surveyQuestions?.length >= 1 &&
-            metaData &&
-            !loadingResponse &&
-            !fetchingMetaData && (
-              <ScrollView
-                style={{ paddingVertical: 20 }}
-                ref={listViewRef}
-                scrollToOverflowEnabled
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 150 }}
-              >
-                {surveyQuestions.map((question, index) => {
-                  return (
-                    <RenderQuestion
-                      key={question.key}
-                      {...questionProps}
-                      index={index}
-                      question={question}
-                    />
-                  )
-                })}
-              </ScrollView>
-            )}
-        </ErrorBoundary>
-      </AppLayout>
-    </KeyboardAvoidingView>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        {loadingResponse && <LoadingIndicator />}
+        {fetchingMetaData && <LoadingIndicator />}
+        {surveyQuestions?.length >= 1 &&
+          metaData &&
+          !loadingResponse &&
+          !fetchingMetaData && (
+            <ScrollView
+              style={{ paddingVertical: 20 }}
+              ref={listViewRef}
+              scrollToOverflowEnabled
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 150 }}
+            >
+              {surveyQuestions.map((question, index) => {
+                return (
+                  <RenderQuestion
+                    key={question.key}
+                    {...questionProps}
+                    index={index}
+                    question={question}
+                  />
+                )
+              })}
+            </ScrollView>
+          )}
+      </ErrorBoundary>
+    </AppLayout>
   )
 }
 

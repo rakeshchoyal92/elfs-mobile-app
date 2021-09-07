@@ -52,6 +52,7 @@ import { StatusBar } from 'expo-status-bar'
 import * as ScreenOrientation from 'expo-screen-orientation'
 import { TextNunitoSans } from '@components/common'
 import { ErrorBoundary } from 'react-error-boundary'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 if (Platform.OS !== 'web') {
   LogBox.ignoreAllLogs() //Ignore all log notifications
