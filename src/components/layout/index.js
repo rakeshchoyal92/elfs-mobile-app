@@ -63,9 +63,9 @@ export default function AppLayout({
               }}
             >
               <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={Platform.OS === 'ios' ? 'height' : 'height'}
                 style={{ flex: 1 }}
-                keyboardVerticalOffset={Platform.OS === 'android' && 150}
+                keyboardVerticalOffset={60}
               >
                 {children}
               </KeyboardAvoidingView>

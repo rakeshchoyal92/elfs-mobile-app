@@ -41,6 +41,15 @@ const SurveyContainer = ({
   getUserDetails,
   userDetails,
 }) => {
+  const [refreshing, setRefreshing] = useState(false)
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      getSurveys()
+    }, 1000 * 60) // in milliseconds
+    return () => clearInterval(intervalId)
+  }, [])
+
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getSurveys()
@@ -49,8 +58,6 @@ const SurveyContainer = ({
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe
   }, [navigation])
-
-  const [refreshing, setRefreshing] = useState(false)
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true)

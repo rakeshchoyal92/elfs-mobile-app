@@ -15,6 +15,8 @@ import {
   ApplicationProvider,
   Layout,
   IconRegistry,
+  Text,
+  Button,
 } from '@ui-kitten/components'
 import useCachedResources from '@src/hooks/useCachedResources'
 import { EvaIconsPack } from '@ui-kitten/eva-icons'
@@ -51,14 +53,38 @@ import './lang/i18n'
 import { StatusBar } from 'expo-status-bar'
 import * as ScreenOrientation from 'expo-screen-orientation'
 import { TextNunitoSans } from '@components/common'
-import { ErrorBoundary } from 'react-error-boundary'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import ErrorBoundary from 'react-native-error-boundary'
 
 if (Platform.OS !== 'web') {
   LogBox.ignoreAllLogs() //Ignore all log notifications
 }
 
 const store = configureStore()
+
+const CustomFallback = ({ error, resetError }) => (
+  <View
+    style={{
+      flex: 1,
+      justifyContent: 'center',
+      alignContent: 'center',
+      alignItems: 'center',
+      margin: 10,
+    }}
+  >
+    <TextNunitoSans
+      text="Error! Please contact admin"
+      style={{ paddingVertical: 10, color: 'black' }}
+    />
+    <TextNunitoSans
+      style={{ paddingVertical: 10, color: 'black' }}
+      text={error.toString()}
+    />
+    <Button onPress={resetError} status={'danger'}>
+      Retry
+    </Button>
+  </View>
+)
 
 const LayoutWrapper = () => {
   const theme = useSelector(({ misc }) => misc.theme)
@@ -83,17 +109,6 @@ const AppWrapper = () => {
   const language = useSelector(({ misc }) => misc.language)
   const theme = useSelector(({ misc }) => misc.theme)
 
-  function ErrorFallback({ error, resetErrorBoundary }) {
-    return (
-      <View role="alert">
-        <TextNunitoSans>
-          Something went wrong. Please contact your Admin:
-        </TextNunitoSans>
-        <pre>{error.message}</pre>
-      </View>
-    )
-  }
-
   useEffect(() => {
     const RNDir = RNI18nManager.isRTL ? 'RTL' : 'LTR'
 
@@ -115,8 +130,8 @@ const AppWrapper = () => {
   return (
     <ApplicationProvider {...eva} theme={{ ...eva[theme], ...customTheme }}>
       <SafeAreaProvider>
-        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary FallbackComponent={CustomFallback}>
+          <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
           <NavigationContainer linking={{ enabled: true }}>
             <LayoutWrapper />
           </NavigationContainer>

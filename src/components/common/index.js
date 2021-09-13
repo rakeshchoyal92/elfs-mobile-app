@@ -2,6 +2,12 @@ import { Spinner, Text } from '@ui-kitten/components'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
+import {
+  responsiveHeight,
+  responsiveWidth,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions'
+
 export function TextNunitoSans({
   text,
   style,
@@ -14,12 +20,13 @@ export function TextNunitoSans({
 
   return (
     <Text
-      adjustsFontSizeToFit
-      allowFontScaling
+      // adjustsFontSizeToFit
+      // allowFontScaling
       category={category || 'label'}
       style={{
         fontFamily: fontFamily,
-        fontSize: 16,
+        // fontSize: 16,
+        fontSize: responsiveFontSize(2) > 16 ? 16 : responsiveFontSize(2),
         textAlign: 'left',
         // writingDirection: 'rtl',
         ...style,

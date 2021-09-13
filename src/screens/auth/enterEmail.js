@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import AppLayout from '@components/layout'
-import { ScrollView, Text, View } from 'react-native'
+import { ScrollView, Image, View } from 'react-native'
 import { connect } from 'react-redux'
 import { Button, Icon, Input, Layout } from '@ui-kitten/components'
 import { LoadingIndicator, TextNunitoSans } from '@components/common'
@@ -24,10 +24,9 @@ const EnterEmailScreen = ({ generatePassword, navigation, loading }) => {
         }}
       >
         <View style={{ alignItems: 'center' }}>
-          <Icon
-            fill="green"
-            name="log-in-outline"
-            style={{ width: 150, height: 150 }}
+          <Image
+            style={{ width: 150, height: 150, resizeMode: 'contain' }}
+            source={require('../../../assets/images/logo_white.png')}
           />
         </View>
 

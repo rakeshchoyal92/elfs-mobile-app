@@ -38,17 +38,6 @@ import { useHeaderHeight } from '@react-navigation/stack'
 
 const TESTING = false
 
-function ErrorFallback({ error, resetErrorBoundary }) {
-  return (
-    <View role="alert">
-      <TextNunitoSans>
-        Something went wrong. Please contact your Admin:
-      </TextNunitoSans>
-      <pre>{error.message}</pre>
-    </View>
-  )
-}
-
 const RenderQuestion = React.memo(
   ({
     question,
@@ -537,33 +526,31 @@ const SurveyFill = (props) => {
           : 'New Survey'
       }
     >
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        {loadingResponse && <LoadingIndicator />}
-        {fetchingMetaData && <LoadingIndicator />}
-        {surveyQuestions?.length >= 1 &&
-          metaData &&
-          !loadingResponse &&
-          !fetchingMetaData && (
-            <ScrollView
-              style={{ paddingVertical: 20 }}
-              ref={listViewRef}
-              scrollToOverflowEnabled
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 150 }}
-            >
-              {surveyQuestions.map((question, index) => {
-                return (
-                  <RenderQuestion
-                    key={question.key}
-                    {...questionProps}
-                    index={index}
-                    question={question}
-                  />
-                )
-              })}
-            </ScrollView>
-          )}
-      </ErrorBoundary>
+      {loadingResponse && <LoadingIndicator />}
+      {fetchingMetaData && <LoadingIndicator />}
+      {surveyQuestions?.length >= 1 &&
+        metaData &&
+        !loadingResponse &&
+        !fetchingMetaData && (
+          <ScrollView
+            style={{ paddingVertical: 20 }}
+            ref={listViewRef}
+            scrollToOverflowEnabled
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 150 }}
+          >
+            {surveyQuestions.map((question, index) => {
+              return (
+                <RenderQuestion
+                  key={question.key}
+                  {...questionProps}
+                  index={index}
+                  question={question}
+                />
+              )
+            })}
+          </ScrollView>
+        )}
     </AppLayout>
   )
 }

@@ -29,7 +29,9 @@ function CalendarContainer({
           setSelectedDay(day)
         }}
         renderArrow={(direction) => (
-          <Text category={'h4'}> {direction === 'left' ? '<' : '>'} </Text>
+          <Text category={'h6'} style={{ color: 'black', fontSize: 26 }}>
+            {direction === 'left' ? '<' : '>'}
+          </Text>
         )}
         theme={{
           textDayFontFamily: FONTS.NunitoSans_400Regular,

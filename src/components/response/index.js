@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { FONTS } from '@constants/strings'
-import { View, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Platform,
+  KeyboardAvoidingView,
+} from 'react-native'
 import {
   Button,
   CheckBox,
   Datepicker,
   Input,
   Layout,
+  NativeDateService,
   Radio,
   RadioGroup,
 } from '@ui-kitten/components'
@@ -19,13 +26,15 @@ import { isNumeric } from '@utils/misc'
 import { useSelector } from 'react-redux'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
-const dateService = new MomentDateService('en-AU')
-moment.updateLocale('en-AU', {
-  longDateFormat: {
-    L: 'DD/MM/YYYY',
-    l: 'D/M/YYYY',
-  },
-})
+// const dateService = new MomentDateService('en-AU')
+// moment.updateLocale('en-AU', {
+//   longDateFormat: {
+//     L: 'DD/MM/YYYY',
+//     l: 'D/M/YYYY',
+//   },
+// })
+
+const formatDateService = new NativeDateService('en', { format: 'DD/MM/YYYY' })
 
 const evaluateCondition = (key, questions, responseDict, metaData) => {
   /**
@@ -402,7 +411,6 @@ const RenderTextInputC = ({
         onEndEditing={() => handleGetNextQuestion(question, value)}
         textStyle={{ textAlign: 'left' }}
       />
-
       <Button
         onPress={() => handleGetNextQuestion(question, value)}
         style={{ marginTop: 10 }}
@@ -569,12 +577,13 @@ const RenderDateC = ({
   const [minDate, setMinDate] = useState()
   const [maxDate, setMaxDate] = useState()
   const dateFormat = 'YYYY-MM-DD'
+  const periodCycleType = metaData['period_cycle_type']
 
   useEffect(() => {
     let questionKey = question.key
     if (initialValues[questionKey]) {
       let initDate = moment(initialValues[questionKey], dateFormat)
-      setSelectedValue(initDate)
+      setSelectedValue(new Date(initDate))
       if (onInitialValueGoToAutoNext) {
         handleGetNextQuestion(question, initialValues[questionKey])
       } else {
@@ -582,40 +591,45 @@ const RenderDateC = ({
       }
     }
     if (question.key === 'first_day_last_period') {
-      const minDate = moment(metaData.first_day_last_period, 'DD-MM-YYYY')
       if (metaData.first_day_last_period) {
+        const minDate = moment(
+          metaData.first_day_last_period,
+          'DD-MM-YYYY'
+        ).toDate()
         setMinDate(minDate)
       } else {
-        setMinDate(moment().subtract(1, 'months'))
+        setMinDate(moment().subtract(20, 'months'))
       }
-      setMaxDate(moment())
+      setMaxDate(new Date())
     } else {
-      setMinDate(moment('01-01-1900', 'DD-MM-YYYY'))
-      setMaxDate(moment('01-01-2030', 'DD-MM-YYYY'))
+      setMinDate(moment('01-01-1900', 'DD-MM-YYYY').toDate())
+      setMaxDate(moment('01-01-2030', 'DD-MM-YYYY').toDate())
     }
   }, [])
 
+  console.log({ minDate, maxDate })
   function onChange(date) {
     const dateFormatted = moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD')
     setSelectedValue(date)
     handleGetNextQuestion(question, dateFormatted)
   }
 
+  const datePickerRed = React.useRef()
+
   return (
     <>
-      <Datepicker
-        placeholder="Pick Date"
-        date={selectedValue}
-        dateService={dateService}
-        onSelect={(nextDate) => onChange(nextDate)}
-        //TODO: Uncomment min and max in production
-        // min={question.key === 'first_day_last_period' && minDate}
-        // max={question.key === 'first_day_last_period' && moment()}
-        min={minDate}
-        max={maxDate}
-        dateFormat="DD-MM-YYYY"
-        format={'DD-MM-YYYY'}
-      />
+      <View style={{ flex: 1, display: 'inlineBlock' }}>
+        <Datepicker
+          ref={datePickerRed}
+          placeholder="Pick Date"
+          date={selectedValue}
+          dateService={formatDateService}
+          onSelect={(nextDate) => onChange(nextDate)}
+          min={new Date(minDate)}
+          max={new Date(maxDate)}
+          placement={'bottom'}
+        />
+      </View>
 
       {displayNextBtn && (
         <Button
@@ -638,6 +652,18 @@ const RenderDateC = ({
           status={'danger'}
         >
           {optionalSkipText}
+        </Button>
+      )}
+
+      {periodCycleType === 'OLIGO' && question.key === 'first_day_last_period' && (
+        <Button
+          onPress={() => {
+            handleGetNextQuestion(question, '_VALUE_ANY')
+          }}
+          style={{ marginTop: 10 }}
+          status={'danger'}
+        >
+          Date not changed since last period
         </Button>
       )}
     </>
@@ -744,7 +770,7 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
         <TextNunitoSans
           text={`${index}. ${questionText}`}
           fontFamily={FONTS.NunitoSans_800ExtraBold}
-          style={{ fontSize: 18 }}
+          // style={{ fontSize: 18 }}
         />
       </View>
 
@@ -758,7 +784,7 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
               category={'c1'}
               fontFamily={FONTS.Roboto_400Regular}
               style={{
-                fontSize: 16,
+                // fontSize: 16,
                 padding: 8,
                 backgroundColor: '#777',
                 color: 'white',
@@ -772,7 +798,7 @@ const RenderQuestionTextC = ({ index, question, initialValues, metaData }) => {
               category={'c1'}
               fontFamily={FONTS.Roboto_400Regular}
               style={{
-                fontSize: 14,
+                // fontSize: 14,
                 padding: 8,
                 backgroundColor: '#777',
                 color: 'white',

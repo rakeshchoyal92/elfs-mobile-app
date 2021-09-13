@@ -9,9 +9,9 @@ export default {
       API_HOST: process.env.API_HOST,
     },
     orientation: 'portrait',
-    icon: './assets/icon.png',
+    icon: './assets/images/icon_180x180.png',
     splash: {
-      image: './assets/splash.png',
+      image: './assets/images/splash.png',
       resizeMode: 'contain',
       // backgroundColor: '#ffffff',
     },

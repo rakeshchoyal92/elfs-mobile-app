@@ -17,10 +17,10 @@ const EnterOTPScreen = ({ navigation, route, loginUsingOTP, loading }) => {
       navigation.navigate(SCREENS.AUTH_ENTER_EMAIL)
     }
 
-    //FIXME: REMOVE ON PROD
-    if (route.params.OTP) {
-      setOTP(route.params.OTP)
-    }
+    // //FIXME: REMOVE ON PROD
+    // if (route.params.OTP) {
+    //   setOTP(route.params.OTP)
+    // }
   }, [])
 
   if (!responseFromServer) {
