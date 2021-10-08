@@ -607,7 +607,6 @@ const RenderDateC = ({
     }
   }, [])
 
-  console.log({ minDate, maxDate })
   function onChange(date) {
     const dateFormatted = moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD')
     setSelectedValue(date)

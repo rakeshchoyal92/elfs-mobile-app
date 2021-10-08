@@ -4,7 +4,7 @@ export default {
   expo: {
     name: 'ELFS',
     slug: 'elfs',
-    version: '0.1',
+    version: '1.1',
     extra: {
       API_HOST: process.env.API_HOST,
     },
@@ -20,12 +20,12 @@ export default {
     },
     assetBundlePatterns: ['**/*'],
     ios: {
-      buildNumber: '1',
+      buildNumber: '2',
       bundleIdentifier: 'au.edu.unimelb.eresearch.elfs',
     },
     android: {
       package: 'au.edu.unimelb.eresearch.elfs',
-      versionCode: 1,
+      versionCode: 2,
       permissions: [],
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',

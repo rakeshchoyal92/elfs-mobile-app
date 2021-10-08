@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { View, ScrollView, Platform, KeyboardAvoidingView } from 'react-native'
+import { View, ScrollView } from 'react-native'
 import { questionsSelector } from '@store/selectors/questions'
-import { connect, useSelector } from 'react-redux'
+import { connect } from 'react-redux'
 import { addQuestionToSurvey, getQuestions } from '@actions/questions.actions'
 import {
   RESPONSE_TYPES,
@@ -31,10 +31,8 @@ import { setMetaData } from '@actions/metaData.actions'
 import { Button } from '@ui-kitten/components'
 import * as Animatable from 'react-native-animatable'
 import AppLayout from '@components/layout'
-import { LoadingIndicator, TextNunitoSans } from '@components/common'
-import { ErrorBoundary } from 'react-error-boundary'
+import { LoadingIndicator } from '@components/common'
 import { isNumeric } from '@utils/misc'
-import { useHeaderHeight } from '@react-navigation/stack'
 
 const TESTING = false
 
@@ -129,6 +127,7 @@ const RenderQuestion = React.memo(
   (prevProps, nextProps) => prevProps.question.key === nextProps.question.key
 )
 
+let TUNNEL_INFO = {}
 const SurveyFill = (props) => {
   const {
     questions,
@@ -152,11 +151,8 @@ const SurveyFill = (props) => {
     // initialValues = props.responseDict ? props.responseDict : {},
   } = props
 
-  const headerHeight = useHeaderHeight()
-  console.log({ headerHeight })
   const { surveyId } = route.params
   const [nextSurveyKey, setNextSurveyKey] = useState()
-  const [tunnelInfo, setTunnelInfo] = useState()
   const [viewHeights, setViewHeights] = useState([-10])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState()
   const listViewRef = useRef()
@@ -242,24 +238,27 @@ const SurveyFill = (props) => {
   //   return acc
   // }, {})
 
-  const handleTunnelRouting = (key, type) => {
+  const handleTunnelRouting = (key, type_) => {
     let currentTunnelInfo = getTunnelInfo(key)
-    if (type === TUNNEL.ENTER) {
+    if (type_ === TUNNEL.ENTER) {
       const { startQ } = currentTunnelInfo
+      // setTunnelInfo(currentTunnelInfo)
+      TUNNEL_INFO = currentTunnelInfo
       let nextQ = startQ
       if (nextQ.startsWith('c_')) {
         nextQ = evaluateCondition(nextQ)
       }
-      setTunnelInfo(currentTunnelInfo)
       return nextQ
     } else {
-      if (tunnelInfo.onEnd.startsWith(TUNNEL.STARTS)) {
-        let newTunnelInfo = getTunnelInfo(tunnelInfo.onEnd)
-        setTunnelInfo(newTunnelInfo)
+      if (TUNNEL_INFO.onEnd.startsWith(TUNNEL.STARTS)) {
+        let newTunnelInfo = getTunnelInfo(TUNNEL_INFO.onEnd)
+        // setTunnelInfo(newTunnelInfo)
+        TUNNEL_INFO = newTunnelInfo
         return newTunnelInfo.startQ
       } else {
-        setTunnelInfo(tunnelInfo)
-        return tunnelInfo.onEnd
+        // setTunnelInfo(tunnelInfo)
+        // TUNNEL_INFO = TUNNEL_INFO
+        return TUNNEL_INFO.onEnd
       }
     }
   }
@@ -295,8 +294,6 @@ const SurveyFill = (props) => {
         } else {
           valueObtainedFromServerSurvey = metaData[variable]
         }
-        // console.log('Evaluate', variable, valueObtainedFromServerSurvey)
-        // response: state.survey.response,
 
         switch (matchingStrategy) {
           case VARIABLE_MATCHING_STRATEGY.NULL_NOTNULL: {
@@ -339,9 +336,8 @@ const SurveyFill = (props) => {
     }
 
     let condition = questions.find((question) => question.key === key)
-    const { type, conditions, conditionalNext } = condition
-
-    if (type === 'SINGLE') {
+    const { type: type_, conditions, conditionalNext } = condition
+    if (type_ === 'SINGLE') {
       let conditionEvaluated = evaluate(conditions[0])
       if (conditionEvaluated) {
         let nextQuestionKey = conditionalNext.goToOnTrue
@@ -461,19 +457,21 @@ const SurveyFill = (props) => {
           let isNextCondition = goTo.startsWith('c_')
           let isReturnToTunnel = goTo === TUNNEL.RETURN
           if (isReturnToTunnel) {
-            nextQuestionKey = tunnelInfo.onEnd
+            nextQuestionKey = TUNNEL_INFO.onEnd
             let isNextTunnel = nextQuestionKey.startsWith(TUNNEL.STARTS)
             if (isNextTunnel) {
               let newTunnelInfo = getTunnelInfo(nextQuestionKey)
               nextQuestionKey = newTunnelInfo.startQ
-              setTunnelInfo(newTunnelInfo)
+              // setTunnelInfo(newTunnelInfo)
+              TUNNEL_INFO = newTunnelInfo
             } else {
-              nextQuestionKey = tunnelInfo.onEnd
+              nextQuestionKey = TUNNEL_INFO.onEnd
             }
           } else if (goTo.startsWith(TUNNEL.STARTS)) {
             let newTunnelInfo = getTunnelInfo(goTo)
             nextQuestionKey = newTunnelInfo.startQ
-            setTunnelInfo(newTunnelInfo)
+            // setTunnelInfo(newTunnelInfo)
+            TUNNEL_INFO = newTunnelInfo
           } else if (isNextCondition) {
             if (TESTING) {
               addQuestionToSurvey(key, goTo)

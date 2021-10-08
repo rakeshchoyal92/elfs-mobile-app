@@ -2,11 +2,7 @@ import { Spinner, Text } from '@ui-kitten/components'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
-import {
-  responsiveHeight,
-  responsiveWidth,
-  responsiveFontSize,
-} from 'react-native-responsive-dimensions'
+import { responsiveFontSize } from 'react-native-responsive-dimensions'
 
 export function TextNunitoSans({
   text,
